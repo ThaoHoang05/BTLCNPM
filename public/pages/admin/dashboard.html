@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf8">
+        <title>Dashboard</title>
+        <link rel = "stylesheet" href = "../../css/dashboard-base.css"/>
+    </head>
+    <body>
+        <div class = "side-bar">
+            <div class = "profile">
+                <div class = "image-profile"></div>
+                    <img src = "../../images/201e14454ff5ff96bf76913580e9d48c.jpg" alt = "admin-profile-picture"/>
+                <div class = "name-profile">
+                    <!--Se import them tên của admin bằng js-->
+                    <h2 id = "admin-name">Admin Name</h2>
+                </div>
+            </div>
+            <div class = "menu">
+                <ul>
+                    <li><a href = "#" onclick = 'renderHome()'>Home</a></li>
+                    <li><a href = "#" onclick = 'renderResidentManagement()'>Ho Khau va Nhan Khau</a></li>
+                    <li><a href = "#" onclick="renderNVHManagement()">Nha van hoa</a></li>
+                    <li><a href = "#" onclick ="renderSetting()">Setting</a></li>
+                </ul>
+            </div>
+            <div class="logout">
+                <button id="logout">Logout</button>
+            </div>
+        </div>
+        <div class = "main-content">
+            <!-- Noi dung trang dashboard se duoc render o day -->
+        </div>
+    </body>
+</html>
