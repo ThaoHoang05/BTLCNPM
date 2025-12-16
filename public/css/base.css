@@ -1,0 +1,264 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    height: 100%;
+    margin: 0;
+}
+
+.page {
+    display: flex; /* Sử dụng Flexbox để chia layout chính */
+    flex-direction: row; /* Xếp ngang các phần tử con */
+        min-height: 100vh; /* Chiều cao tối thiểu là toàn màn hình */
+    height: 100vh; /* Chiều cao toàn màn hình */
+    }
+
+.top-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #1b4188; /* Màu xanh dương đậm */
+    color: white; /* Màu chữ trắng */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+position: relative; /* Đảm bảo z-index hoạt động */
+    z-index: 1000; /* Đặt top-head ở trên cùng */
+}
+
+.top-head h1 {
+    color: white; /* Màu chữ trắng cho tiêu đề */
+}
+
+.nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước */
+}
+
+.nav li {
+    margin: 5px 10px; /* Thêm khoảng cách giữa các mục */
+    flex-shrink: 0; /* Ngăn các mục bị co lại quá nhỏ */
+}
+
+.nav li a {
+    text-decoration: none;
+    color: white; /* Màu chữ trắng */
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap; /* Ngăn chữ bị xuống dòng trong một mục */
+}
+
+.nav li a:hover {
+    background-color: #163366; /* Màu nền xanh dương đậm hơn khi hover */
+    color: #f9f9f9; /* Màu chữ nhạt hơn khi hover */
+}
+
+.main-content {
+    display: flex;
+    justify-content: center; /* Căn giữa nội dung theo chiều ngang */
+    align-items: flex-start; /* Căn nội dung theo chiều dọc (bắt đầu từ trên) */
+    flex-direction: column; /* Xếp dọc các phần tử bên trong */
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+.main-content #info {
+    align-items: center;
+}
+
+#info, #About-us {
+    margin-bottom: 20px; /* Thêm khoảng cách giữa các phần tử */
+}
+
+.main-content #info h2 {
+    text-align: center;
+}
+
+#calendar {
+    position: sticky; /* Giữ cố định khi cuộn */
+    top: 0; /* Cố định ở phía trên khi cuộn */
+    padding: 20px;
+    background-color: #f9f9f9; /* Màu nền nhạt */
+    border-left: 1px solid #ccc; /* Thêm viền bên trái để phân tách */
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+}
+
+.main-content #form-use-community-center {
+    display: flex;
+    flex-direction: column; /* Sắp xếp các phần tử bên trong theo chiều dọc */
+    justify-content: center; /* Căn giữa nội dung bên trong form */
+    align-items: center; /* Căn giữa nội dung bên trong form */
+    width: 400px; /* Đặt chiều rộng cố định cho form */
+    padding: 20px;
+    border: 1px solid #ccc; /* Viền nhẹ */
+    border-radius: 10px; /* Bo góc */
+    background-color: #f9f9f9; /* Màu nền nhạt */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    margin: 50px auto; /* Căn giữa form theo chiều ngang */
+    position: relative; /* Đảm bảo form nằm trong luồng tài liệu */
+    z-index: 1; /* Đảm bảo form không bị che khuất */
+}
+
+#form-use-community-center h2 {
+    margin-bottom: 20px;
+    color: #333; /* Màu chữ tiêu đề */
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+#form-use-community-center form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Khoảng cách giữa các phần tử */
+}
+
+#form-use-community-center label {
+    font-size: 1rem;
+    color: #555; /* Màu chữ nhạt hơn */
+}
+
+#form-use-community-center input,
+#form-use-community-center select,
+#form-use-community-center textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc; /* Viền nhẹ */
+    border-radius: 5px; /* Bo góc */
+    box-sizing: border-box;
+}
+
+#form-use-community-center textarea {
+    resize: none; /* Tắt khả năng thay đổi kích thước */
+}
+
+#form-use-community-center input[type="submit"] {
+    background-color: #1b4188; /* Màu xanh dương đậm */
+    color: white; /* Màu chữ trắng */
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#form-use-community-center input[type="submit"]:hover {
+    background-color: #163366; /* Màu xanh dương đậm hơn khi hover */
+}
+
+#login {
+    display: flex;
+    flex-direction: column; /* Sắp xếp các phần tử theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    align-items: center; /* Căn giữa theo chiều ngang */
+    position: fixed; /* Đặt vị trí cố định để căn giữa */
+    top: 50%; /* Căn giữa theo chiều dọc */
+    left: 50%; /* Căn giữa theo chiều ngang */
+    transform: translate(-50%, -50%); /* Dịch chuyển để căn giữa chính xác */
+    width: 300px; /* Đặt chiều rộng cố định cho form */
+    padding: 20px;
+    border: 1px solid #ccc; /* Viền nhẹ */
+    border-radius: 10px; /* Bo góc */
+    background-color: #f9f9f9; /* Màu nền nhạt */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+z-index: 999; /* Đảm bảo form nằm dưới top-head */
+}
+
+#login h2 {
+    margin-bottom: 20px;
+    color: #333; /* Màu chữ tiêu đề */
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+#loginform {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Khoảng cách giữa các phần tử */
+}
+
+#loginform label {
+    font-size: 1rem;
+    color: #555; /* Màu chữ nhạt hơn */
+}
+
+#loginform input[type="text"],
+#loginform input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc; /* Viền nhẹ */
+    border-radius: 5px; /* Bo góc */
+    box-sizing: border-box;
+}
+
+#loginform input[type="submit"] {
+    background-color: #1b4188; /* Màu xanh dương đậm */
+    color: white; /* Màu chữ trắng */
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#loginform input[type="submit"]:hover {
+    background-color: #163366; /* Màu xanh dương đậm hơn khi hover */
+}
+
+.content {
+    display: flex;
+    flex-direction: column; /* Xếp dọc các phần tử trong content */
+    flex-grow: 1; /* Cho phép content chiếm không gian còn lại */
+    width: 60%; /* Giảm từ 65% xuống 60% */
+    padding: 20px;
+    box-sizing: border-box;
+}
+/* --- CODE DÀNH RIÊNG CHO TRANG LOGIN --- */
+
+/* 1. Ẩn thanh cuộn chỉ ở trang này */
+body.login-body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Cắt bỏ mọi thanh cuộn thừa */
+    margin: 0;
+}
+
+/* 2. Thiết lập khung Flex dọc cho trang login */
+body.login-body .page {
+    display: flex;
+    flex-direction: column; /* Xếp dọc: Header trên, Content dưới */
+    height: 100%;
+    width: 100%;
+}
+
+/* 3. Header không bị co giãn */
+body.login-body .top-head {
+    flex-shrink: 0; 
+}
+
+/* 4. Phần nội dung chiếm hết khoảng trống còn lại và căn giữa Form */
+body.login-body .main-content {
+    flex: 1; /* Tự động giãn ra lấp đầy màn hình */
+    display: flex;
+    justify-content: center; /* Căn giữa Ngang */
+    align-items: center;     /* Căn giữa Dọc */
+    width: 100%;
+    background-color: #fff;  /* Màu nền tùy chọn */
+}
+
+/* 5. Tinh chỉnh form login cho đẹp hơn (Tùy chọn) */
+body.login-body #login {
+    position: static; /* Bỏ position fixed cũ đi vì đã có flexbox căn giữa rồi */
+    transform: none;  /* Bỏ transform cũ */
+    width: 350px;
+    padding: 40px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
