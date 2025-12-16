@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <meta charset="utf8">
+        <title>Điền form</title>
+        <link rel="stylesheet" href="../../css/base.css" />
+    </header>
+    <body>
+        <div class="top-head">
+            <h1>TỔ DÂN PHỐ SỐ 7</h1>
+            <ul class="nav">
+                <li><a href="../index.html">Trang thông tin</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div id="form-use-community-center">
+                <h2>Điền form đăng kí sử dụng nhà văn hóa</h2>
+                <form>
+                    <label for="fullname">Họ và tên: </label>
+                    <input type="text" id="fullname" required /><br />
+                    <label for="numberphone">Số điện thoại:</label>
+                    <input type="tel" id="numberphone" required /><br />
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required /><br />
+                    <label for="type">Loại hình thuê: </label>
+                    <select id="type">
+                        <option value="default">Chọn kiểu thuê</option>
+                        <option value="personal">Cá nhân</option>
+                        <option value="organization">Tổ chức</option>
+                    </select><br />
+                    <label for="reason">Lý do:</label>
+                    <textarea id="reason" rows="5" placeholder="Nhập lý do..."></textarea>
+                    <br />
+                    <label for="from">Thuê từ:</label>
+                    <input type="date" id="from" required /><br />
+                    <label for="to">Đến:</label>
+                    <input type="date" id="to" required /><br />
+                    <input type="submit" />
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
