@@ -1,0 +1,130 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Times New Roman", Times, serif;
+}
+
+.side-bar {
+    width: 20%;
+    height: 100vh;
+    background-color: rgb(58, 58, 58);
+    color: white;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.side-bar .profile {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.side-bar .profile .image-profile img {
+    width: 30px; /* Đặt chiều rộng ảnh là 30px */
+    height: 30px; /* Đặt chiều cao ảnh là 30px */
+    border-radius: 50%; /* Tạo hình tròn */
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+    margin: 10px 0; /* Thêm khoảng cách giữa ảnh và các phần tử khác */
+}
+
+.side-bar .name-profile h2 {
+    margin: 10px 0;
+}
+
+.side-bar .menu {
+    list-style: none;
+    padding: 0; /* Xóa padding mặc định */
+    margin: 0; /* Xóa margin mặc định */
+    width: 100%; /* Đảm bảo menu chiếm toàn bộ chiều ngang */
+}
+
+.side-bar .menu ul {
+    padding: 0;
+    margin: 0;
+}
+
+.side-bar .menu li {
+    width: 100%; /* Chiếm toàn bộ chiều ngang */
+}
+
+.side-bar .menu li a {
+    display: block; /* Biến thẻ a thành khối */
+    width: 100%; /* Chiếm toàn bộ chiều ngang */
+    padding: 15px 20px; /* Tạo khoảng cách bên trong */
+    text-decoration: none; /* Xóa gạch chân */
+    color: white; /* Màu chữ trắng */
+    font-size: 16px; /* Kích thước chữ */
+    border-left: 4px solid transparent; /* Viền trái trong suốt */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển đổi mượt */
+    box-sizing: border-box; /* Đảm bảo padding không làm vỡ khung */
+}
+
+.side-bar .menu li a:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Màu nền khi hover */
+    border-left: 4px solid #fff; /* Viền trái sáng khi hover */
+    color: #fff; /* Màu chữ khi hover */
+    cursor: pointer;
+}
+
+.main-content {
+    margin-left: 25%;
+    padding: 20px;
+}
+
+.profile img {
+    /* 1. Đặt kích thước cố định để vừa vặn */
+    width: 100px;
+    height: 100px;
+    
+    /* 2. Biến ảnh vuông thành hình tròn */
+    border-radius: 50%;
+    
+    /* 3. Quan trọng: Giúp ảnh không bị méo nếu ảnh gốc không phải hình vuông */
+    object-fit: cover;
+    
+    /* 4. Thêm viền trắng mỏng cho nổi bật trên nền xanh (tùy chọn) */
+    border: 3px solid #ffffff4d; 
+    
+    /* Tạo khoảng cách với tên bên dưới */
+    margin-bottom: 10px;
+}
+
+.side-bar .logout {
+    margin-top: 30px; /* Cách xa các menu trên một chút */
+    padding: 0 20px;  /* Thụt vào 2 bên để nút không dính sát lề */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Style cho bản thân nút Button */
+.side-bar .logout button {
+    width: 100%;              /* Nút dài bằng chiều rộng container */
+    padding: 12px;
+    background-color: #ff4757; /* Màu đỏ hiện đại (Red tomato) */
+    color: white;
+    border: none;             /* Bỏ viền xấu xí mặc định */
+    border-radius: 8px;       /* Bo tròn góc mềm mại */
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;          /* Hiện bàn tay khi di chuột vào */
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Đổ bóng nhẹ cho nổi */
+    display: flex;            /* Để căn giữa chữ nếu cần icon */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Hiệu ứng khi di chuột vào nút Logout */
+.side-bar .logout button:hover {
+    background-color: #ff6b81; /* Màu đỏ nhạt hơn chút khi hover */
+    transform: translateY(-2px); /* Nút bay lên nhẹ */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3); /* Bóng đậm hơn */
+}
+
+/* Hiệu ứng khi click nút */
+.side-bar .logout button:active {
+    transform: translateY(0); /* Nút ấn xuống */
+    box-shadow: none;
+}
