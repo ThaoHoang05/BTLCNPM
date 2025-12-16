@@ -128,3 +128,76 @@ body {
     transform: translateY(0); /* Nút ấn xuống */
     box-shadow: none;
 }
+
+
+/* Container chính của phần Setting */
+.setting {
+    max-width: 500px; /* Giới hạn chiều rộng để form không bị bè ra quá */
+    margin: 0 auto;   /* Căn giữa màn hình */
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ sang trọng */
+}
+
+/* Tiêu đề */
+.setting h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 24px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+/* Form Layout */
+.setting form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Nhãn (Label) */
+.setting label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 14px;
+}
+
+/* Ô nhập liệu (Input Password) */
+.setting input[type="password"] {
+    padding: 12px;
+    margin-bottom: 20px; /* Tạo khoảng cách giữa các ô */
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.setting input[type="password"]:focus {
+    outline: none;
+    border-color: #1b4188; /* Màu xanh chủ đạo khi click vào */
+    box-shadow: 0 0 5px rgba(27, 65, 136, 0.2);
+}
+
+/* Nút Submit (Change Password) */
+.setting input[type="submit"] {
+    background-color: #1b4188; /* Màu xanh giống Header */
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
+}
+
+.setting input[type="submit"]:hover {
+    background-color: #153269; /* Màu tối hơn khi hover */
+}
+
+.setting input[type="submit"]:active {
+    transform: scale(0.98); /* Hiệu ứng nhấn xuống nhẹ */
+}
