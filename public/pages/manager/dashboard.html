@@ -9,27 +9,26 @@
         <div class = "side-bar">
             <div class = "profile">
                 <div class = "image-profile"></div>
-                    <img src = "../../images/201e14454ff5ff96bf76913580e9d48c.jpg" alt = "admin-profile-picture"/>
+                    <img src = "../../images/201e14454ff5ff96bf76913580e9d48c.jpg" alt = "resident-profile-picture"/>
                 <div class = "name-profile">
                     <!--Se import them tên của admin bằng js-->
-                    <h2 id = "admin-name">Admin Name</h2>
+                    <h2 id = "admin-name">Manager Name</h2>
                 </div>
             </div>
             <div class = "menu">
                 <ul>
                     <li><a href = "#" onclick = 'renderHome()'>Home</a></li>
-                    <li><a href = "#" onclick = 'renderResidentManagement()'>Hộ khẩu và Nhân khẩu</a></li>
-                    <li><a href = "#" onclick="renderNVHManagement()">Nhà văn hóa</a></li>
+                    <li><a href = "#" onclick="renderNVHManagement()">Nhà Văn Hóa</a></li>
                     <li><a href = "#" onclick ="renderSetting()">Setting</a></li>
                 </ul>
             </div>
             <div class="logout">
-                <button id="logout" onclick = "logout()">Logout</button>
+                <button id="logout" onclick = 'logout()'>Logout</button>
             </div>
         </div>
         <div class = "main-content">
             <!-- Noi dung trang dashboard se duoc render o day -->
         </div>
-        <script src="../../js//admin/dashboard.js"></script>
+        <script src = "../../js/manager/dashboard.js"></script>
     </body>
 </html>
