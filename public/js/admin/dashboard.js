@@ -16,7 +16,7 @@ async function preLoadHome() {
 }
 
 function renderSetting() {
-    const mainContent = document.querySelector('.main-content');
+    var mainContent = document.querySelector('.main-content');
     fetch('components/setting.html') 
         .then(response => {
             if (!response.ok) {
@@ -34,12 +34,65 @@ function renderSetting() {
         });
 }
 
+function renderResidentManagement(){
+    var mainContent= document.querySelector('.main-content');
+    fetch('components/resident.html')
+    .then(response => {
+        if (!response.ok) {
+            // Mở Console (F12) để xem lỗi này nếu đường dẫn sai
+            throw new Error('Không tìm thấy file: ' + response.statusText);
+        }
+        return response.text();
+    })
+    .then(html => {
+        mainContent.innerHTML = html;
+    })
+    .catch(error =>{
+        console.error('Lỗi tải trang:', error);
+        mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file resident.html</h3>`; 
+    });
+}
+
 function renderNVHManagement() {
-    console.log("Chức năng đang phát triển");
+    var mainContent = document.querySelector('.main-content');
+    fetch('components/nvh.html') 
+        .then(response => {
+            if (!response.ok) {
+                // Mở Console (F12) để xem lỗi này nếu đường dẫn sai
+                throw new Error('Không tìm thấy file: ' + response.statusText);
+            }
+            return response.text();
+        })
+        .then(html => {
+            mainContent.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Lỗi tải trang:', error);
+            mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file nvh-management.html</h3>`; 
+        });
+}
+
+function renderReport(){
+    var mainContent = document.querySelector('.main-content');
+    fetch('components/thongke.html')
+    .then(response =>{
+        if (!response.ok) {
+            // Mở Console (F12) để xem lỗi này nếu đường dẫn sai
+            throw new Error('Không tìm thấy file: ' + response.statusText);
+        }
+        return response.text();
+    })
+    .then(html =>{
+        mainContent.innerHTML = html;
+    })
+    .catch(error =>{
+        console.error('Lỗi tải trang:', error);
+        mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file thongke.html</h3>`;
+    });
 }
 
 function renderHome(){
-    const mainContent = document.querySelector('.main-content');
+    var mainContent = document.querySelector('.main-content');
     fetch('components/home.html') 
         .then(response => {
             if (!response.ok) {

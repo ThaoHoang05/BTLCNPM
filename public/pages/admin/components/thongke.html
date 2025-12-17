@@ -1,0 +1,65 @@
+<div class="stats-container">
+    <h2 class="page-title">Báo cáo & Thống kê Nhân khẩu</h2>
+
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label>Tiêu chí thống kê:</label>
+            <select id="criteriaSelect" class="form-control">
+                <option value="gender">Theo Giới tính (Nam/Nữ)</option>
+                <option value="age">Theo Độ tuổi (Mầm non - Nghỉ hưu)</option>
+                <option value="residence">Tạm trú / Tạm vắng</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>Từ ngày:</label>
+            <input type="date" id="dateFrom" class="form-control">
+        </div>
+
+        <div class="filter-group">
+            <label>Đến ngày:</label>
+            <input type="date" id="dateTo" class="form-control">
+        </div>
+
+        <button class="btn-primary" onclick="updateReport()">
+            <i class="icon-chart"></i> Thống kê
+        </button>
+        <button class="btn-outline">Xuất Excel</button>
+    </div>
+
+    <div class="summary-cards" id="summarySection">
+        <div class="card">
+            <h3>Tổng nhân khẩu</h3>
+            <p class="number">1,250</p>
+            <span class="trend up">+5 so với tháng trước</span>
+        </div>
+        <div class="card">
+            <h3>Nam giới</h3>
+            <p class="number">600</p>
+            <span class="label">48%</span>
+        </div>
+        <div class="card">
+            <h3>Nữ giới</h3>
+            <p class="number">650</p>
+            <span class="label">52%</span>
+        </div>
+    </div>
+
+    <div class="report-layout">
+        <div class="chart-section">
+            <canvas id="myChart"></canvas>
+        </div>
+
+        <div class="table-section">
+            <h3 id="tableTitle">Chi tiết danh sách</h3>
+            <table class="data-table">
+                <thead>
+                    <tr id="tableHeader">
+                        </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>

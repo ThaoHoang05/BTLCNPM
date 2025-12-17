@@ -1,0 +1,122 @@
+<div class="manager-layout">
+    <div class="content">
+        
+        <div class="section-header">
+            <h2><i class="fas fa-tasks"></i> Quản lý Đăng ký Sử dụng</h2>
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="filterRequests('pending')">
+                    Chờ duyệt <span class="badge-count" id="countPending">0</span>
+                </button>
+                <button class="tab-btn" onclick="filterRequests('history')">
+                    Lịch sử xử lý
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="approval-table">
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="20%">Người đăng ký</th>
+                        <th width="15%">Thời gian thuê</th>
+                        <th width="10%">Loại hình</th>
+                        <th width="30%">Nội dung / Lý do</th>
+                        <th width="20%" class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="requestTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="detailModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-info-circle"></i> Chi tiết Đơn đăng ký #<span id="detailId"></span></h3>
+            <span class="close-btn" onclick="closeModal('detailModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Họ và tên:</label>
+                    <span id="detailName" class="value-text"></span>
+                </div>
+                <div class="detail-item">
+                    <label>Số điện thoại:</label>
+                    <span id="detailPhone" class="value-text"></span>
+                </div>
+                <div class="detail-item">
+                    <label>Email:</label>
+                    <span id="detailEmail" class="value-text link-text"></span>
+                </div>
+                <div class="detail-item">
+                    <label>Loại hình:</label>
+                    <span id="detailType" class="value-text"></span>
+                </div>
+            </div>
+
+            <div class="detail-full-row">
+                <label>Thời gian thuê:</label>
+                <div class="time-box">
+                    Từ: <strong id="detailFrom"></strong> <i class="fas fa-arrow-right"></i> Đến: <strong id="detailTo"></strong>
+                </div>
+            </div>
+
+            <div class="detail-full-row">
+                <label>Lý do / Mục đích sử dụng:</label>
+                <div id="detailReason" class="reason-box"></div>
+            </div>
+
+            <div class="modal-footer-actions" id="detailActions">
+                <button class="btn-reject" onclick="triggerRejectFromDetail()">
+                    <i class="fas fa-times"></i> Từ chối
+                </button>
+                <button class="btn-approve" onclick="triggerApproveFromDetail()">
+                    <i class="fas fa-check"></i> Duyệt đơn
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="approveModal" class="modal-overlay" style="z-index: 1100;">
+    <div class="modal-content small-modal">
+        <div class="modal-header">
+            <h3>Xác nhận Duyệt</h3>
+            <span class="close-btn" onclick="closeModal('approveModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Duyệt đơn của: <strong id="approveName"></strong></p>
+            <div class="form-group">
+                <label>Phí sử dụng (VNĐ):</label>
+                <input type="number" id="feeInput" class="form-control" value="0">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('approveModal')">Hủy</button>
+                <button class="btn-primary" onclick="confirmApprove()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="rejectModal" class="modal-overlay" style="z-index: 1100;">
+    <div class="modal-content small-modal">
+        <div class="modal-header">
+            <h3>Từ chối Yêu cầu</h3>
+            <span class="close-btn" onclick="closeModal('rejectModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Lý do từ chối:</label>
+                <textarea id="rejectReason" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('rejectModal')">Hủy</button>
+                <button class="btn-danger" onclick="confirmReject()">Từ chối</button>
+            </div>
+        </div>
+    </div>
+</div>
