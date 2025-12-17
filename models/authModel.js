@@ -1,4 +1,4 @@
-const { poolPhanQuyen } = require('../config/db');
+const { poolDangNhapPhanQuyen } = require('../config/db');
 
 const AuthModel = {
     // Hàm lấy danh sách tất cả người dùng kèm vai trò
@@ -7,7 +7,7 @@ const AuthModel = {
             SELECT u.tendangnhap, u.trangthai, v.tenvaitro 
             FROM nguoidung u 
             JOIN vaitro v ON u.vaitroid = v.vaitroid`;
-        const result = await poolPhanQuyen.query(query);
+        const result = await poolDangNhapPhanQuyen.query(query);
         return result.rows;
     }
 };
