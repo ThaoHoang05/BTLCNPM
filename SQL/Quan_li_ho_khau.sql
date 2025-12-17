@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
+--\restrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
 
 -- Dumped from database version 16.11
 -- Dumped by pg_dump version 16.11
@@ -25,14 +25,14 @@ SET row_security = off;
 -- Name: Quan_li_ho_khau; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE "Quan_li_ho_khau" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'Vietnamese_Vietnam.932';
+--CREATE DATABASE "Quan_li_ho_khau" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'Vietnamese_Vietnam.932';
 
 
-ALTER DATABASE "Quan_li_ho_khau" OWNER TO postgres;
+--ALTER DATABASE "Quan_li_ho_khau" OWNER TO postgres;
 
-\unrestrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
-\connect "Quan_li_ho_khau"
-\restrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
+--\unrestrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
+--\connect "Quan_li_ho_khau"
+--\restrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -653,5 +653,5 @@ ALTER TABLE ONLY public.tamvang
 -- PostgreSQL database dump complete
 --
 
-\unrestrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
+--\unrestrict eGuQTDxF3DQbKn1MNU7QlK1CQXFKdjaJQueKTeczen77M87ZWvVfPqccPodx4Ag
 
