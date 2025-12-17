@@ -1,0 +1,98 @@
+<div class="resident-hokhau-layout">
+    
+    <div class="hokhau-header-card">
+        <div class="card-title">
+            <i class="fas fa-house-user"></i> Sổ Hộ Khẩu: <span class="highlight">HK005</span>
+        </div>
+        <div class="card-body">
+            <div class="info-row">
+                <span class="label">Chủ hộ:</span>
+                <span class="value">Hoàng Văn E</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Địa chỉ thường trú:</span>
+                <span class="value">C15, Quang Trung, P. La Khê, Q. Hà Đông, Hà Nội</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Ngày lập sổ:</span>
+                <span class="value">10/03/2018</span>
+            </div>
+            <button class="btn-request" onclick="openRequestModal()">
+                <i class="fas fa-edit"></i> Yêu cầu đính chính / Thay đổi
+            </button>
+        </div>
+    </div>
+
+    <div class="members-section">
+        <h3><i class="fas fa-users"></i> Danh sách thành viên trong hộ</h3>
+        <table class="member-table">
+            <thead>
+                <tr>
+                    <th>Họ và tên</th>
+                    <th>Ngày sinh</th>
+                    <th>Quan hệ với chủ hộ</th>
+                    <th>Nghề nghiệp</th>
+                    <th>CCCD/CMND</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Hoàng Văn E</strong></td>
+                    <td>03/03/1988</td>
+                    <td><span class="badge-role role-head">Chủ hộ</span></td>
+                    <td>Lập trình viên</td>
+                    <td>001188000005</td>
+                </tr>
+                <tr>
+                    <td>Lê Thị Z</td>
+                    <td>20/04/1990</td>
+                    <td><span class="badge-role">Vợ</span></td>
+                    <td>Nội trợ</td>
+                    <td>001190000024</td>
+                </tr>
+                <tr>
+                    <td>Hoàng Văn A1</td>
+                    <td>11/11/2010</td>
+                    <td><span class="badge-role">Con</span></td>
+                    <td>Học sinh</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="requestModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Gửi yêu cầu thay đổi thông tin</h3>
+            <span class="close-btn" onclick="closeRequestModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="requestForm">
+                <div class="form-group">
+                    <label>Loại yêu cầu:</label>
+                    <select class="form-control">
+                        <option value="dinh_chinh">Đính chính thông tin sai lệch</option>
+                        <option value="nhap_khau">Đăng ký nhập khẩu (Thêm thành viên)</option>
+                        <option value="tach_ho">Yêu cầu tách hộ</option>
+                        <option value="khac">Khác</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nội dung chi tiết:</label>
+                    <textarea class="form-control" rows="4" placeholder="Ví dụ: Sai ngày sinh của con trai Hoàng Văn A1, đúng là 12/11/2010..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Tải lên minh chứng (nếu có):</label>
+                    <input type="file" class="form-control file-input">
+                    <small>Ví dụ: Giấy khai sinh, Giấy đăng ký kết hôn...</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeRequestModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Gửi yêu cầu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

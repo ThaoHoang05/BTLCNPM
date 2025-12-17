@@ -1,21 +1,181 @@
-<div class = "resident-table">
-    <h2>Danh sách Quản lý Hộ khẩu</h2>
-    <div class = "search">
-        <input type="text" placeholder="Tìm kiếm..." />
-        <button>Tìm</button>
+<div class="manager-layout">
+    <div class="content">
+        
+        <div class="section-header">
+            <h2><i class="fas fa-book"></i> Quản lý Sổ Hộ Khẩu</h2>
+            <div class="action-bar">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm theo tên chủ hộ hoặc số HK..." class="form-control">
+                    <button class="btn-primary"><i class="fas fa-search"></i></button>
+                </div>
+                <button class="btn-success" onclick="openModal('addHouseholdModal')">
+                    <i class="fas fa-plus"></i> Thêm Hộ Mới
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mã Hộ (Số HK)</th>
+                        <th>Chủ Hộ</th>
+                        <th>Địa chỉ thường trú</th>
+                        <th>Số thành viên</th>
+                        <th>Ngày lập</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>HK001</strong></td>
+                        <td>Nguyễn Văn A</td>
+                        <td>10A, Nguyễn Trãi, P. La Khê</td>
+                        <td><span class="badge-count">5</span></td>
+                        <td>15/05/2010</td>
+                        <td>
+                            <button class="icon-btn info" title="Xem chi tiết & Biến động" onclick="openDetailModal('HK001')"><i class="fas fa-eye"></i></button>
+                            <button class="icon-btn warning" title="Tách hộ" onclick="openSplitModal('HK001')"><i class="fas fa-random"></i></button>
+                            <button class="icon-btn danger" title="Xóa hộ (nếu chuyển đi hết)" onclick="deleteHousehold('HK001')"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>HK005</strong></td>
+                        <td>Hoàng Văn E</td>
+                        <td>C15, Quang Trung, P. La Khê</td>
+                        <td><span class="badge-count">3</span></td>
+                        <td>10/03/2018</td>
+                        <td>
+                            <button class="icon-btn info" onclick="openDetailModal('HK005')"><i class="fas fa-eye"></i></button>
+                            <button class="icon-btn warning" onclick="openSplitModal('HK005')"><i class="fas fa-random"></i></button>
+                            <button class="icon-btn danger" onclick="deleteHousehold('HK005')"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Số Hộ Khẩu</th>
-                <th>Chủ Hộ</th>
-                <th>Địa Chỉ Thường Trú</th>
-                <th>Ngày Lập</th>
-                <th>Ghi Chú</th>
-                <th style="text-align: center;">Thao Tác</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        </table>
+</div>
+
+<div id="detailModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3>Chi tiết Hộ khẩu: <span id="detailHKCode" class="highlight-code">HK001</span></h3>
+            <span class="close-btn" onclick="closeModal('detailModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            
+            <div class="household-info">
+                <div class="info-group">
+                    <label>Chủ hộ:</label> <span>Nguyễn Văn A</span>
+                </div>
+                <div class="info-group">
+                    <label>Địa chỉ:</label> <span>10A, Nguyễn Trãi, P. La Khê, Q. Hà Đông</span>
+                </div>
+                <div class="info-group">
+                    <label>Ngày lập sổ:</label> <span>15/05/2010</span>
+                </div>
+            </div>
+
+            <div class="member-section">
+                <div class="flex-row-between">
+                    <h4><i class="fas fa-users"></i> Danh sách Nhân khẩu</h4>
+                    <button class="btn-small btn-primary" onclick="openAddMemberModal()">
+                        <i class="fas fa-user-plus"></i> Thêm mới / Sinh con
+                    </button>
+                </div>
+                <table class="member-table">
+                    <thead>
+                        <tr>
+                            <th>Họ tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Quan hệ</th>
+                            <th>CCCD/CMND</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nguyễn Văn A</td>
+                            <td>01/01/1990</td>
+                            <td><span class="role-badge head">Chủ hộ</span></td>
+                            <td>001190000001</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Lê Thị P</td>
+                            <td>20/03/1992</td>
+                            <td>Vợ</td>
+                            <td>001192000013</td>
+                            <td>
+                                <div class="action-dropdown">
+                                    <button class="btn-text text-warning" onclick="openMoveModal('Lê Thị P')">Chuyển đi</button>
+                                    <button class="btn-text text-danger" onclick="openDeathModal('Lê Thị P')">Khai tử</button>
+                                </div>
+                            </td>
+                        </tr>
+                         <tr>
+                            <td>Nguyễn Văn Con1</td>
+                            <td>10/08/2015</td>
+                            <td>Con</td>
+                            <td>-</td>
+                            <td>
+                                <button class="btn-text text-blue" onclick="alert('Đã cấp giấy tạm vắng')">Tạm vắng</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="history-section">
+                <h4><i class="fas fa-history"></i> Lịch sử biến động của hộ</h4>
+                <ul class="history-list">
+                    <li><small>28/10/2023:</small> Tách hộ - Chuyển Tô Thị M sang HK012</li>
+                    <li><small>20/10/2024:</small> Qua đời - Bà Trần Q (Mẹ chồng) qua đời do tuổi cao</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="splitModal" class="modal-overlay">
+    <div class="modal-content medium-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-random"></i> Tách Hộ Khẩu</h3>
+            <span class="close-btn" onclick="closeModal('splitModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p class="guide-text">Chọn các thành viên muốn tách khỏi hộ hiện tại để lập hộ mới.</p>
+            
+            <div class="split-selection-area">
+                <label class="member-checkbox"><input type="checkbox"> Lê Thị P (Vợ)</label>
+                <label class="member-checkbox"><input type="checkbox"> Nguyễn Văn Con1 (Con)</label>
+                <label class="member-checkbox"><input type="checkbox"> Nguyễn Thị Con2 (Con)</label>
+            </div>
+
+            <div class="form-section">
+                <div class="form-group">
+                    <label>Chủ hộ mới:</label>
+                    <select class="form-control">
+                        <option>-- Chọn người đứng tên sổ mới --</option>
+                        <option>Lê Thị P</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ hộ mới:</label>
+                    <input type="text" class="form-control" placeholder="Nhập địa chỉ thường trú mới...">
+                </div>
+                <div class="form-group">
+                    <label>Lý do tách:</label>
+                    <input type="text" class="form-control" placeholder="VD: Ra ở riêng, lấy chồng...">
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('splitModal')">Hủy</button>
+                <button class="btn-primary">Xác nhận Tách</button>
+            </div>
+        </div>
+    </div>
 </div>
