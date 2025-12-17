@@ -42,6 +42,11 @@ const loginController = {
                 message: 'Đã xảy ra lỗi hệ thống tại Backend' 
             });
         }
+    },
+
+    handleLogout: (req, res) => {
+        console.log(`[LOGOUT] Người dùng vừa đăng xuất`);
+        return res.status(200).json({ success: true, message: 'Đăng xuất thành công' });
     }
 };
 
