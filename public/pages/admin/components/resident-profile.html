@@ -1,0 +1,131 @@
+<div id="household-detail-view" class="detail-layout" style="display: none;">
+    
+    <div class="detail-header">
+        <button class="btn-back" onclick="backToList()">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </button>
+        <div class="header-title">
+            <h2>Sổ Hộ Khẩu: <span id="viewHKCode" class="text-highlight">HK001</span></h2>
+            <span class="status-badge badge-active">Đang hoạt động</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn-primary" onclick="enableEditMode()">
+                <i class="fas fa-pen"></i> Chỉnh sửa thông tin
+            </button>
+            <button class="btn-danger" onclick="alert('Chức năng xóa hộ')">
+                <i class="fas fa-trash"></i> Xóa hộ
+            </button>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="info-card">
+            <div class="card-header">
+                <h3><i class="fas fa-home"></i> Thông tin chung</h3>
+            </div>
+            <div class="card-body">
+                <form id="generalInfoForm">
+                    <div class="form-group">
+                        <label>Chủ hộ:</label>
+                        <input type="text" value="Nguyễn Văn A" class="form-control" readonly id="inputOwner">
+                    </div>
+                    <div class="form-group">
+                        <label>Số căn cước chủ hộ:</label>
+                        <input type="text" value="001190000001" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ thường trú:</label>
+                        <input type="text" value="10A, Nguyễn Trãi, P. La Khê, Q. Hà Đông" class="form-control" readonly id="inputAddress">
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày lập sổ:</label>
+                        <input type="date" value="2010-05-15" class="form-control" readonly>
+                    </div>
+                    <div id="saveBtnGroup" class="hidden-action" style="display:none; margin-top: 15px;">
+                        <button type="button" class="btn-success" onclick="saveChanges()">Lưu thay đổi</button>
+                        <button type="button" class="btn-secondary" onclick="cancelEditMode()">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-header">
+                <h3><i class="fas fa-history"></i> Lịch sử biến động</h3>
+            </div>
+            <div class="card-body history-container">
+                <ul class="timeline">
+                    <li>
+                        <div class="time">20/10/2024</div>
+                        <div class="desc"><strong>Qua đời:</strong> Bà Trần Q (Mẹ chồng) qua đời.</div>
+                    </li>
+                    <li>
+                        <div class="time">28/10/2023</div>
+                        <div class="desc"><strong>Tách hộ:</strong> Chuyển Tô Thị M sang HK012.</div>
+                    </li>
+                    <li>
+                        <div class="time">15/05/2010</div>
+                        <div class="desc"><strong>Lập sổ mới:</strong> Đăng ký thường trú lần đầu.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="members-container">
+        <div class="section-header-row">
+            <h3><i class="fas fa-users"></i> Danh sách thành viên (5)</h3>
+            <button class="btn-success btn-sm" onclick="alert('Mở form thêm nhân khẩu')">
+                <i class="fas fa-user-plus"></i> Thêm thành viên
+            </button>
+        </div>
+        
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th>Họ và tên</th>
+                    <th>Ngày sinh</th>
+                    <th>Quan hệ</th>
+                    <th>Nghề nghiệp</th>
+                    <th>Trạng thái</th>
+                    <th style="text-align: right;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Nguyễn Văn A</strong></td>
+                    <td>01/01/1990</td>
+                    <td><span class="role-tag head">Chủ hộ</span></td>
+                    <td>Kỹ sư phần mềm</td>
+                    <td><span class="status-dot green"></span> Thường trú</td>
+                    <td class="action-cell">
+                        <button class="btn-icon" title="Sửa thông tin"><i class="fas fa-edit"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Lê Thị P</td>
+                    <td>20/03/1992</td>
+                    <td>Vợ</td>
+                    <td>Giáo viên</td>
+                    <td><span class="status-dot green"></span> Thường trú</td>
+                    <td class="action-cell">
+                        <button class="btn-icon" title="Sửa thông tin"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon warn" title="Chuyển đi / Tách hộ"><i class="fas fa-walking"></i></button>
+                        <button class="btn-icon danger" title="Khai tử"><i class="fas fa-book-dead"></i></button>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>Nguyễn Văn Con1</td>
+                    <td>10/08/2015</td>
+                    <td>Con</td>
+                    <td>Học sinh</td>
+                    <td><span class="status-dot orange"></span> Tạm vắng</td>
+                    <td class="action-cell">
+                        <button class="btn-icon" title="Sửa thông tin"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon warn" title="Kết thúc tạm vắng"><i class="fas fa-undo"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
