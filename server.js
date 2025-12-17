@@ -18,8 +18,8 @@ const nhaVanHoaRoutes = require('./routes/nhaVanHoaRoutes');
 
 //api
 app.use('/api', authRoutes); 
-app.use('/api/ho-khau', hoKhauRoutes);
-app.use('/api/nha-van-hoa', nhaVanHoaRoutes);
+//app.use('/api/ho-khau', hoKhauRoutes);
+//app.use('/api/nha-van-hoa', nhaVanHoaRoutes);
 
 // Route mặc định (Server check)
 app.get('/', (_req, res) => {
