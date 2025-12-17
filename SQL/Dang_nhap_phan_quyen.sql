@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
+--\restrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
 
 -- Dumped from database version 16.11
 -- Dumped by pg_dump version 16.11
@@ -25,14 +25,14 @@ SET row_security = off;
 -- Name: Dang_nhap_phan_quyen; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE "Dang_nhap_phan_quyen" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'Vietnamese_Vietnam.932';
+--CREATE DATABASE "Dang_nhap_phan_quyen" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'Vietnamese_Vietnam.932';
 
 
-ALTER DATABASE "Dang_nhap_phan_quyen" OWNER TO postgres;
+--ALTER DATABASE "Dang_nhap_phan_quyen" OWNER TO postgres;
 
-\unrestrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
-\connect "Dang_nhap_phan_quyen"
-\restrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
+--\unrestrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
+--\connect "Dang_nhap_phan_quyen"
+--\restrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -265,5 +265,5 @@ ALTER TABLE ONLY public.nguoidung
 -- PostgreSQL database dump complete
 --
 
-\unrestrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
+--\unrestrict TuBdzmIdTJCIovoH3GARDRBEc1dyeFZhElK1dCaBtkrVnJHYoW6DJt6xanqOzjw
 
