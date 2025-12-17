@@ -1,0 +1,143 @@
+<div class="manager-layout">
+    <div class="content">
+        <div class="nvh-tabs">
+            <button class="tab-item active" onclick="switchTab('overview', this)">
+                <i class="fas fa-info-circle"></i> Thông tin chung
+            </button>
+            <button class="tab-item" onclick="switchTab('assets', this)">
+                <i class="fas fa-boxes"></i> Tài sản
+            </button>
+            <button class="tab-item" onclick="switchTab('schedule', this)">
+                <i class="fas fa-calendar-alt"></i> Lịch hoạt động
+            </button>
+        </div>
+        <div id="overview" class="section active">
+            <h2>Thông tin Cơ sở vật chất</h2>
+            <div class="facility-stats">
+                <div class="stat-box">
+                    <h3>Năm đưa vào sử dụng</h3>
+                    <p class="number">2018</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Diện tích khuôn viên</h3>
+                    <p class="number">822 <small>m²</small></p>
+                </div>
+                <div class="stat-box">
+                    <h3>Diện tích xây dựng</h3>
+                    <p class="number">480 <small>m²</small></p>
+                    <span>(Thiết kế 02 tầng)</span>
+                </div>
+            </div>
+            
+            <div class="structure-detail">
+                <h3>Cấu trúc chi tiết</h3>
+                <ul>
+                    <li><strong><i class="fas fa-layer-group"></i> Tầng 1:</strong> 01 Hội trường rộng (Phục vụ hội họp lớn, đám cưới, sự kiện đông người).</li>
+                    <li><strong><i class="fas fa-layer-group"></i> Tầng 2:</strong> Các phòng chức năng (Sinh hoạt CLB, Thể dục thể thao, Đọc sách).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="assets" class="section">
+            <div class="section-header">
+                <h2>Danh sách Tài sản & Thiết bị</h2>
+                <button class="btn-primary"><i class="fas fa-plus"></i> Thêm tài sản</button>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tên tài sản</th>
+                        <th>Vị trí</th>
+                        <th>Số lượng</th>
+                        <th>Tình trạng</th>
+                        <th>Cập nhật lần cuối</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bàn hội trường (Gỗ)</td>
+                        <td>Tầng 1</td>
+                        <td>50</td>
+                        <td><span class="status-good">Tốt</span></td>
+                        <td>10/12/2025</td>
+                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
+                    </tr>
+                    <tr>
+                        <td>Ghế nhựa (Xếp)</td>
+                        <td>Kho Tầng 1</td>
+                        <td>200</td>
+                        <td><span class="status-warning">Hỏng 5 cái</span></td>
+                        <td>10/12/2025</td>
+                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
+                    </tr>
+                    <tr>
+                        <td>Hệ thống Loa đài</td>
+                        <td>Tầng 1</td>
+                        <td>01 bộ</td>
+                        <td><span class="status-good">Hoạt động tốt</span></td>
+                        <td>01/12/2025</td>
+                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
+                    </tr>
+                     <tr>
+                        <td>Bàn bóng bàn</td>
+                        <td>Tầng 2</td>
+                        <td>02 cái</td>
+                        <td><span class="status-good">Tốt</span></td>
+                        <td>15/11/2025</td>
+                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="schedule" class="section">
+            <div class="section-header">
+                <h2>Ghi nhận Lịch Hoạt động Chung</h2>
+            </div>
+            <div class="form-container">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tên hoạt động (Họp, Tuyên truyền...)</label>
+                        <input type="text" placeholder="Ví dụ: Họp chi bộ tháng 12">
+                    </div>
+                    <div class="form-group">
+                        <label>Địa điểm</label>
+                        <select>
+                            <option>Hội trường Tầng 1</option>
+                            <option>Phòng chức năng Tầng 2</option>
+                            <option>Sân khuôn viên</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Thời gian bắt đầu</label>
+                        <input type="datetime-local">
+                    </div>
+                    <div class="form-group">
+                        <label>Thời gian kết thúc</label>
+                        <input type="datetime-local">
+                    </div>
+                </div>
+                <button class="btn-primary" style="margin-top:10px;">Lưu lịch hoạt động</button>
+            </div>
+
+            <h3>Lịch sắp tới</h3>
+            <ul class="upcoming-list">
+                <li>
+                    <span class="date">20/12 - 19:30</span>
+                    <strong>Phát động phong trào "Toàn dân đoàn kết"</strong>
+                    <span class="location">(Hội trường Tầng 1)</span>
+                </li>
+                 <li>
+                    <span class="date">22/12 - 08:00</span>
+                    <strong>Sinh hoạt CLB Người cao tuổi</strong>
+                    <span class="location">(Phòng chức năng Tầng 2)</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>

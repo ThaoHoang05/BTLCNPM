@@ -1,0 +1,106 @@
+
+.resident-table {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.resident-table h2 {
+    color: #333;
+    border-bottom: 2px solid #0e3e72;
+    padding-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #0e3e72;
+    color: white;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+/* Hiệu ứng khi di chuột vào dòng */
+tr.clickable-row:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+/* Style cho nút xem chi tiết */
+.btn-view {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 13px;
+    transition: background 0.3s;
+}
+
+.btn-view:hover {
+    background-color: #218838;
+}
+
+/* Style cho các nhãn (badge) trạng thái */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #e2e6ea;
+    color: #333;
+}
+
+.badge-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Gộp ô input và button thành một khối liền mạch */
+.search {
+    display: flex;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 25px; /* Bo tròn mạnh */
+    overflow: hidden; /* Cắt bỏ phần thừa để nút nằm gọn bên trong */
+    padding: 2px; /* Tạo khoảng hở nhỏ */
+    width: 400px;
+}
+
+.search input {
+    flex: 1;
+    border: none; /* Bỏ viền của input vì đã có viền container */
+    padding: 10px 20px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search button {
+    background-color: #28a745; /* Màu xanh lá cây */
+    color: white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 20px; /* Bo tròn nút bên trong */
+    margin: 2px; /* Cách lề một chút cho đẹp */
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.search button:hover {
+    background-color: #218838;
+}
