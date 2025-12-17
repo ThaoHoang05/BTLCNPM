@@ -28,7 +28,8 @@ async function getUser(){
                 case 'student':
                     window.location.href = '/resident/dashboard.html';
                     break;
-                default:
+                case 'wrong':
+                    alert('Wrong username or password!');
                     window.location.href = '/index.html';
             }
         } else {

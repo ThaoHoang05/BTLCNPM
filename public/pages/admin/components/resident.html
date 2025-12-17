@@ -179,3 +179,74 @@
         </div>
     </div>
 </div>
+<div id="addHouseholdModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Thêm Hộ Khẩu Mới</h3>
+            <span class="close-btn" onclick="closeModal('addHouseholdModal')">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <form id="addHouseholdForm">
+                <div class="section-title">1. Thông tin Sổ Hộ Khẩu</div>
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label>Mã hộ (Số sổ): <span class="required">*</span></label>
+                        <input type="text" class="form-control" placeholder="VD: HK099" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Khu vực / Ấp:</label>
+                        <input type="text" class="form-control" value="Tổ dân phố số 7" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày lập sổ: <span class="required">*</span></label>
+                        <input type="date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ thường trú đầy đủ: <span class="required">*</span></label>
+                    <input type="text" class="form-control" placeholder="Số nhà, đường, phường/xã..." required>
+                </div>
+
+                <div class="section-title flex-between">
+                    <span>2. Thành viên trong hộ</span>
+                    <button type="button" class="btn-small btn-success" onclick="addMemberRow()">
+                        <i class="fas fa-user-plus"></i> Thêm dòng
+                    </button>
+                </div>
+
+                <div class="table-input-container">
+                    <table class="input-table">
+                        <thead>
+                            <tr>
+                                <th width="20%">Họ và Tên <span class="required">*</span></th>
+                                <th width="15%">Ngày sinh <span class="required">*</span></th>
+                                <th width="15%">Quan hệ <span class="required">*</span></th>
+                                <th width="15%">CCCD/CMND</th>
+                                <th width="15%">Nghề nghiệp</th>
+                                <th width="5%">Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="memberListBody">
+                            <tr class="owner-row">
+                                <td><input type="text" placeholder="Nhập tên chủ hộ..." required></td>
+                                <td><input type="date" required></td>
+                                <td>
+                                    <input type="text" value="Chủ hộ" readonly class="readonly-input">
+                                </td>
+                                <td><input type="text" placeholder="Số CCCD"></td>
+                                <td><input type="text"></td>
+                                <td class="text-center"><i class="fas fa-lock text-grey"></i></td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addHouseholdModal')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Lưu Sổ Hộ Khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

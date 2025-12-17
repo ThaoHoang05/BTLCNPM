@@ -134,7 +134,7 @@ position: relative; /* Đảm bảo z-index hoạt động */
     resize: none; /* Tắt khả năng thay đổi kích thước */
 }
 
-#form-use-community-center input[type="submit"] {
+#form-use-community-center input[type="button"] {
     background-color: #1b4188; /* Màu xanh dương đậm */
     color: white; /* Màu chữ trắng */
     border: none;
