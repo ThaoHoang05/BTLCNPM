@@ -4,7 +4,7 @@
         <meta charset="utf8">
         <title>Điền form</title>
         <link rel="stylesheet" href="../../css/base.css" />
-        <script src = "../../js/formreq.js"></script>
+        <script src = "../../js/common/formreq.js"></script>
     </header>
     <body>
         <div class="top-head">
@@ -18,7 +18,7 @@
         <div class="main-content">
             <div id="form-use-community-center">
                 <h2>Điền form đăng kí sử dụng nhà văn hóa</h2>
-                <form>
+                <form id ="reqForm">
                     <label for="fullname">Họ và tên: </label>
                     <input type="text" id="fullname" required /><br />
                     <label for="numberphone">Số điện thoại:</label>
@@ -38,7 +38,7 @@
                     <input type="datetime-local" id="from" required /><br />
                     <label for="to">Đến:</label>
                     <input type="datetime-local" id="to" required /><br />
-                    <input type="submit" />
+                    <input type="button" value="Submit" onclick="postForm()"/>
                 </form>
             </div>
         </div>
