@@ -1,57 +1,42 @@
-async function getUser(event) {
-    if (event) event.preventDefault();
+async function getUser(){
     var username = document.getElementById("username").value;
     var password = document.getElementById("password").value;
-
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-        
-        // Debug: xem response trả về gì
-        console.log('Response status:', response.status);
-        console.log('Response data:', data);
-
-        if (!response.ok || !data.success) {
-            alert(data.message || 'Login failed');
-            return;
-        }
-
-        if (!data.user || !data.user.role) {
-            console.error('Invalid user data:', data);
-            alert('Dữ liệu người dùng không hợp lệ');
-            return;
-        }
-
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user_info', JSON.stringify(data.user));
-
-        alert('Đăng nhập thành công!');
-
-        const role = data.user.role;
-
-        switch (role) {
-            case 'ToTruong':
-                window.location.href = '/pages/admin/dashboard.html';
-                break;
-            case 'ToPho':
-            case 'CanBo':
-                window.location.href = '/pages/manager/dashboard.html';
-                break;
-            case 'NguoiDan':
-                window.location.href = '/pages/resident/dashboard.html';
-                break;
-            default:
-                alert('Role không hợp lệ: ' + role);
-                window.location.href = '/index.html';
-        }
-
-    } catch (error) {
-        console.error('JS ERROR:', error);
+    try{
+    const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username: username,password: password })
+    });
+    const data = await response.json();
+    if (response.ok) {
+            alert('Login successful!');
+            localStorage.setItem('token', data.token);
+            if (data.user) {
+                localStorage.setItem('user_info', JSON.stringify(data.user));
+            }
+            alert("Đăng nhập thành công!");
+            var role = data.user.role;
+            switch(role){
+                case 'admin':
+                    window.location.href = '/admin/dashboard.html';
+                    break;
+                case 'teacher':
+                    window.location.href = '/manager/dashboard.html';
+                    break;
+                case 'student':
+                    window.location.href = '/resident/dashboard.html';
+                    break;
+                case 'wrong':
+                    alert('Wrong username or password!');
+                    window.location.href = '/index.html';
+            }
+        } else {
+            alert('Login failed: ' + data.message);
+    }
+    }  catch(error){
+        console.error('Error:', error);
         alert('An error occurred while trying to log in.');
     }
 }
