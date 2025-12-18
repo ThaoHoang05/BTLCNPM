@@ -1,0 +1,13 @@
+ALTER TABLE DangKySuDung
+    ADD COLUMN Email VARCHAR(100);
+
+ALTER TABLE DangKySuDung
+    ADD COLUMN LoaiHinhThue VARCHAR(20)
+        CHECK (LoaiHinhThue IN ('CaNhan','ToChuc'));
+
+ALTER TABLE DangKySuDung
+    ADD COLUMN LyDo TEXT;
+
+ALTER TABLE DangKySuDung ALTER COLUMN TrangThai SET DEFAULT 'Chờ duyệt';
+
+ALTER TABLE DangKySuDung ALTER COLUMN TenSuKien DROP NOT NULL;

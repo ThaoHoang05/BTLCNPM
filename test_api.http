@@ -1,0 +1,12 @@
+POST http://localhost:8080/api/dang-ky/gui
+Content-Type: application/json
+
+{
+  "hoten": "Nguyen Van A",
+  "phone": "0988123456",
+  "email": "vana@gmail.com",
+  "loai": "CaNhan",
+  "lydo": "To chuc thoi thoi",
+  "batdau": "2025-12-30 08:00:00",
+  "ketthuc": "2025-12-30 11:00:00"
+}
