@@ -12,7 +12,7 @@ async function getUser(event) {
 
         const data = await response.json();
         
-        // Debug: xem response trả về gì
+        // Debug
         console.log('Response status:', response.status);
         console.log('Response data:', data);
 
@@ -26,14 +26,12 @@ async function getUser(event) {
             alert('Dữ liệu người dùng không hợp lệ');
             return;
         }
-
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user_info', JSON.stringify(data.user));
+        localStorage.setItem('currentUser', JSON.stringify(data.user)); 
 
         alert('Đăng nhập thành công!');
 
         const role = data.user.role;
-
         switch (role) {
             case 'ToTruong':
                 window.location.href = '/pages/admin/dashboard.html';
@@ -47,7 +45,8 @@ async function getUser(event) {
                 break;
             default:
                 alert('Role không hợp lệ: ' + role);
-                window.location.href = '/index.html';
+                // Xóa data nếu role sai để tránh lỗi
+                handleLogout(); 
         }
 
     } catch (error) {

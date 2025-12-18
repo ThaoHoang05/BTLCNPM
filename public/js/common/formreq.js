@@ -31,7 +31,7 @@ function postForm() {
     };
 
     // Gửi dữ liệu đến backend bằng fetch
-    fetch('https://your-backend-url/api/submit-form', {
+    fetch('/api/submit-form', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

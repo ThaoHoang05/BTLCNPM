@@ -111,6 +111,21 @@ function renderHome(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Lấy thông tin người dùng đã lưu trong LocalStorage khi đăng nhập
+// Lưu ý: Kiểm tra xem lúc Login bạn lưu key là 'currentUser' hay 'user_info' để điền cho đúng
+const userString = localStorage.getItem('currentUser'); 
+
+if (userString) {
+    // 2. Chuyển chuỗi JSON về lại thành đối tượng (Object)
+    const user = JSON.parse(userString);
+
+    // 3. Tìm thẻ h2 và gán tên vào
+    const nameLabel = document.getElementById('admin-name');
+    if (nameLabel) {
+        // Giả sử API trả về field tên là 'username'
+        nameLabel.innerText = user.username; 
+    }
+}
     preLoadHome();
     renderHome();
 });
