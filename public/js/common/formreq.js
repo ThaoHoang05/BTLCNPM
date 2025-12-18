@@ -21,17 +21,18 @@ function postForm() {
 
     // Tạo đối tượng dữ liệu để gửi
     const formData = {
-        fullname: fullname,
-        numberphone: numberphone,
+        hoten: fullname,
+        phone: numberphone,
         email: email,
-        type: type,
-        reason: reason,
-        from: from,
-        to: to
+        loai: type,
+        lydo: reason,
+        batdau: from,
+        ketthuc: to
     };
 
+    console.log('Form Data to be sent:', formData);
     // Gửi dữ liệu đến backend bằng fetch
-    fetch('/api/submit-form', {
+    fetch('/api/dang-ky/submit-form', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
