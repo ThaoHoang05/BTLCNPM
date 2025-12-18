@@ -12,11 +12,13 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Routes
+const dangKyRoutes = require('./routes/dangKySuDungRoutes');
 const authRoutes = require('./routes/authRoutes');
 const hoKhauRoutes = require('./routes/hoKhauRoutes');
 const nhaVanHoaRoutes = require('./routes/nhaVanHoaRoutes');
 
 //api
+app.use('/api/dang-ky', dangKyRoutes);
 app.use('/api', authRoutes); 
 //app.use('/api/ho-khau', hoKhauRoutes);
 //app.use('/api/nha-van-hoa', nhaVanHoaRoutes);
