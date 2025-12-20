@@ -1,7 +1,7 @@
 let overalData = {}; // Nên để object rỗng thay vì mảng []
 
 function queryData() {
-    fetch('/api/admin/home/resident')
+    fetch('/api/hokhau/dashboard')
         .then(response => response.json())
         .then(data => {
             overalData = data;
