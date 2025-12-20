@@ -277,3 +277,43 @@
 }
 .btn-delete-row:hover { background-color: #ffebee; }
 .text-grey { color: #bdc3c7; }
+
+/* Thiết lập vị trí cha */
+.household-info.position-relative {
+    position: relative;
+    padding-right: 120px;
+}
+
+/* Nút bấm Style Glass */
+.btn-edit-custom {
+    position: absolute;
+    right: 0;
+
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0e0e0;
+    color: #333;
+    
+    padding: 6px 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase; /* Chữ in hoa */
+    letter-spacing: 0.5px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-edit-custom i {
+    color: #f39c12; /* Icon màu cam nổi bật trên nền trắng */
+}
+
+.btn-edit-custom:hover {
+    border-color: #f39c12;
+    color: #f39c12;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(243, 156, 18, 0.15);
+}
