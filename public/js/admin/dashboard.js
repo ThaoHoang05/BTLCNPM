@@ -93,6 +93,15 @@ function renderReport(){
 
 function renderHome(){
     var mainContent = document.querySelector('.main-content');
+    
+    if (homeContentCache) {
+        mainContent.innerHTML = homeContentCache;
+        if (typeof queryData === 'function') {
+            queryData();
+            return;
+        }
+    } // Nếu đã có cache thì dùng luôn, không fetch lại nữa
+
     fetch('components/home.html') 
         .then(response => {
             if (!response.ok) {
@@ -103,6 +112,9 @@ function renderHome(){
         })
         .then(html => {
             mainContent.innerHTML = html;
+            if (typeof queryData === 'function') {
+                queryData();
+            }
         })
         .catch(error => {
             console.error('Lỗi tải trang:', error);

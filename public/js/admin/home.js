@@ -1,5 +1,13 @@
 let overalData = {}; // Nên để object rỗng thay vì mảng []
 
+document.addEventListener('DOMContentLoaded', function() {
+    initHomeDashboard();
+});
+
+function initHomeDashboard() {
+    queryData(); 
+}
+
 function queryData() {
     fetch('/api/hokhau/dashboard')
         .then(response => response.json())
@@ -43,7 +51,3 @@ function animateValue(id, start, end, duration) {
     };
     window.requestAnimationFrame(step);
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    queryData();
-});
