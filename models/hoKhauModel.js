@@ -22,6 +22,57 @@ const HoKhauModel = {
         }
     },
     
+    // Truy vấn chi tiết hộ khẩu theo số hộ khẩu
+    getDetail: async (sohokhau) => {
+        try {
+            // 1. Lấy thông tin chung của hộ và tên chủ hộ
+            const infoQuery = `
+                SELECT hk.sohokhau, nk.hoten as "tenChuHo", 
+                       hk.sonha || ', ' || hk.duong || ', ' || hk.phuong as "diaChi",
+                       hk.ngaylap as "ngayLapSo"
+                FROM hokhau hk
+                LEFT JOIN nhankhau nk ON hk.chuhocccd = nk.cccd
+                WHERE hk.sohokhau = $1`;
+            
+            // 2. Lấy danh sách nhân khẩu trong hộ
+            const membersQuery = `
+                SELECT hoten as "hoTen", 
+                   ngaysinh as "ngaySinh", 
+                   quanhevoichuho as "quanHeWithChuHo",
+                   cccd,
+                   trangthai as "TrangThai"
+                FROM nhankhau 
+                WHERE sohokhau = $1`;
+
+            // 3. Lấy lịch sử biến động của các thành viên trong hộ
+            const historyQuery = `
+                SELECT bd.ngaybiendong as "ngayBienDoi", bd.loaibiendong as "loaiBienDong", 
+                       nk.hoten as "tenNguoiThayDoi", bd.noiden as "noiDen"
+                FROM biendongnhankhau bd
+                JOIN nhankhau nk ON bd.cccd = nk.cccd
+                WHERE nk.sohokhau = $1
+                ORDER BY bd.ngaybiendong DESC`;
+
+            const info = await poolQuanLiHoKhau.query(infoQuery, [sohokhau]);
+            const members = await poolQuanLiHoKhau.query(membersQuery, [sohokhau]);
+            const history = await poolQuanLiHoKhau.query(historyQuery, [sohokhau]);
+
+            if (info.rows.length === 0) return null;
+
+            return {
+                tenChuHo: info.rows[0].tenChuHo,
+                diaChi: info.rows[0].diaChi,
+                ngayLapSo: info.rows[0].ngayLapSo,
+                danhSachNhanKhau: members.rows,
+                lichSuBienDong: history.rows
+            };
+        } catch (error) {
+            console.error("Lỗi Model getDetail:", error);
+            throw error;
+        }
+    },
+
+
 };
 
 module.exports = HoKhauModel;
