@@ -1,5 +1,45 @@
 let homeContentCache = null; 
 
+// 1. Tạo một đối tượng ánh xạ giữa Hash và hàm Render
+const routes = {
+    'home': renderHome,
+    'resident': renderResidentManagement,
+    'nvh': renderNVHManagement,
+    'report': renderReport,
+    'setting': renderSetting
+};
+
+// Hàm điều hướng dựa trên URL hiện tại
+function handleRouting() {
+    const hash = window.location.hash.replace('#', '') || 'home';
+    const renderFunc = routes[hash];
+
+    if (renderFunc) {
+        renderFunc(); // Gọi hàm render tương ứng
+    } else if (hash.startsWith('hokhau/')) {
+        // Xử lý xem chi tiết hộ khẩu qua URL (Ví dụ: #hokhau/HK001)
+        const hkCode = hash.split('/')[1];
+        renderResidentManagement(); 
+        // Sau đó gọi hàm mở modal chi tiết sau một khoảng trễ nhỏ
+        setTimeout(() => openDetailModal(hkCode), 100);
+    }
+}
+
+// Lắng nghe sự kiện đổi URL và sự kiện Load trang
+window.addEventListener('hashchange', handleRouting);
+document.addEventListener('DOMContentLoaded', () => {
+    // Giữ nguyên logic lấy thông tin user
+    const userString = localStorage.getItem('currentUser'); 
+    if (userString) {
+        const user = JSON.parse(userString);
+        const nameLabel = document.getElementById('admin-name');
+        if (nameLabel) nameLabel.innerText = user.username; 
+    }
+
+    preLoadHome(); // Tải ngầm
+    handleRouting(); 
+});
+
 // 2. Hàm này chỉ để TẢI NGẦM (Chạy khi vừa vào trang)
 async function preLoadHome() {
     try {
@@ -120,24 +160,4 @@ function renderHome(){
             console.error('Lỗi tải trang:', error);
             mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file home.html</h3>`; 
         });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Lấy thông tin người dùng đã lưu trong LocalStorage khi đăng nhập
-// Lưu ý: Kiểm tra xem lúc Login bạn lưu key là 'currentUser' hay 'user_info' để điền cho đúng
-const userString = localStorage.getItem('currentUser'); 
-
-if (userString) {
-    // 2. Chuyển chuỗi JSON về lại thành đối tượng (Object)
-    const user = JSON.parse(userString);
-
-    // 3. Tìm thẻ h2 và gán tên vào
-    const nameLabel = document.getElementById('admin-name');
-    if (nameLabel) {
-        // Giả sử API trả về field tên là 'username'
-        nameLabel.innerText = user.username; 
-    }
-}
-    preLoadHome();
-    renderHome();
-});
+};

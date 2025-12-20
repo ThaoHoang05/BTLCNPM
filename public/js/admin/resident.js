@@ -11,6 +11,7 @@ function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'none';
+        window.location.hash = 'resident';
     }
 }
 
@@ -18,6 +19,7 @@ function closeModal(modalId) {
 window.onclick = function(event) {
     if (event.target.classList.contains('modal-overlay')) {
         event.target.style.display = 'none';
+        window.location.hash = 'resident';
     }
 }
 
@@ -93,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // resident.js
 
 async function openDetailModal(hkCode) {
+    window.location.hash = 'hokhau/' + hkCode + '/detail';
     try {
         const response = await fetch(`/api/hokhau/${hkCode}`);
         const data = await response.json();
