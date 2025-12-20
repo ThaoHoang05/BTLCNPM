@@ -90,61 +90,46 @@ document.addEventListener('DOMContentLoaded', function() {
 // 3. CHỨC NĂNG: CHI TIẾT HỘ KHẨU
 // ==============================================
 
+// resident.js
+
 async function openDetailModal(hkCode) {
     try {
         const response = await fetch(`/api/hokhau/${hkCode}`);
         const data = await response.json();
 
         if (response.ok) {
-            // Điền thông tin chung
             document.getElementById('detailHKCode').innerText = hkCode;
-
-            // Sử dụng ID để gán dữ liệu chính xác
             document.getElementById('detailChuHo').innerText = data.tenChuHo;
             document.getElementById('detailDiaChi').innerText = data.diaChi;
-            
             document.getElementById('detailNgayLap').innerText = data.ngayLapSo 
-                ? new Date(data.ngayLapSo).toLocaleDateString('vi-VN') 
-                : "Chưa có dữ liệu";
+                ? new Date(data.ngayLapSo).toLocaleDateString('vi-VN') : "---";
 
-            // Render danh sách nhân khẩu
-            const memberTable = document.querySelector('#detailModal .member-table tbody');
+            const memberTable = document.querySelector('#detailModal .data-table tbody');
             memberTable.innerHTML = data.danhSachNhanKhau.map(m => `
                 <tr>
                     <td>${m.hoTen}</td>
                     <td>${new Date(m.ngaySinh).toLocaleDateString('vi-VN')}</td>
-                    <td>
-                        <span class="role-badge ${m.quanHeWithChuHo === 'Chủ hộ' ? 'head' : ''}">
-                            ${m.quanHeWithChuHo}
-                        </span>
-                    </td>
+                    <td><span class="role-badge ${m.quanHeWithChuHo === 'Chủ hộ' ? 'head' : ''}">${m.quanHeWithChuHo}</span></td>
                     <td>${m.cccd || '-'}</td>
-                    <td>
+                    <td><span class="badge-status active">${m.TrangThai || 'Thường trú'}</span></td> <td>
                         ${m.quanHeWithChuHo !== 'Chủ hộ' ? `
-                            <div class="action-dropdown">
-                                <button class="btn-text text-warning" onclick="openMoveModal('${m.hoTen}')">Chuyển đi</button>
-                                <button class="btn-text text-danger" onclick="openDeathModal('${m.hoTen}')">Khai tử</button>
-                            </div>
-                        ` : '-'}
+                            <button class="icon-btn info" title="Sửa" onclick="openAddMemberModal('${hkCode}')"><i class="fas fa-edit"></i></button>
+                        ` : '<i class="fas fa-lock text-grey"></i>'}
                     </td>
                 </tr>
             `).join('');
 
-            // Render lịch sử biến động
+            // Kiểm tra nếu có history-list mới render để tránh lỗi crash
             const historyList = document.querySelector('#detailModal .history-list');
-            historyList.innerHTML = data.lichSuBienDong.map(h => `
-                <li>
-                    <small>${new Date(h.ngayBienDoi).toLocaleDateString('vi-VN')}:</small> 
-                    <strong>${h.loaiBienDong}</strong> - ${h.tenNguoiThayDoi} 
-                    ${h.noiDen ? `(Đến: ${h.noiDen})` : ''}
-                </li>
-            `).join('');
+            if (historyList) {
+                historyList.innerHTML = data.lichSuBienDong.map(h => `
+                    <li><small>${new Date(h.ngayBienDoi).toLocaleDateString()}:</small> ${h.loaiBienDong}</li>
+                `).join('');
+            }
 
             openModal('detailModal');
         }
-    } catch (error) {
-        console.error("Lỗi:", error);
-    }
+    } catch (error) { console.error("Lỗi:", error); }
 }
 
 // Mở modal Thêm thành viên (Có tham số hkCode)
