@@ -316,3 +316,46 @@ button {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
     border: 1px solid #d1d5db;
 }
+/* --- TAB STYLES (Cho Modal Thêm Thành Viên) --- */
+.tab-container {
+    display: flex;
+    gap: 10px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    color: var(--text-gray);
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    border-radius: 6px 6px 0 0; /* Bo góc trên */
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+    background: #f9fafb;
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    background: #eff6ff;
+}
+
+.tab-content {
+    display: none; /* Mặc định ẩn */
+    animation: fadeIn 0.3s;
+}
+
+.tab-content.active {
+    display: block; /* Hiện khi active */
+}
+#editMemberModal {
+    z-index: 2100 !important; /* Cao hơn addMemberModal và detailModal */
+}
