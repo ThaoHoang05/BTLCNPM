@@ -1,0 +1,598 @@
+<div class="manager-layout">
+    <div class="content">
+        <div class="section-header">
+            <h2><i class="fas fa-book"></i> Quản lý Hộ Khẩu & Cư Trú</h2>
+            <div class="action-bar">
+                <div class="search-box">
+                    <input type="text" placeholder="Tìm theo tên chủ hộ, CCCD..." class="form-control" style="width: 250px;">
+                    <button class="btn-primary"><i class="fas fa-search"></i></button>
+                </div>
+                <button class="btn-warning" onclick="openModal('tempResidenceModal')" title="Quản lý bảng tamtru">
+                    <i class="fas fa-file-contract"></i> ĐK Tạm Trú
+                </button>
+                <button class="btn-secondary" onclick="openModal('tempAbsenceModal')" title="Quản lý bảng tamvang">
+                    <i class="fas fa-plane-departure"></i> ĐK Tạm Vắng
+                </button>
+                <button class="btn-success" onclick="openModal('addHouseholdModal')">
+                    <i class="fas fa-plus"></i> Thêm Hộ Mới
+                </button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mã Hộ (Số HK)</th>
+                        <th>Chủ Hộ (CCCD)</th>
+                        <th>Địa chỉ (Số nhà - Đường - Phường)</th>
+                        <th>Ngày lập</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>HK001</strong></td>
+                        <td>Nguyễn Văn A <br><small>(001190000001)</small></td>
+                        <td>10A, Nguyễn Trãi, La Khê, Hà Đông</td>
+                        <td>15/05/2010</td>
+                        <td>
+                            <button class="icon-btn info" title="Xem chi tiết" onclick="openDetailModal('HK001')"><i class="fas fa-eye"></i></button>
+                            <button class="icon-btn primary" title="Sửa thông tin" onclick="openEditHouseholdModal('HK001')"><i class="fas fa-pen"></i></button>
+                            <button class="icon-btn warning" title="Tách hộ" onclick="openSplitModal('HK001')"><i class="fas fa-random"></i></button>
+                            <button class="icon-btn danger" title="Xóa" onclick="deleteHousehold('HK001')"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="addHouseholdModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Thêm Hộ Khẩu Mới</h3>
+            <span class="close-btn" onclick="closeModal('addHouseholdModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addHouseholdForm">
+                
+                <div class="section-title">1. Thông tin Sổ Hộ Khẩu</div>
+                <div class="form-grid-2">
+                    <div class="form-group"> 
+                        <label>Mã hộ (Số sổ) <span class="required">*</span></label> 
+                        <input type="text" class="form-control" name="sohokhau" required placeholder="VD: HK099"> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Ngày lập <span class="required">*</span></label> 
+                        <input type="date" class="form-control" name="ngaylap" required> 
+                    </div>
+                </div>
+
+                <div class="section-title">2. Thông tin Chủ Hộ (Bắt buộc)</div>
+                <div class="form-grid-2">
+                    <div class="form-group"> 
+                        <label>Họ tên Chủ hộ <span class="required">*</span></label> 
+                        <input type="text" class="form-control" name="chuhoten" required placeholder="Nguyễn Văn A"> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>CCCD Chủ hộ <span class="required">*</span></label> 
+                        <input type="text" class="form-control" name="chuhocccd" required placeholder="001..."> 
+                        <small style="color: #666; font-size: 0.85em;">* Phải trùng khớp với bảng Nhân khẩu</small>
+                    </div>
+                </div>
+
+                <div class="section-title">3. Địa chỉ thường trú</div>
+                
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Số nhà</label>
+                        <input type="text" class="form-control" placeholder="Số nhà..." name="sonha" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Đường / Phố / Thôn</label>
+                        <input type="text" class="form-control" placeholder="Tên đường..." name="duong" required>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Phường / Xã</label>
+                        <input type="text" class="form-control" placeholder="Phường..." name="phuong" value="La Khê" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tỉnh / Thành phố</label>
+                        <input type="text" class="form-control" placeholder="Tỉnh..." name="tinh" value="Hà Nội" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;"> 
+                    <label>Ghi chú</label> 
+                    <input type="text" class="form-control" name="ghichu"> 
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addHouseholdModal')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Tạo Sổ Hộ Khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="addMemberModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus"></i> Thêm Thành Viên Vào Hộ</h3>
+            <span class="close-btn" onclick="closeModal('addMemberModal')">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('tabSearch')">
+                    <i class="fas fa-search"></i> Tìm nhân khẩu có sẵn
+                </button>
+                <button class="tab-btn" onclick="switchTab('tabNew')">
+                    <i class="fas fa-pen-nib"></i> Nhập mới hoàn toàn
+                </button>
+            </div>
+
+            <div id="tabSearch" class="tab-content active">
+                <form id="addMemberSearchForm">
+                    <div class="form-group" style="background: #f0fdf4; padding: 15px; border: 1px dashed #16a34a; border-radius: 6px;">
+                        <label>Nhập CCCD để tìm kiếm (Người đã có trong hệ thống Nhân khẩu)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="searchCCCDInput" class="form-control" placeholder="Nhập số CCCD...">
+                            <button type="button" class="btn-primary" onclick="mockSearchCitizen()">
+                                <i class="fas fa-search"></i> Tìm
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="searchResultArea" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <div class="section-title">Thông tin tìm thấy</div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>Họ tên</label>
+                                <input type="text" id="resName" class="form-control readonly-input" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Ngày sinh</label>
+                                <input type="text" id="resDob" class="form-control readonly-input" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="section-title" style="margin-top: 10px;">Thiết lập quan hệ (Bắt buộc)</div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>Mã hộ khẩu</label>
+                                <input type="text" class="form-control readonly-input" name="sohokhau_search" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Quan hệ với chủ hộ <span class="required">*</span></label>
+                                <input type="text" class="form-control" required placeholder="VD: Con, Cháu...">
+                            </div>
+                            <div class="form-group">
+                                <label>Trạng thái</label>
+                                <select class="form-control">
+                                    <option>Thường trú</option>
+                                    <option>Tạm vắng</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn-secondary" onclick="closeModal('addMemberModal')">Hủy</button>
+                            <button type="button" class="btn-success">
+                                <i class="fas fa-check"></i> Thêm vào Hộ
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="tabNew" class="tab-content">
+                <form id="memberForm">
+                    <div class="section-title">I. Thông tin cá nhân</div>
+                    <div class="form-grid-3">
+                        <div class="form-group"> <label>Họ và tên <span class="required">*</span></label> <input type="text" class="form-control" name="hoten" required> </div>
+                        <div class="form-group"> <label>Biệt danh</label> <input type="text" class="form-control" name="bidanh"> </div>
+                        <div class="form-group"> <label>Ngày sinh <span class="required">*</span></label> <input type="date" class="form-control" name="ngaysinh" required> </div>
+                    </div>
+                     <div class="form-grid-3">
+                        <div class="form-group"> <label>Giới tính</label> <select class="form-control" name="gioitinh"><option>Nam</option><option>Nữ</option></select> </div>
+                        <div class="form-group"> <label>Dân tộc</label> <input type="text" class="form-control" name="dantoc" value="Kinh"> </div>
+                        <div class="form-group"> <label>Tôn giáo</label> <input type="text" class="form-control" name="tongiao"> </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group"> <label>Nguyên quán</label> <input type="text" class="form-control" name="nguyenquan"> </div>
+                        <div class="form-group"> <label>Nơi sinh</label> <input type="text" class="form-control" name="noisinh"> </div>
+                    </div>
+
+                    <div class="section-title">II. Định danh & Công việc</div>
+                    <div class="form-grid-3">
+                        <div class="form-group"> <label>CCCD/CMND <span class="required">*</span></label> <input type="text" class="form-control" name="cccd" required> </div>
+                        <div class="form-group"> <label>Ngày cấp</label> <input type="date" class="form-control" name="ngaycapcccd"> </div>
+                        <div class="form-group"> <label>Nơi cấp</label> <input type="text" class="form-control" name="noicapcccd"> </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group"> <label>Nghề nghiệp</label> <input type="text" class="form-control" name="nghenghiep"> </div>
+                        <div class="form-group"> <label>Nơi làm việc</label> <input type="text" class="form-control" name="noilamviec"> </div>
+                    </div>
+
+                    <div class="section-title">III. Quan hệ hộ khẩu</div>
+                    <div class="form-grid-3">
+                        <div class="form-group"> <label>Mã hộ khẩu</label> <input type="text" class="form-control readonly-input" name="sohokhau" readonly> </div>
+                        <div class="form-group"> <label>Quan hệ với chủ hộ <span class="required">*</span></label> <input type="text" class="form-control" name="quanhevoichuho" required> </div>
+                        <div class="form-group"> <label>Trạng thái</label> <select class="form-control" name="trangthai">
+                            <option value="ThuongTru">Thường trú</option>
+                            <option value = "TamTru">Tạm trú</option>
+                        </select> </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="closeModal('addMemberModal')">Hủy</button>
+                        <button type="submit" class="btn-primary">Lưu Mới & Thêm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tempResidenceModal" class="modal-overlay">
+    <div class="modal-content medium-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-file-contract"></i> Đăng ký Tạm Trú</h3>
+            <span class="close-btn" onclick="closeModal('tempResidenceModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="section-title">Thông tin người tạm trú</div>
+                <div class="form-grid-2">
+                    <div class="form-group"> <label>Họ tên người ĐK <span class="required">*</span></label> <input type="text" class="form-control" required> </div>
+                    <div class="form-group"> <label>CCCD người ĐK <span class="required">*</span></label> <input type="text" class="form-control" required> </div>
+                </div>
+
+                <div class="section-title">Thông tin Chủ hộ (Nơi đến tạm trú)</div>
+                <div class="form-grid-2">
+                    <div class="form-group"> 
+                        <label>Họ tên Chủ hộ <span class="required">*</span></label> 
+                        <input type="text" class="form-control" placeholder="Chủ nhà trọ/Chủ hộ..." required> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>CCCD Chủ hộ <span class="required">*</span></label> 
+                        <input type="text" class="form-control" placeholder="Số CCCD..." required> 
+                    </div>
+                </div>
+                <div class="form-group"> <label>Địa chỉ tạm trú <span class="required">*</span></label> <input type="text" class="form-control" placeholder="VD: E3 Phùng Hưng..." required> </div>
+                
+                <div class="form-grid-2">
+                    <div class="form-group"> <label>Từ ngày <span class="required">*</span></label> <input type="date" class="form-control" required> </div>
+                    <div class="form-group"> <label>Đến ngày <span class="required">*</span></label> <input type="date" class="form-control" required> </div>
+                </div>
+                <div class="form-group"> <label>Lý do</label> <textarea class="form-control" rows="2" placeholder="VD: Sinh viên thuê trọ..."></textarea> </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('tempResidenceModal')">Hủy</button>
+                    <button type="submit" class="btn-warning">Lưu Phiếu Tạm Trú</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="detailModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3>Chi tiết Hộ khẩu: <span id="detailHKCode" style="color:var(--primary-color)">HK001</span></h3>
+            <span class="close-btn" onclick="closeModal('detailModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            
+            <div class="household-info" style="background:#f9fafb; padding:15px; border-radius:6px; margin-bottom:20px;">
+                <div class="form-grid-2">
+                <div class="info-group">
+                    <label style="font-weight:bold">Chủ hộ:</label> <span id="detailChuHo">---</span>
+                </div>
+                                <div class="info-group">
+                    <label style="font-weight:bold">Ngày lập:</label> <span id="detailNgayLap">---</span>
+                </div>
+                </div>
+                <div style="margin-top:10px" class="info-group">
+                    <label style="font-weight:bold">Địa chỉ:</label> <span id="detailDiaChi">---</span>
+                </div>
+            </div>
+            
+            <div class="section-title">Danh sách Nhân khẩu</div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr> <th>Họ tên</th> <th>Ngày sinh</th> <th>Quan hệ</th> <th>CCCD</th> <th>Trạng thái</th> <th>Thao tác</th> </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nguyễn Văn A</td> <td>01/01/1990</td>
+                            <td><span style="font-weight:bold; color:var(--danger-color)">Chủ hộ</span></td>
+                            <td>001190000001</td> <td><span class="badge-status active">Thường trú</span></td>
+                            <td><button class="icon-btn info" title="Sửa nhân khẩu này" onclick="openEditMemberModal('001190000001')">
+                                <i class="fas fa-edit"></i>
+                            </button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: right; margin-top: 10px;">
+                <button class="btn-primary" onclick="openAddMemberModal('HK001')"><i class="fas fa-user-plus"></i> Thêm Thành Viên</button>
+            </div>
+            <div class="section-title" style="margin-top: 20px;">Lịch sử biến động</div>
+            <div class="history-container">
+                <ul class="history-list" id="detailHistoryList">
+                    <li><small>--- Chưa có dữ liệu ---</small></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="splitModal" class="modal-overlay">
+    <div class="modal-content medium-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-random"></i> Tách Hộ Khẩu</h3>
+            <span class="close-btn" onclick="closeModal('splitModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p style="background: #e0e7ff; padding: 10px; border-radius: 6px; color: var(--primary-color); font-weight: 500;">
+                Tách từ hộ gốc: <strong>HK001</strong>
+            </p>
+            <div class="form-group">
+                 <label>Chọn thành viên chuyển sang hộ mới:</label>
+                 <div class="checkbox-list">
+                     <label class="checkbox-item"><input type="checkbox"> Lê Thị P (Vợ)</label>
+                     <label class="checkbox-item"><input type="checkbox"> Nguyễn Văn Con1 (Con)</label>
+                 </div>
+            </div>
+            <div class="form-section">
+                <div class="form-group"> <label>Mã hộ mới <span class="required">*</span></label> <input type="text" class="form-control" placeholder="VD: HK012"> </div>
+                <div class="form-group"> <label>Chủ hộ mới:</label> <select class="form-control"> <option>Lê Thị P</option> </select> </div>
+                <div class="form-group"> <label>Lý do tách</label> <input type="text" class="form-control" placeholder="VD: Ra ở riêng..."> </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('splitModal')">Hủy</button>
+                <button class="btn-primary">Xác nhận Tách</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editHouseholdModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Sửa Thông Tin Hộ Khẩu</h3>
+            <span class="close-btn" onclick="closeModal('editHouseholdModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editHouseholdForm">
+                
+                <div class="section-title">1. Thông tin chung</div>
+                
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Mã hộ (Không sửa)</label>
+                        <input type="text" class="form-control readonly-input" name="sohokhau" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày lập sổ <span class="required">*</span></label>
+                        <input type="date" class="form-control" name="ngaylap" required>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Họ tên Chủ hộ <span class="required">*</span></label>
+                        <input type="text" class="form-control" name="chuhoten" required placeholder="Nguyễn Văn A">
+                    </div>
+                    <div class="form-group">
+                        <label>CCCD Chủ hộ <span class="required">*</span></label>
+                        <input type="text" class="form-control" name="chuhocccd" required>
+                    </div>
+                </div>
+
+                <div class="section-title">2. Địa chỉ thường trú</div>
+                
+                <div class="form-grid-2"> <div class="form-group">
+                        <label>Số nhà</label>
+                        <input type="text" class="form-control" name="sonha" placeholder="Số nhà, tổ...">
+                    </div>
+                    <div class="form-group">
+                        <label>Đường / Phố / Thôn</label>
+                        <input type="text" class="form-control" name="duong" placeholder="Tên đường...">
+                    </div>
+                </div>
+
+                <div class="form-grid-3"> <div class="form-group">
+                        <label>Phường / Xã</label>
+                        <input type="text" class="form-control" name="phuong" placeholder="Phường...">
+                    </div>
+                    <div class="form-group">
+                        <label>Quận / Huyện</label>
+                        <input type="text" class="form-control" name="quan" placeholder="Quận...">
+                    </div>
+                    <div class="form-group">
+                        <label>Tỉnh / Thành phố</label>
+                        <input type="text" class="form-control" name="tinh" placeholder="Tỉnh...">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Ghi chú</label>
+                    <input type="text" class="form-control" name="ghichu">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('editHouseholdModal')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="tempAbsenceModal" class="modal-overlay">
+    <div class="modal-content medium-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-plane-departure"></i> Đăng ký Tạm Vắng</h3>
+            <span class="close-btn" onclick="closeModal('tempAbsenceModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="section-title">Thông tin người tạm vắng</div>
+                
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Họ và tên <span class="required">*</span></label>
+                        <input type="text" class="form-control" required placeholder="Nguyễn Văn A">
+                    </div>
+                    <div class="form-group">
+                        <label>CCCD/CMND <span class="required">*</span></label>
+                        <input type="text" class="form-control" required placeholder="Số CCCD...">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group"> 
+                        <label>Từ ngày <span class="required">*</span></label> 
+                        <input type="date" class="form-control" required> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Đến ngày <span class="required">*</span></label> 
+                        <input type="date" class="form-control" required> 
+                    </div>
+                </div>
+
+                <div class="form-group"> 
+                    <label>Nơi đến (Tạm trú) <span class="required">*</span></label> 
+                    <input type="text" class="form-control" placeholder="VD: KTX Đại học Bách Khoa, Hà Nội..." required> 
+                </div>
+
+                <div class="form-group"> 
+                    <label>Lý do</label> 
+                    <textarea class="form-control" rows="2" placeholder="VD: Đi học, đi làm xa..."></textarea> 
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('tempAbsenceModal')">Hủy</button>
+                    <button type="submit" class="btn-secondary">Lưu Phiếu Tạm Vắng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="editMemberModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-edit"></i> Chỉnh Sửa Thông Tin Nhân Khẩu</h3>
+            <span class="close-btn" onclick="closeModal('editMemberModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editMemberForm">
+                <div class="section-title">I. Thông tin cá nhân</div>
+                <div class="form-grid-3">
+                    <div class="form-group"> 
+                        <label>Họ và tên <span class="required">*</span></label> 
+                        <input type="text" class="form-control" name="hoten" required> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Biệt danh</label> 
+                        <input type="text" class="form-control" name="bidanh"> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Ngày sinh <span class="required">*</span></label> 
+                        <input type="date" class="form-control" name="ngaysinh" required> 
+                    </div>
+                </div>
+                 <div class="form-grid-3">
+                    <div class="form-group"> 
+                        <label>Giới tính</label> 
+                        <select class="form-control" name="gioitinh">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Dân tộc</label> 
+                        <input type="text" class="form-control" name="dantoc"> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Tôn giáo</label> 
+                        <input type="text" class="form-control" name="tongiao"> 
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group"> 
+                        <label>Nguyên quán</label> 
+                        <input type="text" class="form-control" name="nguyenquan"> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Nơi sinh</label> 
+                        <input type="text" class="form-control" name="noisinh"> 
+                    </div>
+                </div>
+
+                <div class="section-title">II. Định danh & Công việc</div>
+                <div class="form-grid-3">
+                    <div class="form-group"> 
+                        <label>CCCD/CMND (Khóa chính)</label> 
+                        <input type="text" class="form-control readonly-input" name="cccd" readonly> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Ngày cấp</label> 
+                        <input type="date" class="form-control" name="ngaycapcccd"> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Nơi cấp</label> 
+                        <input type="text" class="form-control" name="noicapcccd"> 
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group"> 
+                        <label>Nghề nghiệp</label> 
+                        <input type="text" class="form-control" name="nghenghiep"> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Nơi làm việc</label> 
+                        <input type="text" class="form-control" name="noilamviec"> 
+                    </div>
+                </div>
+
+                <div class="section-title">III. Quan hệ hộ khẩu</div>
+                <div class="form-grid-3">
+                    <div class="form-group"> 
+                        <label>Mã hộ khẩu</label> 
+                        <input type="text" class="form-control readonly-input" name="sohokhau" readonly> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Quan hệ với chủ hộ <span class="required">*</span></label> 
+                        <input type="text" class="form-control" name="quanhevoichuho" required> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Trạng thái</label> 
+                        <select class="form-control" name="trangthai">
+                            <option value="Thường trú">Thường trú</option>
+                            <option value="Tạm vắng">Tạm vắng</option>
+                            <option value="Chuyển đi">Chuyển đi</option>
+                            <option value="Qua đời">Qua đời</option>
+                        </select> 
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('editMemberModal')">Hủy bỏ</button>
+                    <button type="submit" class="btn-primary">Cập nhật thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

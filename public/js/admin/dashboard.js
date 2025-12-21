@@ -3,6 +3,7 @@ let homeContentCache = null;
 // 1. Tạo một đối tượng ánh xạ giữa Hash và hàm Render
 const routes = {
     'home': renderHome,
+    'household': renderHousehold,
     'resident': renderResidentManagement,
     'nvh': renderNVHManagement,
     'report': renderReport,
@@ -55,6 +56,26 @@ async function preLoadHome() {
     }
 }
 
+// Ham render household quan ly nhan khau
+function renderHousehold(){
+    var mainContent = document.querySelector('.main-content');
+    fetch('components/household.html')
+    .then(response =>{
+        if (!response.ok) {
+            // Mở Console (F12) để xem lỗi này nếu đường dẫn sai
+            throw new Error('Không tìm thấy file: ' + response.statusText);
+        }
+        return response.text();
+    })
+    .then(html =>{
+        mainContent.innerHTML = html;
+    }
+    )
+    .catch(err =>{
+        console.error('Lỗi tải trang:', err);
+        mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file household.html</h3>`; 
+    });
+}
 function renderSetting() {
     var mainContent = document.querySelector('.main-content');
     fetch('components/setting.html') 
