@@ -1,5 +1,7 @@
 /* household.js - Đã sửa lỗi chuyển hướng và lỗi API */
 
+const e = require("cors");
+
 // ==============================================
 // 1. CÁC HÀM CƠ BẢN (MODAL, TAB)
 // ==============================================
@@ -30,51 +32,70 @@ window.onclick = function(event) {
 }
 
 // ==============================================
-// 2. LOGIC CHI TIẾT HỘ KHẨU (SỬA LỖI MODAL KHÔNG HIỆN)
+// 2. LOGIC CHI TIẾT HỘ KHẨU (DA XONG PHẦN GỌI API)
 // ==============================================
 
 // Wrapper: Mở modal chi tiết hộ khẩu
 // ĐÃ SỬA: Chỉ dùng phiên bản UI (Giả lập), bỏ phiên bản gọi API lỗi
-function openDetailModal(hkCode) {
+async function openDetailModal(hkCode) {
+    var dataDetail = {};
+    fetch(`/api/hokhau/${hkCode}`)
+    .then(request => request.json())
+    .then(data =>{
+        dataDetail = data;
+    })
     // 1. Cập nhật tiêu đề modal
     const titleElement = document.getElementById('detailHKCode');
     if (titleElement) {
         titleElement.innerText = hkCode;
     }
 
-    // 2. Điền dữ liệu giả lập (Demo) để test giao diện
-    const chuHoEl = document.getElementById('detailChuHo');
-    if(chuHoEl) chuHoEl.innerText = "Nguyễn Văn A (Dữ liệu Demo)";
+    // Cap nhat du lieu thong tin chung cua ho khau
+    var HoTen = document.getElementById('detailChuHo');
+    if(dataDetail.HoTen) HoTen.innerText = dataDetail.HoTen;
+    else console.error("Loi khi tai du lieu");
     
-    const ngayLapEl = document.getElementById('detailNgayLap');
-    if(ngayLapEl) ngayLapEl.innerText = "15/05/2010";
+    var NgayLap = document.getElementById('detailNgayLap');
+    if(dataDetail.NgayLap) NgayLap.innerText = dataDetail.NgayLap;
+    else console.error("Loi khi tai du lieu");
 
-    const diaChiEl = document.getElementById('detailDiaChi');
-    if(diaChiEl) diaChiEl.innerText = "10A, Nguyễn Trãi, La Khê";
+    var DiaChi = document.getElementById('detailDiaChi');
+    if(dataDetail.DiaChi) DiaChi.innerText = dataDetail.DiaChi;
+    else console.error("Loi khi tai du lieu");
 
-    // 3. Cập nhật nút "Thêm Thành Viên" trong modal chi tiết
-    // Để khi bấm vào nó biết là đang thêm cho Hộ nào
+    // 2. Cập nhật danh sách thành viên trong hộ khẩu
+    var thanhvien = data.ThanhVien;
+    var memberListBody = document.getElementById('detailMemberTable');
+    forEach(thanhvien, function(member) {
+        var row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${member.HoTen}</td>
+            <td>${member.NgaySinh}</td>
+            <td>${member.QuanHe}</td>
+            <td>${member.CCCD}</td>
+            <td>${member.NgheNghiep}</td>
+            <td class="text-center">
+                <button class="icon-btn warning" onclick="openEditMemberModal('${member.CCCD}')"><i class="fas fa-edit"></i></button>
+                <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.CCCD}')"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        `;
+        memberListBody.appendChild(row);
+    })
+    //3. Xu ly logic cho nut them thanh vien
     const addBtn = document.querySelector('#detailModal .btn-primary');
     if (addBtn) {
         addBtn.setAttribute('onclick', `openAddMemberModal('${hkCode}')`);
     }
-
-    const historyList = document.getElementById('detailHistoryList');
+    // 4. Cap nhat lich su bien dong cua ho khau
+    var historyList = document.getElementById('detailHistoryList');
+    var LichSu = data.LichSu;
     if(historyList) {
         // Dữ liệu giả lập (Sau này lấy từ API / bảng biendonghokhau)
-        const mockHistory = [
-            { date: '20/10/2024', content: 'Biến động nhân khẩu: Bà Trần Q qua đời.' },
-            { date: '28/10/2023', content: 'Tách hộ: Chuyển Tô Thị M sang HK012.' },
-            { date: '15/05/2010', content: 'Lập sổ hộ khẩu mới.' }
-        ];
-
-        // Render HTML
-        historyList.innerHTML = mockHistory.map(item => `
-            <li>
-                <small>${item.date}:</small> 
-                ${item.content}
-            </li>
-        `).join('');
+        LichSu.forEach(entry => {
+            var listItem = document.createElement('li');
+            listItem.innerText = `${entry.NgayBienDoi}: ${entry.NoiDung}`;
+            historyList.appendChild(listItem);
+        });
     }
 
     // 4. Mở Modal
@@ -98,28 +119,42 @@ function deleteHousehold(hkCode) {
 // ==============================================
 
 // Hàm mở Modal Sửa và Binding dữ liệu mẫu
-function openEditHouseholdModal(hkCode) {
-    const form = document.getElementById('editHouseholdForm');
-    
+async function openEditHouseholdModal(hkCode) {
+    const dataHousehold = {};
+    var form = document.getElementById('editHouseholdForm');
+    fetch(`/api/hokhau/${hkCode}`)
+    .then(request => request.json())
+    .then(data =>{
+        // Binding dữ liệu từ API vào form (nếu có)
+        dataHousehold = data;
+        form.querySelector('input[name="sohokhau"]').value = data.soHoKhau || hkCode;
+        form.querySelector('input[name="chuhocccd"]').value = data.cccdChuHo || '';
+        form.querySelector('input[name="chuhoten"]').value = data.tenChuHo || '';
+        form.querySelector('input[name="ngaylap"]').value = data.ngayLapSo ? new Date(data.ngayLapSo).toISOString().split('T')[0] : '';
+        
+        form.querySelector('input[name="sonha"]').value = data.soNha || '';
+        form.querySelector('input[name="duong"]').value = data.duong || '';
+        form.querySelector('input[name="phuong"]').value = data.phuong || '';
+        form.querySelector('input[name="quan"]').value = data.quan || '';
+        form.querySelector('input[name="tinh"]').value = data.tinh || '';
+        
+        form.querySelector('input[name="ghichu"]').value = data.ghiChu || '';
+    })
+    .catch(err => {
+        console.error("Lỗi tải dữ liệu hộ khẩu để sửa:", err);
+    })  
     // Giả lập dữ liệu (Data Binding)
-    if (hkCode === 'HK001') {
-        form.querySelector('input[name="sohokhau"]').value = 'HK001';
-        form.querySelector('input[name="chuhocccd"]').value = '001190000001'; 
-        form.querySelector('input[name="chuhoten"]').value = 'Nguyễn Văn A';
-        form.querySelector('input[name="ngaylap"]').value = '2010-05-15';
-        
-        form.querySelector('input[name="sonha"]').value = '10A';
-        form.querySelector('input[name="duong"]').value = 'Nguyễn Trãi';
-        form.querySelector('input[name="phuong"]').value = 'La Khê';
-        form.querySelector('input[name="quan"]').value = 'Hà Đông';
-        form.querySelector('input[name="tinh"]').value = 'Hà Nội';
-        
-        form.querySelector('input[name="ghichu"]').value = 'Hộ Tổ trưởng';
-    } else {
-        form.reset();
-        form.querySelector('input[name="sohokhau"]').value = hkCode;
-    }
     openModal('editHouseholdModal');
+}
+
+async function editHousehold(hkCode) {
+    let dataToUpdate = {};
+    
+    try{
+
+    }catch(err){
+        console.error("Lỗi sửa hộ khẩu:", err);
+    }
 }
 
 // Ham chinh sua thong tin nhan khau trong ho khau
@@ -243,7 +278,7 @@ function mockSearchCitizen() {
 }
 
 // ==============================================
-// 5. API LOAD DANH SÁCH (GIỮ NGUYÊN)
+// 5. API LOAD DANH SÁCH HỘ KHẨU (đã xong)
 // ==============================================
 async function loadHouseHoldList(){
     try{

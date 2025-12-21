@@ -307,7 +307,7 @@
             
             <div class="section-title">Danh sách Nhân khẩu</div>
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table" id = "detailMemberTable">
                     <thead>
                         <tr> <th>Họ tên</th> <th>Ngày sinh</th> <th>Quan hệ</th> <th>CCCD</th> <th>Trạng thái</th> <th>Thao tác</th> </tr>
                     </thead>
@@ -432,7 +432,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeModal('editHouseholdModal')">Hủy bỏ</button>
-                    <button type="submit" class="btn-primary">Cập nhật</button>
+                    <button type="submit" class="btn-primary" onclick="editHousehold('HK001')">Cập nhật</button>
                 </div>
             </form>
         </div>
