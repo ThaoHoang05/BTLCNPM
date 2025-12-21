@@ -7,11 +7,8 @@
                     <input type="text" placeholder="Tìm theo tên chủ hộ, CCCD..." class="form-control" style="width: 250px;">
                     <button class="btn-primary"><i class="fas fa-search"></i></button>
                 </div>
-                <button class="btn-warning" onclick="openModal('tempResidenceModal')" title="Quản lý bảng tamtru">
-                    <i class="fas fa-file-contract"></i> ĐK Tạm Trú
-                </button>
-                <button class="btn-secondary" onclick="openModal('tempAbsenceModal')" title="Quản lý bảng tamvang">
-                    <i class="fas fa-plane-departure"></i> ĐK Tạm Vắng
+                <button class="btn-warning" onclick="openManageResidence()" title="Quản lý biến động cư trú">
+                    <i class="fas fa-exchange-alt"></i> Quản lý Cư trú
                 </button>
                 <button class="btn-success" onclick="openModal('addHouseholdModal')">
                     <i class="fas fa-plus"></i> Thêm Hộ Mới
@@ -30,19 +27,7 @@
                         <th>Thao tác</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>HK001</strong></td>
-                        <td>Nguyễn Văn A <br><small>(001190000001)</small></td>
-                        <td>10A, Nguyễn Trãi, La Khê, Hà Đông</td>
-                        <td>15/05/2010</td>
-                        <td>
-                            <button class="icon-btn info" title="Xem chi tiết" onclick="openDetailModal('HK001')"><i class="fas fa-eye"></i></button>
-                            <button class="icon-btn primary" title="Sửa thông tin" onclick="openEditHouseholdModal('HK001')"><i class="fas fa-pen"></i></button>
-                            <button class="icon-btn warning" title="Tách hộ" onclick="openSplitModal('HK001')"><i class="fas fa-random"></i></button>
-                            <button class="icon-btn danger" title="Xóa" onclick="deleteHousehold('HK001')"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
+                <tbody id="householdList">
                 </tbody>
             </table>
         </div>
@@ -307,7 +292,7 @@
             
             <div class="section-title">Danh sách Nhân khẩu</div>
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table" id = "detailMemberTable">
                     <thead>
                         <tr> <th>Họ tên</th> <th>Ngày sinh</th> <th>Quan hệ</th> <th>CCCD</th> <th>Trạng thái</th> <th>Thao tác</th> </tr>
                     </thead>
@@ -343,25 +328,46 @@
             <span class="close-btn" onclick="closeModal('splitModal')">&times;</span>
         </div>
         <div class="modal-body">
-            <p style="background: #e0e7ff; padding: 10px; border-radius: 6px; color: var(--primary-color); font-weight: 500;">
-                Tách từ hộ gốc: <strong>HK001</strong>
+            <p id="splitMessage" style="background: #e0e7ff; padding: 10px; border-radius: 6px; color: var(--primary-color); font-weight: 500;">
+                Tách từ hộ gốc: <strong id="srcHkCode">---</strong>
             </p>
-            <div class="form-group">
-                 <label>Chọn thành viên chuyển sang hộ mới:</label>
-                 <div class="checkbox-list">
-                     <label class="checkbox-item"><input type="checkbox"> Lê Thị P (Vợ)</label>
-                     <label class="checkbox-item"><input type="checkbox"> Nguyễn Văn Con1 (Con)</label>
-                 </div>
-            </div>
-            <div class="form-section">
-                <div class="form-group"> <label>Mã hộ mới <span class="required">*</span></label> <input type="text" class="form-control" placeholder="VD: HK012"> </div>
-                <div class="form-group"> <label>Chủ hộ mới:</label> <select class="form-control"> <option>Lê Thị P</option> </select> </div>
-                <div class="form-group"> <label>Lý do tách</label> <input type="text" class="form-control" placeholder="VD: Ra ở riêng..."> </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeModal('splitModal')">Hủy</button>
-                <button class="btn-primary">Xác nhận Tách</button>
-            </div>
+
+            <form id="splitHouseholdForm">
+                <div class="section-title">1. Chọn thành viên sang hộ mới</div>
+                <div class="form-group">
+                     <div class="checkbox-list" id="splitMemberContainer">
+                         </div>
+                </div>
+
+                <div class="section-title">2. Thông tin hộ mới</div>
+                
+                <div class="form-group"> 
+                    <label>Chủ hộ mới <span class="required">*</span></label> 
+                    <select class="form-control" name="newOwner" id="newOwnerSelect" required> 
+                        <option value="">-- Chọn chủ hộ --</option>
+                    </select> 
+                </div>
+
+                <div class="form-group"> 
+                    <label>Ngày tách <span class="required">*</span></label> 
+                    <input type="date" class="form-control" name="ngayTach" required> 
+                </div>
+
+                <div class="form-group"> 
+                    <label>Địa chỉ mới <span class="required">*</span></label> 
+                    <input type="text" class="form-control" name="diaChi" required placeholder="Số nhà, đường, phường..."> 
+                </div>
+
+                <div class="form-group"> 
+                    <label>Lý do tách</label> 
+                    <input type="text" class="form-control" name="lyDo" placeholder="VD: Ra ở riêng..."> 
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('splitModal')">Hủy</button>
+                    <button type="submit" class="btn-primary">Xác nhận Tách</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -432,7 +438,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeModal('editHouseholdModal')">Hủy bỏ</button>
-                    <button type="submit" class="btn-primary">Cập nhật</button>
+                    <button type="submit" class="btn-primary" onclick="editHousehold('HK001')">Cập nhật</button>
                 </div>
             </form>
         </div>
@@ -593,6 +599,76 @@
                     <button type="submit" class="btn-primary">Cập nhật thông tin</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+<div id="manageResidenceModal" class="modal-overlay">
+    <div class="modal-content large-modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-exchange-alt"></i> Quản lý Biến động Cư trú</h3>
+            <span class="close-btn" onclick="closeModal('manageResidenceModal')">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <div class="custom-tabs">
+                <button class="tab-item active" onclick="switchResidenceTab('tabTamTru', this)">
+                    <i class="fas fa-file-contract"></i> Đăng ký Tạm Trú (Đến)
+                </button>
+                <button class="tab-item" onclick="switchResidenceTab('tabTamVang', this)">
+                    <i class="fas fa-plane-departure"></i> Đăng ký Tạm Vắng (Đi)
+                </button>
+            </div>
+
+            <div id="tabTamTru" class="tab-panel active">
+                <div class="action-bar-mini">
+                    <div class="stats-text text-success">
+                        <i class="fas fa-info-circle"></i> Danh sách công dân từ nơi khác đến địa phương.
+                    </div>
+                    <button class="btn-success" onclick="openModal('tempResidenceModal')">
+                        <i class="fas fa-plus"></i> ĐK Tạm Trú Mới
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Họ tên</th>
+                                <th>CCCD</th>
+                                <th>Địa chỉ tạm trú</th>
+                                <th>Từ ngày - Đến ngày</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listTamTru"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tabTamVang" class="tab-panel">
+                <div class="action-bar-mini">
+                    <div class="stats-text text-warning">
+                        <i class="fas fa-info-circle"></i> Danh sách công dân địa phương đi làm ăn/học tập xa.
+                    </div>
+                    <button class="btn-warning" onclick="openModal('tempAbsenceModal')">
+                        <i class="fas fa-plus"></i> ĐK Tạm Vắng Mới
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Họ tên</th>
+                                <th>Nơi đến</th>
+                                <th>Thời hạn</th>
+                                <th>Lý do</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listTamVang"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
