@@ -24,6 +24,47 @@ window.onclick = function(event) {
 }
 
 // ==============================================
+// 1. CHỨC NĂNG: LOAD DANH SÁCH HỘ KHẨU
+//
+// ==============================================
+async function loadHouseHoldList(){
+    try{
+        fetch('/api/hokhau')
+        .then(response => response.json())
+        .then(
+            data =>{
+                const tbody = document.querySelector('#householdTable tbody');
+                tbody.innerHTML = ''; // Xóa dữ liệu cũ nếu có
+
+                data.forEach(hk => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${hk.soHoKhau}</td>
+                        <td>${hk.tenChuHo}</td>
+                        <td>${hk.diaChi}</td>
+                        <td>${new Date(hk.ngayLapSo).toLocaleDateString('vi-VN')}</td>
+                        <td class="text-center">
+                            <button class="icon-btn info" title="Chi tiết" onclick="openDetailModal('${hk.soHoKhau}')"><i class="fas fa-info-circle"></i></button>
+                            <button class="icon-btn warning" title="Sửa" onclick="openEditHouseholdModal('${hk.soHoKhau}')"><i class="fas fa-edit"></i></button>
+                            <button class="icon-btn primary" title="Tách hộ" onclick="openSplitModal('${hk.soHoKhau}')"><i class="fas fa-cut"></i></button>
+                            <button class="icon-btn danger" title="Xóa" onclick="deleteHousehold('${hk.soHoKhau}')"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+            }
+
+        )
+    }catch(err){
+        console.error("Lỗi tải danh sách hộ khẩu:", err);
+    }
+}
+
+
+
+// ==============================================
 // 2. CHỨC NĂNG: THÊM HỘ KHẨU MỚI
 // ==============================================
 
