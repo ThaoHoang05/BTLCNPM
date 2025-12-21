@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const adminHomeController = require('../controllers/adminHomeController');
-router.get('/dashboard', adminHomeController.getDashboardStats);
+const adminController = require('../controllers/adminController');
+router.get('/dashboard', adminController.getDashboardStats);
+router.get('/:id', adminController.getHouseholdDetail);
 
 module.exports = router;

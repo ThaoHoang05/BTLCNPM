@@ -11,21 +11,128 @@ function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.style.display = 'none';
+        window.location.hash = 'resident';
     }
 }
 
-// Mở modal Chi tiết hộ
-function openDetailModal(hkCode) {
-    const titleElement = document.getElementById('detailHKCode');
-    if (titleElement) {
-        titleElement.innerText = hkCode;
+// Đóng modal khi click ra vùng ngoài (Overlay)
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+        event.target.style.display = 'none';
+        window.location.hash = 'resident';
     }
-    // Gán onclick cho nút Thêm thành viên bên trong Modal Chi tiết để nó biết đang thêm vào hộ nào
-    const addBtn = document.querySelector('#detailModal .btn-primary');
-    if(addBtn) {
-        addBtn.setAttribute('onclick', `openAddMemberModal('${hkCode}')`);
+}
+
+// ==============================================
+// 2. CHỨC NĂNG: THÊM HỘ KHẨU MỚI
+// ==============================================
+
+// Hàm thêm dòng thành viên mới vào bảng nhập liệu
+function addMemberRow() {
+    const tbody = document.getElementById('memberListBody');
+    const newRow = document.createElement('tr');
+    
+    newRow.innerHTML = `
+        <td><input type="text" placeholder="Họ và tên" required></td>
+        <td><input type="date" required></td>
+        <td>
+            <select style="width:100%; border:none; padding:10px; outline:none;">
+                <option value="Vợ">Vợ</option>
+                <option value="Chồng">Chồng</option>
+                <option value="Con">Con</option>
+                <option value="Bố">Bố</option>
+                <option value="Mẹ">Mẹ</option>
+                <option value="Khác">Khác</option>
+            </select>
+        </td>
+        <td><input type="text" placeholder="Số CCCD"></td>
+        <td><input type="text" placeholder="Nghề nghiệp"></td>
+        <td class="text-center">
+            <button type="button" class="btn-delete-row" onclick="removeRow(this)">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </td>
+    `;
+    
+    tbody.appendChild(newRow);
+}
+
+// Hàm xóa dòng thành viên
+function removeRow(btn) {
+    const row = btn.closest('tr');
+    row.remove();
+}
+
+// Hàm reset bảng thành viên về mặc định (chỉ còn chủ hộ)
+function resetMemberTable() {
+    const tbody = document.getElementById('memberListBody');
+    // Giữ lại dòng đầu tiên (class owner-row), xóa các dòng sau
+    while (tbody.rows.length > 1) {
+        tbody.deleteRow(1);
     }
-    openModal('detailModal');
+}
+
+// Xử lý sự kiện Submit Form Thêm Hộ
+document.addEventListener('DOMContentLoaded', function() {
+    const addForm = document.getElementById('addHouseholdForm');
+    if (addForm) {
+        addForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Chặn load lại trang
+            
+            // Logic lấy dữ liệu tại đây (Demo)
+            const rowCount = document.getElementById('memberListBody').rows.length;
+            
+            alert(`Đã thêm hộ khẩu mới thành công gồm ${rowCount} thành viên!`);
+            closeModal('addHouseholdModal');
+        });
+    }
+});
+
+// ==============================================
+// 3. CHỨC NĂNG: CHI TIẾT HỘ KHẨU
+// ==============================================
+
+// resident.js
+
+async function openDetailModal(hkCode) {
+    window.location.hash = 'hokhau/' + hkCode + '/detail';
+    try {
+        const response = await fetch(`/api/hokhau/${hkCode}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('detailHKCode').innerText = hkCode;
+            document.getElementById('detailChuHo').innerText = data.tenChuHo;
+            document.getElementById('detailDiaChi').innerText = data.diaChi;
+            document.getElementById('detailNgayLap').innerText = data.ngayLapSo 
+                ? new Date(data.ngayLapSo).toLocaleDateString('vi-VN') : "---";
+
+            const memberTable = document.querySelector('#detailModal .data-table tbody');
+            memberTable.innerHTML = data.danhSachNhanKhau.map(m => `
+                <tr>
+                    <td>${m.hoTen}</td>
+                    <td>${new Date(m.ngaySinh).toLocaleDateString('vi-VN')}</td>
+                    <td><span class="role-badge ${m.quanHeWithChuHo === 'Chủ hộ' ? 'head' : ''}">${m.quanHeWithChuHo}</span></td>
+                    <td>${m.cccd || '-'}</td>
+                    <td><span class="badge-status active">${m.TrangThai || 'Thường trú'}</span></td> <td>
+                        ${m.quanHeWithChuHo !== 'Chủ hộ' ? `
+                            <button class="icon-btn info" title="Sửa" onclick="openAddMemberModal('${hkCode}')"><i class="fas fa-edit"></i></button>
+                        ` : '<i class="fas fa-lock text-grey"></i>'}
+                    </td>
+                </tr>
+            `).join('');
+
+            // Kiểm tra nếu có history-list mới render để tránh lỗi crash
+            const historyList = document.querySelector('#detailModal .history-list');
+            if (historyList) {
+                historyList.innerHTML = data.lichSuBienDong.map(h => `
+                    <li><small>${new Date(h.ngayBienDoi).toLocaleDateString()}:</small> ${h.loaiBienDong}</li>
+                `).join('');
+            }
+
+            openModal('detailModal');
+        }
+    } catch (error) { console.error("Lỗi:", error); }
 }
 
 // Mở modal Thêm thành viên (Có tham số hkCode)

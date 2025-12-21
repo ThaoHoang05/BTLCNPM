@@ -367,12 +367,19 @@
             <span class="close-btn" onclick="closeModal('detailModal')">&times;</span>
         </div>
         <div class="modal-body">
+            
             <div class="household-info" style="background:#f9fafb; padding:15px; border-radius:6px; margin-bottom:20px;">
                 <div class="form-grid-2">
-                    <div class="info-group"> <label style="font-weight:bold">Chủ hộ:</label> <span>Nguyễn Văn A</span> </div>
-                    <div class="info-group"> <label style="font-weight:bold">Ngày lập:</label> <span>15/05/2010</span> </div>
+                <div class="info-group">
+                    <label style="font-weight:bold">Chủ hộ:</label> <span id="detailChuHo">---</span>
                 </div>
-                <div style="margin-top:10px"> <label style="font-weight:bold">Địa chỉ:</label> <span>10A, Đường Nguyễn Trãi, Phường La Khê, Quận Hà Đông, Hà Nội</span> </div>
+                                <div class="info-group">
+                    <label style="font-weight:bold">Ngày lập:</label> <span id="detailNgayLap">---</span>
+                </div>
+                </div>
+                <div style="margin-top:10px" class="info-group">
+                    <label style="font-weight:bold">Địa chỉ:</label> <span id="detailDiaChi">---</span>
+                </div>
             </div>
             
             <div class="section-title">Danh sách Nhân khẩu</div>
