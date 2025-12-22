@@ -45,14 +45,24 @@ const HoKhauModel = {
                 FROM nhankhau 
                 WHERE sohokhau = $1`;
 
-            // 3. Lấy lịch sử biến động của các thành viên trong hộ
+            // 3. Lấy lịch sử biến động
             const historyQuery = `
-                SELECT bd.ngaybiendong as "NgayBienDoi", bd.loaibiendong as "NoiDung", 
-                       nk.hoten as "TenNguoiThayDoi", bd.noiden as "NoiDen"
-                FROM biendongnhankhau bd
-                JOIN nhankhau nk ON bd.cccd = nk.cccd
-                WHERE nk.sohokhau = $1
-                ORDER BY bd.ngaybiendong DESC`;
+                        SELECT ngaythaydoi as "NgayBienDoi", 
+                            noidungthaydoi as "NoiDung", 
+                            'Cả hộ' as "TenNguoiThayDoi"
+                        FROM biendonghokhau 
+                        WHERE sohokhau = $1
+
+                        UNION ALL
+
+                        SELECT bd.ngaybiendong as "NgayBienDoi", 
+                            bd.loaibiendong as "NoiDung", 
+                            nk.hoten as "TenNguoiThayDoi"
+                        FROM biendongnhankhau bd
+                        JOIN nhankhau nk ON bd.cccd = nk.cccd
+                        WHERE nk.sohokhau = $1
+
+                        ORDER BY "NgayBienDoi" DESC`; // Sắp xếp cái mới nhất lên đầu
 
             const info = await poolQuanLiHoKhau.query(infoQuery, [sohokhau]);
             const members = await poolQuanLiHoKhau.query(membersQuery, [sohokhau]);
