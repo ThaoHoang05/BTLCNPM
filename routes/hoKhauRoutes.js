@@ -9,4 +9,5 @@ router.get('/show', showHoKhauController.getHoKhauList);
 router.get('/show/:id', adminController.getHouseholdDetail);
 
 
+
 module.exports = router;
