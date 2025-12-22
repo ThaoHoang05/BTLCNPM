@@ -185,6 +185,7 @@ button {
 }
 
 .modal-content {
+    max-height: 90vh;
     background: white;
     border-radius: 12px;
     box-shadow: var(--shadow-lg);
@@ -193,6 +194,12 @@ button {
     border: 1px solid var(--border-color);
     animation: slideDown 0.3s ease-out;
     padding: 0; /* Reset padding to handle header/footer separately */
+    /* Sử dụng Flexbox để cố định Header và Footer */
+    display: flex;
+    flex-direction: column;
+    
+    /* Đảm bảo modal nằm gọn gàng */
+    position: relative;
 }
 
 @keyframes slideDown {
@@ -223,7 +230,15 @@ button {
 }
 .close-btn:hover { color: var(--danger-color); }
 
-.modal-body { padding: 24px; }
+.modal-body { 
+    overflow-y: auto;
+    padding: 24px; 
+    /* Tự động co giãn để lấp đầy khoảng trống còn lại */
+    flex: 1;
+    
+    /* Thêm padding để nội dung không dính sát lề (giữ nguyên của bạn nếu đã có) */
+    padding: 20px;
+}
 
 .modal-footer {
     padding: 16px 24px;
@@ -494,4 +509,49 @@ button {
 #tempResidenceModal,
 #tempAbsenceModal {
     z-index: 2000 !important; 
+}
+/* Khung chứa danh sách: Giới hạn chiều cao để không làm dài Modal */
+.history-container {
+    max-height: 200px; /* Chiều cao vừa phải */
+    overflow-y: auto;  /* Tự cuộn nếu danh sách dài */
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 4px;
+    background: #fdfdfd;
+}
+
+ul.history-list {
+    list-style: none; /* Bỏ dấu chấm tròn mặc định xấu xí */
+    padding: 0;
+    margin: 0;
+}
+
+ul.history-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e0e0; /* Đường kẻ mờ ngăn cách các dòng */
+    font-size: 14px;
+    display: flex; /* Căn chỉnh ngày và nội dung thẳng hàng */
+    gap: 10px;
+}
+
+ul.history-list li:last-child {
+    border-bottom: none; /* Bỏ gạch chân dòng cuối */
+}
+
+/* Tô màu ngày tháng cho nổi bật */
+.history-date {
+    font-weight: bold;
+    color: #2c3e50;
+    min-width: 85px; /* Cố định chiều rộng cột ngày để thẳng hàng */
+}
+
+.history-content {
+    color: #333;
+    flex: 1; /* Tự giãn hết chiều ngang còn lại */
+}
+
+.history-note {
+    color: #888;
+    font-size: 0.9em;
+    font-style: italic;
 }

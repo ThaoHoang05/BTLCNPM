@@ -27,31 +27,42 @@ const HoKhauModel = {
         try {
             // 1. Lấy thông tin chung của hộ và tên chủ hộ
             const infoQuery = `
-                SELECT hk.sohokhau, nk.hoten as "tenChuHo", 
-                       hk.sonha || ', ' || hk.duong || ', ' || hk.phuong as "diaChi",
-                       hk.ngaylap as "ngayLapSo"
+                SELECT hk.sohokhau, nk.hoten as "HoTen", 
+                       hk.sonha || ', ' || hk.duong || ', ' || hk.phuong || ', ' || hk.quan || ', ' || hk.tinh as "DiaChi",
+                       hk.ngaylap as "NgayLap",
+                       hk.ghichu as "GhiChu"
                 FROM hokhau hk
                 LEFT JOIN nhankhau nk ON hk.chuhocccd = nk.cccd
                 WHERE hk.sohokhau = $1`;
             
             // 2. Lấy danh sách nhân khẩu trong hộ
             const membersQuery = `
-                SELECT hoten as "hoTen", 
-                   ngaysinh as "ngaySinh", 
-                   quanhevoichuho as "quanHeWithChuHo",
-                   cccd,
+                SELECT hoten as "HoTenTV", 
+                   ngaysinh as "NgaySinh", 
+                   quanhevoichuho as "QuanHeChuHo",
+                   cccd as "CCCD",
                    trangthai as "TrangThai"
                 FROM nhankhau 
                 WHERE sohokhau = $1`;
 
-            // 3. Lấy lịch sử biến động của các thành viên trong hộ
+            // 3. Lấy lịch sử biến động
             const historyQuery = `
-                SELECT bd.ngaybiendong as "ngayBienDoi", bd.loaibiendong as "loaiBienDong", 
-                       nk.hoten as "tenNguoiThayDoi", bd.noiden as "noiDen"
-                FROM biendongnhankhau bd
-                JOIN nhankhau nk ON bd.cccd = nk.cccd
-                WHERE nk.sohokhau = $1
-                ORDER BY bd.ngaybiendong DESC`;
+                        SELECT ngaythaydoi as "NgayBienDoi", 
+                            noidungthaydoi as "NoiDung", 
+                            'Cả hộ' as "TenNguoiThayDoi"
+                        FROM biendonghokhau 
+                        WHERE sohokhau = $1
+
+                        UNION ALL
+
+                        SELECT bd.ngaybiendong as "NgayBienDoi", 
+                            bd.loaibiendong as "NoiDung", 
+                            nk.hoten as "TenNguoiThayDoi"
+                        FROM biendongnhankhau bd
+                        JOIN nhankhau nk ON bd.cccd = nk.cccd
+                        WHERE nk.sohokhau = $1
+
+                        ORDER BY "NgayBienDoi" DESC`; // Sắp xếp cái mới nhất lên đầu
 
             const info = await poolQuanLiHoKhau.query(infoQuery, [sohokhau]);
             const members = await poolQuanLiHoKhau.query(membersQuery, [sohokhau]);
@@ -60,9 +71,9 @@ const HoKhauModel = {
             if (info.rows.length === 0) return null;
 
             return {
-                tenChuHo: info.rows[0].tenChuHo,
-                diaChi: info.rows[0].diaChi,
-                ngayLapSo: info.rows[0].ngayLapSo,
+                HoTen: info.rows[0].HoTen,
+                DiaChi: info.rows[0].DiaChi,
+                NgayLap: info.rows[0].NgayLap,
                 danhSachNhanKhau: members.rows,
                 lichSuBienDong: history.rows
             };

@@ -49,14 +49,14 @@ async function openDetailModal(hkCode) {
 
         // 3. Cập nhật thông tin chung (Kiểm tra null trước khi gán)
         const HoTen = document.getElementById('detailChuHo');
-        if (HoTen) HoTen.innerText = data.tenChuHo || '---';
+        if (HoTen) HoTen.innerText = data.HoTen || '---';
         
         const NgayLap = document.getElementById('detailNgayLap');
         // Xử lý hiển thị ngày tháng cho đẹp
-        if (NgayLap) NgayLap.innerText = data.ngayLapSo ? new Date(data.ngayLapSo).toLocaleDateString('vi-VN') : '---';
+        if (NgayLap) NgayLap.innerText = data.NgayLap ? new Date(data.NgayLap).toLocaleDateString('vi-VN') : '---';
 
         const DiaChi = document.getElementById('detailDiaChi');
-        if (DiaChi) DiaChi.innerText = data.diaChi || '---';
+        if (DiaChi) DiaChi.innerText = data.DiaChi || '---';
 
         // 4. Cập nhật danh sách thành viên
         const memberListBody = document.getElementById('detailMemberTable');
@@ -68,14 +68,14 @@ async function openDetailModal(hkCode) {
             thanhvien.forEach(function(member) { // Sửa cú pháp forEach
                 var row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${member.hoTen || ''}</td>
-                    <td>${member.ngaySinh ? new Date(member.ngaySinh).toLocaleDateString('vi-VN') : ''}</td>
-                    <td>${member.quanHeWithChuHo || ''}</td>
-                    <td>${member.cccd || ''}</td>
+                    <td>${member.HoTenTV || ''}</td>
+                    <td>${member.NgaySinh ? new Date(member.NgaySinh).toLocaleDateString('vi-VN') : ''}</td>
+                    <td>${member.QuanHeChuHo || ''}</td>
+                    <td>${member.CCCD || ''}</td>
                     <td>${member.TrangThai || ''}</td>
                     <td class="text-center">
-                        <button class="icon-btn warning" onclick="openEditMemberModal('${member.cccd}')"><i class="fas fa-edit"></i></button>
-                        <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.cccd}')"><i class="fas fa-trash-alt"></i></button>
+                        <button class="icon-btn warning" onclick="openEditMemberModal('${member.CCCD}')"><i class="fas fa-edit"></i></button>
+                        <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.CCCD}')"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 `;
                 memberListBody.appendChild(row);
@@ -93,25 +93,40 @@ async function openDetailModal(hkCode) {
         const historyList = document.getElementById('detailHistoryList');
         if (historyList) {
             historyList.innerHTML = ''; // Xóa cũ
-            const LichSu = data.lichSu;
+            const LichSu = data.lichSu || {}; 
             
             const lichSuNhanKhau = LichSu.nhanKhau || [];
-            if(lichSuNhanKhau.length !== 0) {
-                lichSuNhanKhau.forEach(entry=>{
-                    const li = document.createElement('li');
-                    let text = '';
-                    if(entry.loaiBienDong !== "Qua đời") text = `${entry.noiDen}`; 
-                    li.innerText = `[${new Date(entry.ngayThayDoi).toLocaleDateString('vi-VN')}]: ${entry.hoTen} - ${entry.loaiBienDong}`+ text + `${entry.ghiChu}`;
-                    historyList.appendChild(li);
-                })
-            }
             const lichSuHoKhau = LichSu.hoKhau || [];
-            if(lichSuHoKhau.length !== 0) {
-                lichSuHoKhau.forEach(entry=>{
-                    const li = document.createElement('li');
-                    li.innerText = `[${new Date(entry.ngayThayDoi).toLocaleDateString('vi-VN')}]: ${entry.noiDung}`;
-                    historyList.appendChild(li);
-                })
+            
+            // Hàm phụ để tạo dòng lịch sử cho gọn code
+            const createItem = (date, content, note) => {
+                const li = document.createElement('li');
+                // Định dạng ngày: dd/mm/yyyy
+                const dateStr = new Date(date).toLocaleDateString('vi-VN');
+                
+                li.innerHTML = `
+                    <span class="history-date">${dateStr}</span>
+                    <span class="history-content">${content}</span>
+                    ${note ? `<span class="history-note">(${note})</span>` : ' '}
+                `;
+                historyList.appendChild(li);
+            };
+
+            // Render Lịch sử Nhân khẩu
+            lichSuNhanKhau.forEach(entry => {
+                let text = `<b>${entry.hoTen}</b>: ${entry.loaiBienDong}`;
+                if(entry.noiDen) text += ` đến ${entry.noiDen}`;
+                createItem(entry.ngayThayDoi, text, entry.ghiChu);
+            });
+
+            // Render Lịch sử Hộ khẩu
+            lichSuHoKhau.forEach(entry => {
+                createItem(entry.ngayThayDoi, `<b>Hộ khẩu</b>: ${entry.noiDung}`, '');
+            });
+
+            // Nếu không có dữ liệu
+            if (historyList.children.length === 0) {
+                historyList.innerHTML = '<li style="color:#999; font-style:italic;">Chưa có lịch sử biến động.</li>';
             }
         }
 
