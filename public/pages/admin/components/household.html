@@ -41,7 +41,7 @@
             <span class="close-btn" onclick="closeModal('addHouseholdModal')">&times;</span>
         </div>
         <div class="modal-body">
-            <form id="addHouseholdForm">
+            <form id="addHouseholdForm" onsubmit="createNewHousehold(event)">
                 
                 <div class="section-title">1. Thông tin Sổ Hộ Khẩu</div>
                 <div class="form-grid-2">
@@ -84,11 +84,11 @@
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label>Phường / Xã</label>
-                        <input type="text" class="form-control" placeholder="Phường..." name="phuong" value="La Khê" required>
+                        <input type="text" class="form-control readonly-input" placeholder="Phường..." name="phuong" value="La Khê" tabindex="-1" style="background-color: #e9ecef; cursor: default; pointer-events: none; user-select: none;">
                     </div>
                     <div class="form-group">
                         <label>Tỉnh / Thành phố</label>
-                        <input type="text" class="form-control" placeholder="Tỉnh..." name="tinh" value="Hà Nội" required>
+                        <input type="text" class="form-control readonly-input" placeholder="Tỉnh..." name="tinh" value="Hà Nội" tabindex="-1" style="background-color: #e9ecef; cursor: default; pointer-events: none; user-select: none;">
                     </div>
                 </div>
 

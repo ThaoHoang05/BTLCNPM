@@ -266,6 +266,9 @@ async function createNewHousehold(event) {
             "DiaChi": { // Gửi dạng Object thay vì chuỗi
                 "sonha": v.sonha,
                 "duong": v.duong,
+                "phuong": "La Khê",
+                "quan": "Hà Đông",
+                "tinh": "Hà Nội"
             },
             "ChuHo": { "HoTen": v.chuhoten, "CCCD": v.chuhocccd },
             "GhiChu": v.ghichu || ''
@@ -274,7 +277,7 @@ async function createNewHousehold(event) {
     try {
         console.log("Đang gửi payload:", payload); // Log để kiểm tra trước khi gửi
 
-        const response = await fetch('/hokhau/new', {
+        const response = await fetch('/api/hokhau/new', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -333,9 +336,9 @@ async function openSplitModal(hkCode) {
         container.innerHTML = ''; // Xóa loading
         
         // Render danh sách checkbox
-        // Giả sử API trả về data.thanhVien là mảng các thành viên
-        if (data.thanhVien && data.thanhVien.length > 0) {
-            data.thanhVien.forEach(member => {
+        // Giả sử API trả về data.danhSachNhanKhau là mảng các thành viên
+        if (data.danhSachNhanKhau && data.danhSachNhanKhau.length > 0) {
+            data.danhSachNhanKhau.forEach(member => {
                 // Tạo checkbox cho từng thành viên
                 const div = document.createElement('div');
                 div.className = 'checkbox-item';
