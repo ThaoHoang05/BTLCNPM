@@ -49,14 +49,14 @@ async function openDetailModal(hkCode) {
 
         // 3. Cập nhật thông tin chung (Kiểm tra null trước khi gán)
         const HoTen = document.getElementById('detailChuHo');
-        if (HoTen) HoTen.innerText = data.tenChuHo || '---';
+        if (HoTen) HoTen.innerText = data.HoTen || '---';
         
         const NgayLap = document.getElementById('detailNgayLap');
         // Xử lý hiển thị ngày tháng cho đẹp
-        if (NgayLap) NgayLap.innerText = data.ngayLapSo ? new Date(data.ngayLapSo).toLocaleDateString('vi-VN') : '---';
+        if (NgayLap) NgayLap.innerText = data.NgayLap ? new Date(data.NgayLap).toLocaleDateString('vi-VN') : '---';
 
         const DiaChi = document.getElementById('detailDiaChi');
-        if (DiaChi) DiaChi.innerText = data.diaChi || '---';
+        if (DiaChi) DiaChi.innerText = data.DiaChi || '---';
 
         // 4. Cập nhật danh sách thành viên
         const memberListBody = document.getElementById('detailMemberTable');
@@ -68,14 +68,14 @@ async function openDetailModal(hkCode) {
             thanhvien.forEach(function(member) { // Sửa cú pháp forEach
                 var row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${member.hoTen || ''}</td>
-                    <td>${member.ngaySinh ? new Date(member.ngaySinh).toLocaleDateString('vi-VN') : ''}</td>
-                    <td>${member.quanHeWithChuHo || ''}</td>
-                    <td>${member.cccd || ''}</td>
+                    <td>${member.HoTenTV || ''}</td>
+                    <td>${member.NgaySinh ? new Date(member.NgaySinh).toLocaleDateString('vi-VN') : ''}</td>
+                    <td>${member.QuanHeChuHo || ''}</td>
+                    <td>${member.CCCD || ''}</td>
                     <td>${member.TrangThai || ''}</td>
                     <td class="text-center">
-                        <button class="icon-btn warning" onclick="openEditMemberModal('${member.cccd}')"><i class="fas fa-edit"></i></button>
-                        <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.cccd}')"><i class="fas fa-trash-alt"></i></button>
+                        <button class="icon-btn warning" onclick="openEditMemberModal('${member.CCCD}')"><i class="fas fa-edit"></i></button>
+                        <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.CCCD}')"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 `;
                 memberListBody.appendChild(row);
@@ -92,14 +92,27 @@ async function openDetailModal(hkCode) {
         // 6. Cập nhật lịch sử biến động (Nếu có)
         const historyList = document.getElementById('detailHistoryList');
         if (historyList) {
-            historyList.innerHTML = ''; // Xóa cũ
+            historyList.innerHTML = ''; 
             const LichSu = data.lichSuBienDong || [];
             
-            LichSu.forEach(entry => {
-                var listItem = document.createElement('li');
-                listItem.innerText = `${entry.ngayBienDoi}`;
-                historyList.appendChild(listItem);
-            });
+            if (LichSu.length === 0) {
+                historyList.innerHTML = '<li><small>--- Chưa có thay đổi nào ---</small></li>';
+            } else {
+                LichSu.forEach(entry => {
+                    const listItem = document.createElement('li');                
+                    const ngayHienThi = entry.NgayBienDoi 
+                        ? new Date(entry.NgayBienDoi).toLocaleDateString('vi-VN') 
+                        : '---';
+                    listItem.innerHTML = `
+                        <div style="margin-bottom: 5px;">
+                            <small style="color: #666;">${ngayHienThi}:</small> 
+                            <strong>${entry.NoiDung}</strong> 
+                            <span style="color: var(--primary-color);">(${entry.TenNguoiThayDoi})</span>
+                        </div>`;
+                    
+                    historyList.appendChild(listItem);
+                });
+            }
         }
 
         // 7. Cuối cùng mới mở Modal
