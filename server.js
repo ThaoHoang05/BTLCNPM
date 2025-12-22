@@ -16,13 +16,13 @@ const dangKyRoutes = require('./routes/dangKySuDungRoutes');
 const authRoutes = require('./routes/authRoutes');
 const hoKhauRoutes = require('./routes/hoKhauRoutes');
 const nhaVanHoaRoutes = require('./routes/nhaVanHoaRoutes');
-const showHoKhauRoute = require('./routes/showHoKhauRoute');
+
 //api
 app.use('/api/dang-ky', dangKyRoutes);
 app.use('/api', authRoutes); 
 app.use('/api/hokhau', hoKhauRoutes);
 app.use('/api/nha-van-hoa', nhaVanHoaRoutes);
-app.use('/api/hokhau', showHoKhauRoute);
+
 // Route mặc định (Server check)
 app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'pages', 'index.html'));
