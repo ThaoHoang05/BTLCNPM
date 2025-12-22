@@ -1,5 +1,5 @@
 /* household.js - Đã sửa lỗi chuyển hướng và lỗi API */
-const e = require("cors");
+//const e = require("cors");
 
 // ==============================================
 // 1. CÁC HÀM CƠ BẢN (MODAL, TAB)
@@ -487,7 +487,7 @@ function mockSearchCitizen() {
 // ==============================================
 async function loadHouseHoldList(){
     try {
-        const response = await fetch('/api/hokhau/all');
+        const response = await fetch('/api/hokhau/show');
         const data = await response.json();
         
         // Sửa selector để tìm đúng vào tbody của bảng có ID householdTable
