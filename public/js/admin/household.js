@@ -539,7 +539,7 @@ async function loadHouseHoldList(){
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td><strong>${hk['Mã hộ khẩu']}</strong></td>
-                <td>${hk['Chủ hộ']} <br><small>(${hk[''] || '---'})</small></td>
+                <td>${hk['Chủ hộ']} <br><small>(${hk['CCCD'] || '---'})</small></td>
                 <td>${hk['Địa chỉ']}</td>
                 <td>${hk['Ngày lập sổ'] ? new Date(hk['Ngày lập sổ']).toLocaleDateString('vi-VN') : '---'}</td>
                 <td>

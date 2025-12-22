@@ -21,7 +21,19 @@ const adminController = {
         } catch (error) {
             res.status(500).json({ message: "Lỗi lấy chi tiết hộ khẩu" });
         }
+    },
+
+    getHoKhauList: async (req, res) => {
+    try {
+        const data = await HoKhauModel.getHoKhauData();
+        // Trả về dữ liệu với mã 200 (Thành công)
+        res.status(200).json(data);
+    } catch (err) {
+        // Log lỗi chi tiết ra console của terminal để kiểm tra nếu còn lỗi
+        console.error("Lỗi tại showHoKhauController:", err.message);
+        res.status(500).json({ error: "Lỗi hệ thống khi tải danh sách hộ khẩu" });
     }
+    },
 };
 
 module.exports = adminController;

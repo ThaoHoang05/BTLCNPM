@@ -85,6 +85,21 @@ const HoKhauModel = {
         }
     },
 
+    //Truy vấn list hộ khẩu cho tab hộ khẩu
+    getHoKhauData: async () => {
+    const query = `
+        SELECT
+            hk.sohokhau AS "Mã hộ khẩu",
+            nk.hoten AS "Chủ hộ",
+            CONCAT(hk.sonha, ' ', hk.duong, ', ', hk.phuong, ', ', hk.quan, ', ', hk.tinh) AS "Địa chỉ",
+            hk.ngaylap AS "Ngày lập sổ",
+            hk.chuhocccd AS "CCCD"
+        FROM hokhau hk
+        LEFT JOIN nhankhau nk ON hk.chuhocccd = nk.cccd;
+    `;
+        const { rows } = await poolQuanLiHoKhau.query(query);
+        return rows;
+    },
 
 };
 
