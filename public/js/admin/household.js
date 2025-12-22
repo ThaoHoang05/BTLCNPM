@@ -92,26 +92,41 @@ async function openDetailModal(hkCode) {
         // 6. Cập nhật lịch sử biến động (Nếu có)
         const historyList = document.getElementById('detailHistoryList');
         if (historyList) {
-            historyList.innerHTML = ''; 
-            const LichSu = data.lichSuBienDong || [];
+            historyList.innerHTML = ''; // Xóa cũ
+            const LichSu = data.lichSu || {}; 
             
-            if (LichSu.length === 0) {
-                historyList.innerHTML = '<li><small>--- Chưa có thay đổi nào ---</small></li>';
-            } else {
-                LichSu.forEach(entry => {
-                    const listItem = document.createElement('li');                
-                    const ngayHienThi = entry.NgayBienDoi 
-                        ? new Date(entry.NgayBienDoi).toLocaleDateString('vi-VN') 
-                        : '---';
-                    listItem.innerHTML = `
-                        <div style="margin-bottom: 5px;">
-                            <small style="color: #666;">${ngayHienThi}:</small> 
-                            <strong>${entry.NoiDung}</strong> 
-                            <span style="color: var(--primary-color);">(${entry.TenNguoiThayDoi})</span>
-                        </div>`;
-                    
-                    historyList.appendChild(listItem);
-                });
+            const lichSuNhanKhau = LichSu.nhanKhau || [];
+            const lichSuHoKhau = LichSu.hoKhau || [];
+            
+            // Hàm phụ để tạo dòng lịch sử cho gọn code
+            const createItem = (date, content, note) => {
+                const li = document.createElement('li');
+                // Định dạng ngày: dd/mm/yyyy
+                const dateStr = new Date(date).toLocaleDateString('vi-VN');
+                
+                li.innerHTML = `
+                    <span class="history-date">${dateStr}</span>
+                    <span class="history-content">${content}</span>
+                    ${note ? `<span class="history-note">(${note})</span>` : ' '}
+                `;
+                historyList.appendChild(li);
+            };
+
+            // Render Lịch sử Nhân khẩu
+            lichSuNhanKhau.forEach(entry => {
+                let text = `<b>${entry.hoTen}</b>: ${entry.loaiBienDong}`;
+                if(entry.noiDen) text += ` đến ${entry.noiDen}`;
+                createItem(entry.ngayThayDoi, text, entry.ghiChu);
+            });
+
+            // Render Lịch sử Hộ khẩu
+            lichSuHoKhau.forEach(entry => {
+                createItem(entry.ngayThayDoi, `<b>Hộ khẩu</b>: ${entry.noiDung}`, '');
+            });
+
+            // Nếu không có dữ liệu
+            if (historyList.children.length === 0) {
+                historyList.innerHTML = '<li style="color:#999; font-style:italic;">Chưa có lịch sử biến động.</li>';
             }
         }
 
@@ -545,109 +560,112 @@ document.addEventListener('DOMContentLoaded', function() {
     loadHouseHoldList(); // Gọi hàm này để nạp dữ liệu vào bảng ngay khi mở trang
 });
 
+// ==============================================
+// 6. QUẢN LÝ CƯ TRÚ (TẠM TRÚ / TẠM VẮNG)
+// ==============================================
 
 // Hàm mở Modal Quản lý Cư trú
 function openManageResidence() {
-    loadResidenceData(); // Gọi hàm tải dữ liệu gộp
+    loadResidenceData(); // Gọi hàm tải dữ liệu
     openModal('manageResidenceModal');
+    
+    // Mặc định active tab đầu tiên khi mở
+    const firstTabBtn = document.querySelector('.custom-tabs .tab-item');
+    if(firstTabBtn) switchResidenceTab('tabTamTru', firstTabBtn);
 }
 
-// Hàm tải và gộp dữ liệu
+// Hàm tải dữ liệu (Tách riêng 2 danh sách)
 async function loadResidenceData() {
-    const tbody = document.getElementById('residentListBody');
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>';
+    // 1. Lấy 2 thẻ tbody theo đúng HTML
+    const tbodyTamTru = document.getElementById('residentListBody');
+    const tbodyTamVang = document.getElementById('listTamVang'); // ID mới trong HTML
+
+    // Hiển thị loading
+    if(tbodyTamTru) tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
+    if(tbodyTamVang) tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
 
     try {
-        // 1. Gọi song song 2 API (Giả sử bạn đã có API)
-        // Nếu chưa có backend, bạn có thể comment lại và dùng dữ liệu giả bên dưới
-        /*
-        const [resTamtru, resTamvang] = await Promise.all([
-            fetch('/api/tamtru'),
-            fetch('/api/tamvang')
-        ]);
-        const listTamTru = await resTamtru.json();
-        const listTamVang = await resTamvang.json();
-        */
-
         // --- DỮ LIỆU GIẢ LẬP (MOCK DATA) ---
+        // Khi có API thật, thay thế đoạn này bằng fetch
+        /*
+        const [resTamTru, resTamVang] = await Promise.all([
+            fetch('/api/tamtru').then(r => r.json()),
+            fetch('/api/tamvang').then(r => r.json())
+        ]);
+        */
+        
+        // Mock Tạm Trú (Đến địa phương)
         const listTamTru = [
-            { id: 1, hoTen: "Nguyễn Thị B", cccd: "0381990001", diaChi: "Số 5, Ao Sen", tuNgay: "2024-01-01", denNgay: "2024-06-01" }
+            { id: 1, hoTen: "Nguyễn Thị B", cccd: "0381990001", diaChi: "Số 5, Ao Sen", tuNgay: "2024-01-01", denNgay: "2024-06-01" },
+            { id: 2, hoTen: "Trần Văn C", cccd: "0010980002", diaChi: "102 Trần Phú", tuNgay: "2024-02-15", denNgay: "2024-08-15" }
         ];
+
+        // Mock Tạm Vắng (Đi khỏi địa phương)
         const listTamVang = [
-            { id: 10, hoTen: "Lê Văn C", cccd: "0012000009", noiDen: "KTX Bách Khoa", tuNgay: "2024-09-01", denNgay: "2025-06-01" }
+            { id: 10, hoTen: "Lê Văn D", noiDen: "KTX Bách Khoa, HN", tuNgay: "2024-09-01", denNgay: "2025-06-01", lyDo: "Đi học đại học" },
+            { id: 11, hoTen: "Phạm Thị E", noiDen: "KCN Bắc Thăng Long", tuNgay: "2024-01-01", denNgay: "2024-12-31", lyDo: "Đi làm công nhân" }
         ];
-        // -----------------------------------
 
-        // 2. Chuẩn hóa dữ liệu để gộp vào chung 1 cấu trúc
-        // Đánh dấu type: 'TAM_TRU' hoặc 'TAM_VANG' để dễ xử lý giao diện
-        const standardizedTamTru = listTamTru.map(item => ({
-            ...item,
-            type: 'TAM_TRU',
-            displayAddress: item.diaChi, // Map địa chỉ vào chung 1 key
-            displayStatus: 'Tạm trú'
-        }));
-
-        const standardizedTamVang = listTamVang.map(item => ({
-            ...item,
-            type: 'TAM_VANG',
-            displayAddress: item.noiDen, // Map nơi đến vào chung 1 key
-            displayStatus: 'Tạm vắng'
-        }));
-
-        // 3. Gộp 2 mảng lại
-        const combinedList = [...standardizedTamTru, ...standardizedTamVang];
-
-        // (Tùy chọn) Sắp xếp theo tên hoặc ngày
-        // combinedList.sort((a, b) => a.hoTen.localeCompare(b.hoTen));
-
-        // 4. Render ra bảng
-        tbody.innerHTML = '';
-        if (combinedList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có dữ liệu cư trú</td></tr>';
-            return;
+        // 2. Render Tab Tạm Trú (residentListBody)
+        if(tbodyTamTru) {
+            tbodyTamTru.innerHTML = '';
+            if (listTamTru.length === 0) {
+                tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu tạm trú</td></tr>';
+            } else {
+                listTamTru.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.hoTen}</td>
+                        <td>${item.cccd}</td>
+                        <td>${item.diaChi}</td>
+                        <td>${item.tuNgay} <br> <small>đến ${item.denNgay}</small></td>
+                        <td><span class="badge-status active">Đang tạm trú</span></td>
+                        <td class="text-center">
+                            <button class="icon-btn danger" onclick="deleteTempResidence('${item.id}')" title="Xóa">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbodyTamTru.appendChild(row);
+                });
+            }
         }
 
-        combinedList.forEach(item => {
-            const row = document.createElement('tr');
-            
-            // Xử lý giao diện khác nhau dựa trên Type
-            let badgeClass = item.type === 'TAM_TRU' ? 'badge-status active' : 'badge-status warning'; // Xanh vs Vàng
-            let actionBtn = '';
-
-            if (item.type === 'TAM_TRU') {
-                // Nút xóa cho tạm trú
-                actionBtn = `
-                    <button class="icon-btn danger" onclick="deleteTempResidence('${item.id}')" title="Xóa/Hết hạn">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>`;
+        // 3. Render Tab Tạm Vắng (listTamVang)
+        if(tbodyTamVang) {
+            tbodyTamVang.innerHTML = '';
+            if (listTamVang.length === 0) {
+                tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu tạm vắng</td></tr>';
             } else {
-                // Nút báo về cho tạm vắng
-                actionBtn = `
-                    <button class="icon-btn success" onclick="confirmReturnEarly('${item.id}')" title="Đã về">
-                        <i class="fas fa-undo-alt"></i>
-                    </button>`;
+                listTamVang.forEach(item => {
+                    const row = document.createElement('tr');
+                    // Cấu trúc cột khớp với HTML: Họ tên | Nơi đến | Thời hạn | Lý do | Trạng thái | Thao tác
+                    row.innerHTML = `
+                        <td>${item.hoTen}</td>
+                        <td>${item.noiDen}</td>
+                        <td>${item.tuNgay} <br> <small>đến ${item.denNgay}</small></td>
+                        <td>${item.lyDo}</td>
+                        <td><span class="badge-status warning">Đang tạm vắng</span></td>
+                        <td class="text-center">
+                            <button class="icon-btn success" onclick="confirmReturnEarly('${item.id}')" title="Đã về trước hạn">
+                                <i class="fas fa-undo-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbodyTamVang.appendChild(row);
+                });
             }
-
-            row.innerHTML = `
-                <td>${item.hoTen}</td>
-                <td>${item.cccd}</td>
-                <td>${item.displayAddress}</td>
-                <td>${item.tuNgay} <br> <small>đến ${item.denNgay}</small></td>
-                <td><span class="${badgeClass}">${item.displayStatus}</span></td>
-                <td class="text-center">${actionBtn}</td>
-            `;
-            tbody.appendChild(row);
-        });
+        }
 
     } catch (err) {
-        console.error(err);
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Lỗi khi tải dữ liệu</td></tr>';
+        console.error("Lỗi tải dữ liệu cư trú:", err);
+        if(tbodyTamTru) tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-danger">Lỗi kết nối server</td></tr>';
     }
 }
 
 // Hàm chuyển đổi Tab trong Modal Cư trú
 function switchResidenceTab(tabId, btnElement) {
-    // 1. Ẩn tất cả nội dung các tab (xóa class active khỏi tab-panel)
+    // 1. Ẩn tất cả nội dung các tab (tab-panel)
     document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
     
     // 2. Bỏ trạng thái active ở tất cả các nút bấm (tab-item)
@@ -662,6 +680,22 @@ function switchResidenceTab(tabId, btnElement) {
     // 4. Đánh dấu nút vừa bấm là active
     if (btnElement) {
         btnElement.classList.add('active');
+    }
+}
+
+// Hàm giả lập xóa tạm trú
+function deleteTempResidence(id) {
+    if(confirm('Bạn có chắc chắn muốn xóa phiếu tạm trú này?')) {
+        alert('Đã xóa thành công (Giả lập)');
+        loadResidenceData(); // Load lại bảng
+    }
+}
+
+// Hàm giả lập báo đã về (kết thúc tạm vắng)
+function confirmReturnEarly(id) {
+    if(confirm('Công dân này đã quay về địa phương?')) {
+        alert('Cập nhật trạng thái thành công!');
+        loadResidenceData();
     }
 }
 // Khởi tạo
