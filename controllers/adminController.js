@@ -34,6 +34,17 @@ const adminController = {
         res.status(500).json({ error: "Lỗi hệ thống khi tải danh sách hộ khẩu" });
     }
     },
+
+    createHousehold: async (req, res) => {
+        try {
+            const result = await HoKhauModel.create(req.body);
+            res.status(201).json(result);
+        } catch (error) {
+            console.error("Lỗi Controller createHousehold:", error.message);
+            res.status(500).json({ message: "Lỗi Server khi tạo hộ khẩu" });
+        }
+    },
+    
 };
 
 module.exports = adminController;

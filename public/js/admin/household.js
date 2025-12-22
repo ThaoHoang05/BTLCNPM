@@ -139,11 +139,6 @@ async function openDetailModal(hkCode) {
     }
 }
 
-// Wrapper: Mở modal tách hộ
-function openSplitModal(hkCode) {
-    openModal('splitModal');
-}
-
 // Wrapper: Xử lý xóa hộ khẩu ok 
 async function deleteHousehold(hkCode) {
     try{
@@ -263,22 +258,18 @@ async function createNewHousehold(event) {
     
     const form = document.getElementById('addHouseholdForm');
     const formData = new FormData(form);
-    const formValues = Object.fromEntries(formData.entries());
+    const v = Object.fromEntries(formData.entries());
 
-    // 1. Xử lý địa chỉ: Nối các trường rời rạc thành 1 chuỗi
-    const fullAddress = `${formValues.sonha || ''} ${formValues.duong || ''}, ${formValues.phuong || ''}, ${formValues.tinh || ''}`;
-
-    // 2. Chuẩn bị Payload đúng cấu trúc yêu cầu
-    const payload = {
-        "Ma": formValues.sohokhau,
-        "NgayLap": formValues.ngaylap,
-        "DiaChi": fullAddress.trim().replace(/^,/, '').trim(), // Xử lý xóa dấu phẩy thừa nếu không nhập số nhà
-        "ChuHo": {
-            "HoTen": formValues.chuhoten,
-            "CCCD": formValues.chuhocccd, 
-        },
-        "GhiChu": formValues.ghichu || ''
-    };
+        const payload = {
+            "Ma": v.sohokhau,
+            "NgayLap": v.ngaylap,
+            "DiaChi": { // Gửi dạng Object thay vì chuỗi
+                "sonha": v.sonha,
+                "duong": v.duong,
+            },
+            "ChuHo": { "HoTen": v.chuhoten, "CCCD": v.chuhocccd },
+            "GhiChu": v.ghichu || ''
+        };
 
     try {
         console.log("Đang gửi payload:", payload); // Log để kiểm tra trước khi gửi
@@ -336,7 +327,7 @@ async function openSplitModal(hkCode) {
 
     try {
         // Gọi API lấy chi tiết hộ cũ để biết có những ai
-        const response = await fetch(`/api/hokhau/${hkCode}`);
+        const response = await fetch(`/api/hokhau/show/${hkCode}`);
         const data = await response.json();
         
         container.innerHTML = ''; // Xóa loading

@@ -1,7 +1,7 @@
 const { poolQuanLiHoKhau } = require('../config/db');
 
 const HoKhauModel = {
-    //Truy vấn tổng hợp số liệu cho Dashboard
+    // Truy vấn tổng hợp số liệu cho Dashboard
     getDashboardStats: async () => {
         const query = `
             SELECT 
@@ -85,7 +85,7 @@ const HoKhauModel = {
         }
     },
 
-    //Truy vấn list hộ khẩu cho tab hộ khẩu
+    // Truy vấn list hộ khẩu cho tab hộ khẩu
     getHoKhauData: async () => {
     const query = `
         SELECT
@@ -100,6 +100,52 @@ const HoKhauModel = {
         const { rows } = await poolQuanLiHoKhau.query(query);
         return rows;
     },
+
+    // Tạo hộ khẩu mới
+    create: async (data) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+
+            // INSERT vào bảng hộ khẩu
+            const insertHK = `
+                INSERT INTO hokhau (sohokhau, chuhocccd, sonha, duong, phuong, quan, tinh, ngaylap, ghichu)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            `;
+            
+            await client.query(insertHK, [
+                data.Ma, 
+                data.ChuHo.CCCD, 
+                data.DiaChi.sonha,
+                data.DiaChi.duong, 
+                'La Khê', 
+                'Hà Đông',
+                'Hà Nội', 
+                data.NgayLap, 
+                data.GhiChu
+            ]);
+
+            // Cập nhật số hộ khẩu cho chủ hộ trong bảng nhân khẩu
+            await client.query(
+                'UPDATE nhankhau SET sohokhau = $1, quanhevoichuho = $2 WHERE cccd = $3',
+                [data.Ma, 'Chủ hộ', data.ChuHo.CCCD]
+            );
+
+            // Ghi lịch sử biến động
+            await client.query(
+                'INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi) VALUES ($1, $2, $3)',
+                [data.Ma, 'Đăng ký hộ khẩu mới', data.NgayLap]
+            );
+
+            await client.query('COMMIT');
+            return { message: "Tạo hộ khẩu thành công" };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
 
 };
 

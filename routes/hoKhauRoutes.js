@@ -3,6 +3,7 @@ const router = express.Router();
 
 const adminController = require('../controllers/adminController');
 router.get('/dashboard', adminController.getDashboardStats);
+router.post('/new', adminController.createHousehold);
 router.get('/show', adminController.getHoKhauList);
 router.get('/show/:id', adminController.getHouseholdDetail);
 
