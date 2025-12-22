@@ -487,7 +487,7 @@ function mockSearchCitizen() {
 // ==============================================
 async function loadHouseHoldList(){
     try {
-        const response = await fetch('/api/hokhau');
+        const response = await fetch('/api/hokhau/all');
         const data = await response.json();
         
         // Sửa selector để tìm đúng vào tbody của bảng có ID householdTable
