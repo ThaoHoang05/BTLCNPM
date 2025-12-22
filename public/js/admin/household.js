@@ -38,7 +38,7 @@ window.onclick = function(event) {
 // ĐÃ SỬA: Chỉ dùng phiên bản UI (Giả lập), bỏ phiên bản gọi API lỗi
 async function openDetailModal(hkCode) {
     var dataDetail = {};
-    fetch(`/api/hokhau/${hkCode}`)
+    fetch(`/api/hokhau/all/${hkCode}`)
     .then(request => request.json())
     .then(data =>{
         dataDetail = data;
