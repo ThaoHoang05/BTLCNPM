@@ -502,10 +502,10 @@ async function loadHouseHoldList(){
         data.forEach(hk => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><strong>${hk.soHoKhau}</strong></td>
-                <td>${hk.tenChuHo} <br><small>(${hk.cccdChuHo || '---'})</small></td>
-                <td>${hk.soNha || ''} ${hk.duong || ''}, ${hk.phuong || ''}</td>
-                <td>${hk.ngayLap ? new Date(hk.ngayLap).toLocaleDateString('vi-VN') : '---'}</td>
+                <td><strong>${hk['Mã hộ khẩu']}</strong></td>
+                <td>${hk['Chủ hộ']} <br><small>(${hk[''] || '---'})</small></td>
+                <td>${hk['Địa chỉ']}</td>
+                <td>${hk['Ngày lập sổ'] ? new Date(hk['Ngày lập sổ']).toLocaleDateString('vi-VN') : '---'}</td>
                 <td>
                     <button class="icon-btn info" onclick="openDetailModal('${hk.soHoKhau}')"><i class="fas fa-eye"></i></button>
                     <button class="icon-btn primary" onclick="openEditHouseholdModal('${hk.soHoKhau}')"><i class="fas fa-pen"></i></button>
