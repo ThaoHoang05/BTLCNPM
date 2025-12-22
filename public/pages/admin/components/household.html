@@ -271,7 +271,7 @@
 <div id="detailModal" class="modal-overlay">
     <div class="modal-content large-modal">
         <div class="modal-header">
-            <h3>Chi tiết Hộ khẩu: <span id="detailHKCode" style="color:var(--primary-color)">HK001</span></h3>
+            <h3>Chi tiết Hộ khẩu: <span id="detailHKCode" style="color:var(--primary-color)"></span></h3>
             <span class="close-btn" onclick="closeModal('detailModal')">&times;</span>
         </div>
         <div class="modal-body">
@@ -292,24 +292,16 @@
             
             <div class="section-title">Danh sách Nhân khẩu</div>
             <div class="table-container">
-                <table class="data-table" id = "detailMemberTable">
+                <table class="data-table">
                     <thead>
                         <tr> <th>Họ tên</th> <th>Ngày sinh</th> <th>Quan hệ</th> <th>CCCD</th> <th>Trạng thái</th> <th>Thao tác</th> </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>Nguyễn Văn A</td> <td>01/01/1990</td>
-                            <td><span style="font-weight:bold; color:var(--danger-color)">Chủ hộ</span></td>
-                            <td>001190000001</td> <td><span class="badge-status active">Thường trú</span></td>
-                            <td><button class="icon-btn info" title="Sửa nhân khẩu này" onclick="openEditMemberModal('001190000001')">
-                                <i class="fas fa-edit"></i>
-                            </button></td>
-                        </tr>
+                    <tbody id = "detailMemberTable">
                     </tbody>
                 </table>
             </div>
             <div style="text-align: right; margin-top: 10px;">
-                <button class="btn-primary" onclick="openAddMemberModal('HK001')"><i class="fas fa-user-plus"></i> Thêm Thành Viên</button>
+                <button class="btn-primary" onclick="openAddMemberModal('')"><i class="fas fa-user-plus"></i> Thêm Thành Viên</button>
             </div>
             <div class="section-title" style="margin-top: 20px;">Lịch sử biến động</div>
             <div class="history-container">

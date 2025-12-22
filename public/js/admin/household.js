@@ -36,69 +36,79 @@ window.onclick = function(event) {
 
 // Wrapper: Mở modal chi tiết hộ khẩu
 // ĐÃ SỬA: Chỉ dùng phiên bản UI (Giả lập), bỏ phiên bản gọi API lỗi
+// Wrapper: Mở modal chi tiết hộ khẩu (ĐÃ SỬA LỖI)
 async function openDetailModal(hkCode) {
-    var dataDetail = {};
-    fetch(`/api/hokhau/all/${hkCode}`)
-    .then(request => request.json())
-    .then(data =>{
-        dataDetail = data;
-    })
-    // 1. Cập nhật tiêu đề modal
-    const titleElement = document.getElementById('detailHKCode');
-    if (titleElement) {
-        titleElement.innerText = hkCode;
+    try {
+        // 1. Gọi API và chờ dữ liệu về (dùng await)
+        const response = await fetch(`/api/hokhau/show/${hkCode}`);
+        const data = await response.json(); // Lấy dữ liệu vào biến 'data'
+
+        // 2. Cập nhật tiêu đề modal
+        const titleElement = document.getElementById('detailHKCode');
+        if (titleElement) titleElement.innerText = hkCode;
+
+        // 3. Cập nhật thông tin chung (Kiểm tra null trước khi gán)
+        const HoTen = document.getElementById('detailChuHo');
+        if (HoTen) HoTen.innerText = data.tenChuHo || '---';
+        
+        const NgayLap = document.getElementById('detailNgayLap');
+        // Xử lý hiển thị ngày tháng cho đẹp
+        if (NgayLap) NgayLap.innerText = data.ngayLapSo ? new Date(data.ngayLapSo).toLocaleDateString('vi-VN') : '---';
+
+        const DiaChi = document.getElementById('detailDiaChi');
+        if (DiaChi) DiaChi.innerText = data.diaChi || '---';
+
+        // 4. Cập nhật danh sách thành viên
+        const memberListBody = document.getElementById('detailMemberTable');
+        if (memberListBody) {
+            memberListBody.innerHTML = ''; // XÓA DỮ LIỆU CŨ TRƯỚC KHI THÊM MỚI
+            
+            const thanhvien = data.danhSachNhanKhau || []; // Nếu null thì gán mảng rỗng để không lỗi
+            
+            thanhvien.forEach(function(member) { // Sửa cú pháp forEach
+                var row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${member.hoTen || ''}</td>
+                    <td>${member.ngaySinh ? new Date(member.ngaySinh).toLocaleDateString('vi-VN') : ''}</td>
+                    <td>${member.quanHeWithChuHo || ''}</td>
+                    <td>${member.cccd || ''}</td>
+                    <td>${member.TrangThai || ''}</td>
+                    <td class="text-center">
+                        <button class="icon-btn warning" onclick="openEditMemberModal('${member.cccd}')"><i class="fas fa-edit"></i></button>
+                        <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.cccd}')"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                `;
+                memberListBody.appendChild(row);
+            });
+        }
+
+        // 5. Xử lý logic cho nút thêm thành viên
+        const addBtn = document.querySelector('#detailModal .btn-primary');
+        if (addBtn) {
+            // Gán lại onclick để truyền đúng mã hộ khẩu hiện tại
+            addBtn.setAttribute('onclick', `openAddMemberModal('${hkCode}')`);
+        }
+
+        // 6. Cập nhật lịch sử biến động (Nếu có)
+        const historyList = document.getElementById('detailHistoryList');
+        if (historyList) {
+            historyList.innerHTML = ''; // Xóa cũ
+            const LichSu = data.lichSuBienDong || [];
+            
+            LichSu.forEach(entry => {
+                var listItem = document.createElement('li');
+                listItem.innerText = `${entry.ngayBienDoi}`;
+                historyList.appendChild(listItem);
+            });
+        }
+
+        // 7. Cuối cùng mới mở Modal
+        openModal('detailModal');
+
+    } catch (err) {
+        console.error("Lỗi khi tải chi tiết hộ khẩu:", err);
+        alert("Không thể tải thông tin chi tiết. Vui lòng thử lại.");
     }
-
-    // Cap nhat du lieu thong tin chung cua ho khau
-    var HoTen = document.getElementById('detailChuHo');
-    if(dataDetail.HoTen) HoTen.innerText = dataDetail.HoTen;
-    else console.error("Loi khi tai du lieu");
-    
-    var NgayLap = document.getElementById('detailNgayLap');
-    if(dataDetail.NgayLap) NgayLap.innerText = dataDetail.NgayLap;
-    else console.error("Loi khi tai du lieu");
-
-    var DiaChi = document.getElementById('detailDiaChi');
-    if(dataDetail.DiaChi) DiaChi.innerText = dataDetail.DiaChi;
-    else console.error("Loi khi tai du lieu");
-
-    // 2. Cập nhật danh sách thành viên trong hộ khẩu
-    var thanhvien = data.ThanhVien;
-    var memberListBody = document.getElementById('detailMemberTable');
-    forEach(thanhvien, function(member) {
-        var row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${member.HoTen}</td>
-            <td>${member.NgaySinh}</td>
-            <td>${member.QuanHe}</td>
-            <td>${member.CCCD}</td>
-            <td>${member.NgheNghiep}</td>
-            <td class="text-center">
-                <button class="icon-btn warning" onclick="openEditMemberModal('${member.CCCD}')"><i class="fas fa-edit"></i></button>
-                <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.CCCD}')"><i class="fas fa-trash-alt"></i></button>
-            </td>
-        `;
-        memberListBody.appendChild(row);
-    })
-    //3. Xu ly logic cho nut them thanh vien
-    const addBtn = document.querySelector('#detailModal .btn-primary');
-    if (addBtn) {
-        addBtn.setAttribute('onclick', `openAddMemberModal('${hkCode}')`);
-    }
-    // 4. Cap nhat lich su bien dong cua ho khau
-    var historyList = document.getElementById('detailHistoryList');
-    var LichSu = data.LichSu;
-    if(historyList) {
-        // Dữ liệu giả lập (Sau này lấy từ API / bảng biendonghokhau)
-        LichSu.forEach(entry => {
-            var listItem = document.createElement('li');
-            listItem.innerText = `${entry.NgayBienDoi}: ${entry.NoiDung}`;
-            historyList.appendChild(listItem);
-        });
-    }
-
-    // 4. Mở Modal
-    openModal('detailModal');
 }
 
 // Wrapper: Mở modal tách hộ
@@ -487,9 +497,6 @@ function mockSearchCitizen() {
 // ==============================================
 async function loadHouseHoldList(){
     try {
-        const response = await fetch('/api/hokhau/show');
-        const data = await response.json();
-        
         // Sửa selector để tìm đúng vào tbody của bảng có ID householdTable
         const tbody = document.getElementById('householdList'); 
         
@@ -498,7 +505,8 @@ async function loadHouseHoldList(){
             return;
         }
         tbody.innerHTML = ''; 
-
+        const response = await fetch('/api/hokhau/show');
+        const data = await response.json();
         data.forEach(hk => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -507,10 +515,10 @@ async function loadHouseHoldList(){
                 <td>${hk['Địa chỉ']}</td>
                 <td>${hk['Ngày lập sổ'] ? new Date(hk['Ngày lập sổ']).toLocaleDateString('vi-VN') : '---'}</td>
                 <td>
-                    <button class="icon-btn info" onclick="openDetailModal('${hk.soHoKhau}')"><i class="fas fa-eye"></i></button>
-                    <button class="icon-btn primary" onclick="openEditHouseholdModal('${hk.soHoKhau}')"><i class="fas fa-pen"></i></button>
-                    <button class="icon-btn warning" onclick="openSplitModal('${hk.soHoKhau}')"><i class="fas fa-random"></i></button>
-                    <button class="icon-btn danger" onclick="deleteHousehold('${hk.soHoKhau}')"><i class="fas fa-trash-alt"></i></button>
+                    <button class="icon-btn info" onclick="openDetailModal('${hk['Mã hộ khẩu']}')"><i class="fas fa-eye"></i></button>
+                    <button class="icon-btn primary" onclick="openEditHouseholdModal('${hk['Mã hộ khẩu']}')"><i class="fas fa-pen"></i></button>
+                    <button class="icon-btn warning" onclick="openSplitModal('${hk['Mã hộ khẩu']}')"><i class="fas fa-random"></i></button>
+                    <button class="icon-btn danger" onclick="deleteHousehold('${hk['Mã hộ khẩu']}')"><i class="fas fa-trash-alt"></i></button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -533,7 +541,7 @@ function openManageResidence() {
 
 // Hàm tải và gộp dữ liệu
 async function loadResidenceData() {
-    const tbody = document.getElementById('residenceListBody');
+    const tbody = document.getElementById('residentListBody');
     tbody.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>';
 
     try {

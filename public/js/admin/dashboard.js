@@ -62,15 +62,22 @@ function renderHousehold(){
     fetch('components/household.html')
     .then(response =>{
         if (!response.ok) {
-            // Mở Console (F12) để xem lỗi này nếu đường dẫn sai
             throw new Error('Không tìm thấy file: ' + response.statusText);
         }
         return response.text();
     })
     .then(html =>{
-        mainContent.innerHTML = html;
-    }
-    )
+        // 1. Đưa HTML vào trang
+        mainContent.innerHTML = html; 
+
+        // 2. SAU KHI HTML ĐÃ CÓ, GỌI HÀM LOAD DỮ LIỆU
+        // Kiểm tra hàm có tồn tại không để tránh lỗi
+        if (typeof loadHouseHoldList === 'function') {
+            loadHouseHoldList(); 
+        } else {
+            console.error("Chưa load được file household.js hoặc chưa định nghĩa hàm loadHouseHoldList");
+        }
+    })
     .catch(err =>{
         console.error('Lỗi tải trang:', err);
         mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file household.html</h3>`; 
