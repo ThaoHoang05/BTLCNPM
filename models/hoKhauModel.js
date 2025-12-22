@@ -45,28 +45,26 @@ const HoKhauModel = {
                 FROM nhankhau 
                 WHERE sohokhau = $1`;
 
-            // 3. Lấy lịch sử biến động
-            const historyQuery = `
-                        SELECT ngaythaydoi as "NgayBienDoi", 
-                            noidungthaydoi as "NoiDung", 
-                            'Cả hộ' as "TenNguoiThayDoi"
-                        FROM biendonghokhau 
-                        WHERE sohokhau = $1
+            // 3. Biến động NHÂN KHẨU 
+            const historyResidentQuery = `
+                SELECT nk.hoten as "hoTen", bd.loaibiendong as "loaiBienDong", 
+                    bd.ngaybiendong as "ngayThayDoi", bd.noiden as "noiDen", bd.ghichu as "ghiChu"
+                FROM biendongnhankhau bd
+                JOIN nhankhau nk ON bd.cccd = nk.cccd
+                WHERE nk.sohokhau = $1
+                ORDER BY bd.ngaybiendong DESC`;
 
-                        UNION ALL
-
-                        SELECT bd.ngaybiendong as "NgayBienDoi", 
-                            bd.loaibiendong as "NoiDung", 
-                            nk.hoten as "TenNguoiThayDoi"
-                        FROM biendongnhankhau bd
-                        JOIN nhankhau nk ON bd.cccd = nk.cccd
-                        WHERE nk.sohokhau = $1
-
-                        ORDER BY "NgayBienDoi" DESC`; // Sắp xếp cái mới nhất lên đầu
+            // 4. Biến động HỘ KHẨU
+            const historyHouseholdQuery = `
+                SELECT ngaythaydoi as "ngayThayDoi", noidungthaydoi as "noiDung"
+                FROM biendonghokhau 
+                WHERE sohokhau = $1
+                ORDER BY ngaythaydoi DESC`;
 
             const info = await poolQuanLiHoKhau.query(infoQuery, [sohokhau]);
             const members = await poolQuanLiHoKhau.query(membersQuery, [sohokhau]);
-            const history = await poolQuanLiHoKhau.query(historyQuery, [sohokhau]);
+            const resHistory = await poolQuanLiHoKhau.query(historyResidentQuery, [sohokhau]);
+            const hkHistory = await poolQuanLiHoKhau.query(historyHouseholdQuery, [sohokhau]);
 
             if (info.rows.length === 0) return null;
 
@@ -74,8 +72,12 @@ const HoKhauModel = {
                 HoTen: info.rows[0].HoTen,
                 DiaChi: info.rows[0].DiaChi,
                 NgayLap: info.rows[0].NgayLap,
+                GhiChu: info.rows[0].GhiChu,
                 danhSachNhanKhau: members.rows,
-                lichSuBienDong: history.rows
+                lichSu: {
+                    nhanKhau: resHistory.rows,
+                    hoKhau: hkHistory.rows
+                }
             };
         } catch (error) {
             console.error("Lỗi Model getDetail:", error);
