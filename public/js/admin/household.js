@@ -1,5 +1,5 @@
 /* household.js - Đã sửa lỗi chuyển hướng và lỗi API */
-const e = require("cors");
+//const e = require("cors");
 
 // ==============================================
 // 1. CÁC HÀM CƠ BẢN (MODAL, TAB)
@@ -38,7 +38,7 @@ window.onclick = function(event) {
 // ĐÃ SỬA: Chỉ dùng phiên bản UI (Giả lập), bỏ phiên bản gọi API lỗi
 async function openDetailModal(hkCode) {
     var dataDetail = {};
-    fetch(`/api/hokhau/${hkCode}`)
+    fetch(`/api/hokhau/all/${hkCode}`)
     .then(request => request.json())
     .then(data =>{
         dataDetail = data;
@@ -487,7 +487,7 @@ function mockSearchCitizen() {
 // ==============================================
 async function loadHouseHoldList(){
     try {
-        const response = await fetch('/api/hokhau');
+        const response = await fetch('/api/hokhau/show');
         const data = await response.json();
         
         // Sửa selector để tìm đúng vào tbody của bảng có ID householdTable
@@ -502,10 +502,10 @@ async function loadHouseHoldList(){
         data.forEach(hk => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><strong>${hk.soHoKhau}</strong></td>
-                <td>${hk.tenChuHo} <br><small>(${hk.cccdChuHo || '---'})</small></td>
-                <td>${hk.soNha || ''} ${hk.duong || ''}, ${hk.phuong || ''}</td>
-                <td>${hk.ngayLap ? new Date(hk.ngayLap).toLocaleDateString('vi-VN') : '---'}</td>
+                <td><strong>${hk['Mã hộ khẩu']}</strong></td>
+                <td>${hk['Chủ hộ']} <br><small>(${hk[''] || '---'})</small></td>
+                <td>${hk['Địa chỉ']}</td>
+                <td>${hk['Ngày lập sổ'] ? new Date(hk['Ngày lập sổ']).toLocaleDateString('vi-VN') : '---'}</td>
                 <td>
                     <button class="icon-btn info" onclick="openDetailModal('${hk.soHoKhau}')"><i class="fas fa-eye"></i></button>
                     <button class="icon-btn primary" onclick="openEditHouseholdModal('${hk.soHoKhau}')"><i class="fas fa-pen"></i></button>
