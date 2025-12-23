@@ -204,26 +204,40 @@ const HoKhauModel = {
         }
     },
 
-    //Xóa hộ khẩu (Transaction)
+    // Xóa hộ khẩu
     deleteHoKhau: async (sohokhau) => {
         const client = await poolQuanLiHoKhau.connect();
         try {
             await client.query('BEGIN');
 
-            // Bước 1: Xóa nhân khẩu thuộc hộ này trước để tránh lỗi Foreign Key
+            // BƯỚC 1: Tạm thời gỡ bỏ mối quan hệ chủ hộ (SET NULL)
+            // Điều này giúp "giải phóng" nhân khẩu khỏi sự ràng buộc của bảng hokhau
+            await client.query('UPDATE hokhau SET chuhocccd = NULL WHERE sohokhau = $1', [sohokhau]);
+
+            // BƯỚC 2: Xóa dữ liệu ở các bảng con phụ thuộc vào nhân khẩu (Tạm trú, Tạm vắng, Biến động)
+            // Phải xóa các bảng này trước khi xóa chính nhân khẩu
+            await client.query(`
+            DELETE FROM tamtru WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1);
+            DELETE FROM tamvang WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1);
+            DELETE FROM biendongnhankhau WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1);
+        `, [sohokhau]);
+
+            // BƯỚC 3: Xóa dữ liệu phụ thuộc vào hộ khẩu (Biến động hộ khẩu, Tách hộ)
+            await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', [sohokhau]);
+            await client.query('DELETE FROM tachho WHERE sohokhaucu = $1 OR sohokhaumoi = $1', [sohokhau]);
+
+            // BƯỚC 4: Xóa toàn bộ NHÂN KHẨU của hộ này trước
+            // Lúc này các nhân khẩu đã có thể xóa được vì bảng hokhau không còn giữ CCCD của họ nữa
             await client.query('DELETE FROM nhankhau WHERE sohokhau = $1', [sohokhau]);
 
-            // Bước 2: Xóa lịch sử biến động hộ khẩu (nếu có)
-            await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', [sohokhau]);
-
-            // Bước 3: Xóa chính hộ khẩu
+            // BƯỚC 5: Cuối cùng mới xóa HỘ KHẨU
             const result = await client.query('DELETE FROM hokhau WHERE sohokhau = $1', [sohokhau]);
 
             await client.query('COMMIT');
-            return result.rowCount; // Trả về 1 nếu xóa thành công, 0 nếu không tìm thấy
+            return result.rowCount;
         } catch (error) {
             await client.query('ROLLBACK');
-            console.error("Lỗi tại HoKhauModel.deleteHoKhau:", error);
+            console.error("Lỗi xóa dữ liệu liên kết:", error);
             throw error;
         } finally {
             client.release();
