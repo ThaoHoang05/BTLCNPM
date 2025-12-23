@@ -27,7 +27,8 @@ ALTER TABLE TamTru
     ADD COLUMN TrangThai VARCHAR(20) DEFAULT 'Còn hạn'
         CHECK (TrangThai IN ('Chuyển đi', 'Còn hạn', 'Quá hạn'));
 
-//update bang tam tru
+
+--update bang tam tru
 
 ALTER TABLE tamtru ADD COLUMN chuhocccd VARCHAR(12);
 ALTER TABLE tamtru ADD COLUMN chuho VARCHAR(100);
@@ -51,3 +52,10 @@ UPDATE tamtru t
 SET chuho = n.hoten
     FROM nhankhau n
 WHERE t.chuhocccd = n.cccd;
+
+
+--update bang trạng thái tạm trú
+UPDATE nhankhau
+SET trangthai = 'Tạm trú'
+WHERE trangthai = 'default'
+   OR trangthai IS NULL;
