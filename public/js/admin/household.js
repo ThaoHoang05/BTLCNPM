@@ -342,10 +342,10 @@ async function openSplitModal(hkCode) {
                 div.innerHTML = `
                     <label style="display:block; padding: 5px 0;">
                         <input type="checkbox" class="split-member-check" 
-                               value="${member.CCCD}" 
-                               data-name="${member.HoTenTV}"
-                               onchange="updateNewOwnerList()"> 
-                        ${member.HoTenTV} (${member.CCCD})
+                            value="${member.id}" 
+                            data-name="${member.HoTenTV}"
+                            onchange="updateNewOwnerList()"> 
+                        ${member.HoTenTV} (${member.CCCD || 'Trẻ em'})
                     </label>
                 `;
                 container.appendChild(div);
@@ -383,49 +383,41 @@ function updateNewOwnerList() {
 
 // 2. Hàm xử lý logic Tách hộ (Gửi API)
 async function submitSplitHousehold(event) {
-    event.preventDefault(); // Chặn reload trang
+    event.preventDefault(); 
 
     const oldHkId = document.getElementById('srcHkCode').dataset.id;
     const form = document.getElementById('splitHouseholdForm');
     const formData = new FormData(form);
 
-    // Lấy danh sách thành viên đã chọn
     const checkedBoxes = document.querySelectorAll('.split-member-check:checked');
     if (checkedBoxes.length === 0) {
         alert("Vui lòng chọn ít nhất 1 thành viên để tách!");
         return;
     }
 
-    // Tạo mảng thành viên (Giả sử API cần mảng tên hoặc mảng object, ở đây gửi mảng CCCD hoặc Tên tùy quy ước BE)
-    // Dựa vào payload "ThanhVien", thường là danh sách định danh. 
-    // Nếu BE cần Tên: dùng chk.dataset.name. Nếu BE cần CCCD: dùng chk.value
-    // Ở đây tôi lấy CCCD cho chính xác, nhưng nếu API bắt buộc là "Tên" thì bạn đổi lại.
-    const listThanhVien = Array.from(checkedBoxes).map(chk => chk.value); 
+    // Lấy danh sách ID từ value của checkbox
+    const listThanhVienIDs = Array.from(checkedBoxes).map(chk => chk.value); 
 
-    // Chuẩn bị payload
+    // Payload gửi ID
     const payload = {
-        "HoTen": formData.get('newOwner'), // Họ tên chủ hộ mới
-        "ThanhVien": listThanhVien,        // Danh sách thành viên đi cùng
+        "HoTenID": formData.get('newOwner'), // ID chủ hộ mới
+        "ThanhVienIDs": listThanhVienIDs,   // Mảng ID các thành viên
         "NgayTach": formData.get('ngayTach'),
         "LyDo": formData.get('lyDo'),
         "DiaChi": formData.get('diaChi')
     };
 
-    console.log("Payload tách hộ:", payload);
-
     try {
-        const response = await fetch(`/hokhau/${oldHkId}/new`, {
+        const response = await fetch(`/api/hokhau/${oldHkId}/new`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
         if (response.ok) {
             alert('Tách hộ thành công!');
             closeModal('splitModal');
-            loadHouseHoldList(); // Tải lại danh sách bên ngoài
+            loadHouseHoldList();
         } else {
             const errData = await response.json();
             alert('Lỗi: ' + (errData.message || 'Tách hộ thất bại'));
