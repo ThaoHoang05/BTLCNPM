@@ -107,14 +107,31 @@ const HoKhauModel = {
         try {
             await client.query('BEGIN');
 
-            // INSERT vào bảng hộ khẩu
+            // BƯỚC 1: Kiểm tra trạng thái "Thường trú" của chủ hộ
+            const checkStatusQuery = 'SELECT trangthai FROM nhankhau WHERE cccd = $1';
+            const statusRes = await client.query(checkStatusQuery, [data.ChuHo.CCCD]);
+
+            if (statusRes.rows.length === 0) {
+                throw new Error("Không tìm thấy CCCD chủ hộ trong hệ thống nhân khẩu.");
+            }
+            if (statusRes.rows[0].trangthai !== 'Thường trú') {
+                throw new Error("Chủ hộ phải có trạng thái 'Thường trú' mới được phép lập hộ khẩu.");
+            }
+
+            // BƯỚC 2: Tự động sinh mã hộ khẩu mới (Lấy mã lớn nhất + 1)
+            const maxIdQuery = `SELECT MAX(CAST(SUBSTRING(sohokhau, 3) AS INTEGER)) as "maxNum" FROM hokhau WHERE sohokhau LIKE 'HK%'`;
+            const maxIdRes = await client.query(maxIdQuery);
+            const nextNum = (maxIdRes.rows[0].maxNum || 0) + 1;
+            // Định dạng lại thành HKxxx
+            const nextHkId = 'HK' + nextNum.toString().padStart(3, '0');
+
+            // BƯỚC 3: INSERT vào bảng hộ khẩu
             const insertHK = `
                 INSERT INTO hokhau (sohokhau, chuhocccd, sonha, duong, phuong, quan, tinh, ngaylap, ghichu)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `;
-            
             await client.query(insertHK, [
-                data.Ma, 
+                nextHkId,
                 data.ChuHo.CCCD, 
                 data.DiaChi.sonha,
                 data.DiaChi.duong, 
@@ -125,22 +142,22 @@ const HoKhauModel = {
                 data.GhiChu
             ]);
 
-            // Cập nhật số hộ khẩu cho chủ hộ trong bảng nhân khẩu
+            // BƯỚC 4: Cập nhật nhân khẩu và lịch sử
             await client.query(
                 'UPDATE nhankhau SET sohokhau = $1, quanhevoichuho = $2 WHERE cccd = $3',
-                [data.Ma, 'Chủ hộ', data.ChuHo.CCCD]
+                [nextHkId, 'Chủ hộ', data.ChuHo.CCCD]
             );
 
-            // Ghi lịch sử biến động
             await client.query(
                 'INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi) VALUES ($1, $2, $3)',
-                [data.Ma, 'Đăng ký hộ khẩu mới', data.NgayLap]
+                [nextHkId, 'Đăng ký hộ khẩu mới', data.NgayLap]
             );
 
             await client.query('COMMIT');
-            return { message: "Tạo hộ khẩu thành công" };
+            return { message: "Tạo hộ khẩu thành công", sohokhau: nextHkId };
         } catch (error) {
             await client.query('ROLLBACK');
+            console.error("Lỗi Model create:", error.message);
             throw error;
         } finally {
             client.release();
