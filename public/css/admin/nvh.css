@@ -161,3 +161,208 @@
 .approval-table td:nth-child(4) {
     min-width: 120px; /* Mở rộng cột này ra một chút */
 }
+
+/* Badge trạng thái */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+.status-pending { background-color: #fff3cd; color: #856404; } /* Chờ duyệt - Vàng */
+.status-approved { background-color: #d4edda; color: #155724; } /* Đã duyệt - Xanh */
+.status-rejected { background-color: #f8d7da; color: #721c24; } /* Từ chối - Đỏ */
+
+/* Style cho toolbar mới thêm */
+.filter-toolbar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    align-items: center;
+}
+.search-group {
+    position: relative;
+    flex-grow: 1;
+}
+.search-group input {
+    width: 100%;
+    padding: 8px 10px 8px 35px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.search-group i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+/* Container bao quanh toàn bộ thanh phân trang */
+.pagination-wrapper {
+    display: flex;
+    justify-content: space-between; /* Đẩy text sang trái, nút sang phải */
+    align-items: center;
+    padding: 15px 0;
+    margin-top: 20px;
+    border-top: 1px solid #eee; /* Đường kẻ nhẹ ngăn cách với bảng */
+}
+
+/* Phần text thông tin bên trái */
+.pagination-info {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Danh sách các nút (ul) */
+.pagination-controls {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 5px; /* Khoảng cách giữa các nút */
+}
+
+/* Style chung cho các nút bấm */
+.page-btn {
+    min-width: 36px;
+    height: 36px;
+    border: 1px solid #dfe3e8;
+    background-color: #fff;
+    color: #333;
+    border-radius: 6px; /* Bo tròn nhẹ góc */
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease; /* Hiệu ứng mượt mà */
+    outline: none;
+}
+
+/* Hiệu ứng khi di chuột vào nút */
+.page-btn:hover:not(.disabled):not(.active) {
+    background-color: #f4f6f8;
+    border-color: #c4cdd5;
+    color: #0056b3;
+    transform: translateY(-1px); /* Nổi lên nhẹ */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Trạng thái đang chọn (Active) */
+.page-btn.active {
+    background-color: #007bff; /* Màu chủ đạo (Xanh dương) */
+    color: #fff;
+    border-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3); /* Đổ bóng màu xanh */
+    cursor: default;
+}
+
+/* Trạng thái bị vô hiệu hóa (Disabled - ví dụ nút Previous ở trang 1) */
+.page-btn.disabled {
+    color: #aeb0b4;
+    background-color: #f9fafb;
+    border-color: #eee;
+    cursor: not-allowed;
+}
+
+/* Dấu ba chấm (...) */
+.page-dots {
+    display: inline-block;
+    min-width: 30px;
+    text-align: center;
+    color: #999;
+    line-height: 36px;
+}
+
+/* Mobile Responsive: Ẩn bớt text thông tin trên màn hình nhỏ */
+@media (max-width: 600px) {
+    .pagination-wrapper {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .pagination-info {
+        font-size: 0.8rem;
+    }
+}
+
+/* Container chính */
+.filter-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #fff; /* Nền trắng cho sạch */
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Quan trọng: Cho phép xuống dòng nếu chật */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Nhóm tìm kiếm: Tự động giãn nở */
+.search-group {
+    position: relative;
+    flex-grow: 1;
+    min-width: 200px;
+}
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+.search-group input {
+    width: 100%;
+    padding-left: 35px; /* Để chừa chỗ cho icon */
+}
+
+/* Nhóm lọc ngày */
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Khoảng cách giữa chữ và ô input */
+    white-space: nowrap; /* Giữ chữ không bị ngắt dòng xấu */
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* Ô input ngày tháng */
+.date-input {
+    width: 135px; /* Kích thước vừa đủ cho ngày tháng */
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+}
+
+.date-input:focus {
+    border-color: #007bff;
+}
+
+/* Nút bấm */
+.btn-refresh {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+
+.btn-refresh:hover {
+    background-color: #0056b3;
+}
