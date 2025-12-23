@@ -4,60 +4,64 @@ const HoKhauModel = {
     // Truy vấn tổng hợp số liệu cho Dashboard
     getDashboardStats: async () => {
         const query = `
-            SELECT 
-                (SELECT COUNT(*) FROM hokhau) AS "totalHouseholds",
-                (SELECT COUNT(*) FROM nhankhau) AS "totalResidents",
-                -- Gom nhóm 'Mới sinh' và 'Tạm trú' (nếu có trong bảng tamtru)
-                (SELECT COUNT(*) FROM nhankhau WHERE trangthai = 'Mới sinh') 
-                    + (SELECT COUNT(*) FROM tamtru) AS "totalBirths",
-                -- Gom nhóm 'Tạm vắng' và 'Qua đời'
-                (SELECT COUNT(*) FROM nhankhau WHERE trangthai IN ('Tạm vắng', 'Qua đời')) AS "totalDeaths"
+            SELECT (SELECT COUNT(*) FROM hokhau)                                              AS "totalHouseholds",
+                   (SELECT COUNT(*) FROM nhankhau)                                            AS "totalResidents",
+                   -- Gom nhóm 'Mới sinh' và 'Tạm trú' (nếu có trong bảng tamtru)
+                   (SELECT COUNT(*) FROM nhankhau WHERE trangthai = 'Mới sinh')
+                       + (SELECT COUNT(*) FROM tamtru)                                        AS "totalBirths",
+                   -- Gom nhóm 'Tạm vắng' và 'Qua đời'
+                   (SELECT COUNT(*) FROM nhankhau WHERE trangthai IN ('Tạm vắng', 'Qua đời')) AS "totalDeaths"
         `;
         try {
-            const { rows } = await poolQuanLiHoKhau.query(query);
+            const {rows} = await poolQuanLiHoKhau.query(query);
             return rows[0]; // Trả về object chứa 4 con số
         } catch (error) {
             console.error("Lỗi truy vấn SQL tại HoKhauModel:", error);
             throw error;
         }
     },
-    
+
     // Truy vấn chi tiết hộ khẩu theo số hộ khẩu
     getDetail: async (sohokhau) => {
         try {
             // 1. Lấy thông tin chung của hộ và tên chủ hộ
             const infoQuery = `
-                SELECT hk.sohokhau, nk.hoten as "HoTen", 
-                       hk.sonha || ', ' || hk.duong || ', ' || hk.phuong || ', ' || hk.quan || ', ' || hk.tinh as "DiaChi",
-                       hk.ngaylap as "NgayLap",
-                       hk.ghichu as "GhiChu"
+                SELECT hk.sohokhau,
+                       nk.hoten                                                                                as "HoTen",
+                       hk.sonha || ', ' || hk.duong || ', ' || hk.phuong || ', ' || hk.quan || ', ' ||
+                       hk.tinh                                                                                 as "DiaChi",
+                       hk.ngaylap                                                                              as "NgayLap",
+                       hk.ghichu                                                                               as "GhiChu"
                 FROM hokhau hk
-                LEFT JOIN nhankhau nk ON hk.chuhocccd = nk.cccd
+                         LEFT JOIN nhankhau nk ON hk.chuhocccd = nk.cccd
                 WHERE hk.sohokhau = $1`;
-            
+
             // 2. Lấy danh sách nhân khẩu trong hộ
             const membersQuery = `
-                SELECT hoten as "HoTenTV", 
-                   ngaysinh as "NgaySinh", 
-                   quanhevoichuho as "QuanHeChuHo",
-                   cccd as "CCCD",
-                   trangthai as "TrangThai"
-                FROM nhankhau 
+                SELECT hoten          as "HoTenTV",
+                       ngaysinh       as "NgaySinh",
+                       quanhevoichuho as "QuanHeChuHo",
+                       cccd           as "CCCD",
+                       trangthai      as "TrangThai"
+                FROM nhankhau
                 WHERE sohokhau = $1`;
 
             // 3. Biến động NHÂN KHẨU 
             const historyResidentQuery = `
-                SELECT nk.hoten as "hoTen", bd.loaibiendong as "loaiBienDong", 
-                    bd.ngaybiendong as "ngayThayDoi", bd.noiden as "noiDen", bd.ghichu as "ghiChu"
+                SELECT nk.hoten        as "hoTen",
+                       bd.loaibiendong as "loaiBienDong",
+                       bd.ngaybiendong as "ngayThayDoi",
+                       bd.noiden       as "noiDen",
+                       bd.ghichu       as "ghiChu"
                 FROM biendongnhankhau bd
-                JOIN nhankhau nk ON bd.cccd = nk.cccd
+                         JOIN nhankhau nk ON bd.cccd = nk.cccd
                 WHERE nk.sohokhau = $1
                 ORDER BY bd.ngaybiendong DESC`;
 
             // 4. Biến động HỘ KHẨU
             const historyHouseholdQuery = `
                 SELECT ngaythaydoi as "ngayThayDoi", noidungthaydoi as "noiDung"
-                FROM biendonghokhau 
+                FROM biendonghokhau
                 WHERE sohokhau = $1
                 ORDER BY ngaythaydoi DESC`;
 
@@ -87,17 +91,16 @@ const HoKhauModel = {
 
     // Truy vấn list hộ khẩu cho tab hộ khẩu
     getHoKhauData: async () => {
-    const query = `
-        SELECT
-            hk.sohokhau AS "Mã hộ khẩu",
-            nk.hoten AS "Chủ hộ",
-            CONCAT(hk.sonha, ' ', hk.duong, ', ', hk.phuong, ', ', hk.quan, ', ', hk.tinh) AS "Địa chỉ",
-            hk.ngaylap AS "Ngày lập sổ",
-            hk.chuhocccd AS "CCCD"
-        FROM hokhau hk
-        LEFT JOIN nhankhau nk ON hk.chuhocccd = nk.cccd;
-    `;
-        const { rows } = await poolQuanLiHoKhau.query(query);
+        const query = `
+            SELECT hk.sohokhau                                                                    AS "Mã hộ khẩu",
+                   nk.hoten                                                                       AS "Chủ hộ",
+                   CONCAT(hk.sonha, ' ', hk.duong, ', ', hk.phuong, ', ', hk.quan, ', ', hk.tinh) AS "Địa chỉ",
+                   hk.ngaylap                                                                     AS "Ngày lập sổ",
+                   hk.chuhocccd                                                                   AS "CCCD"
+            FROM hokhau hk
+                     LEFT JOIN nhankhau nk ON hk.chuhocccd = nk.cccd;
+        `;
+        const {rows} = await poolQuanLiHoKhau.query(query);
         return rows;
     },
 
@@ -112,16 +115,16 @@ const HoKhauModel = {
                 INSERT INTO hokhau (sohokhau, chuhocccd, sonha, duong, phuong, quan, tinh, ngaylap, ghichu)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `;
-            
+
             await client.query(insertHK, [
-                data.Ma, 
-                data.ChuHo.CCCD, 
+                data.Ma,
+                data.ChuHo.CCCD,
                 data.DiaChi.sonha,
-                data.DiaChi.duong, 
-                'La Khê', 
+                data.DiaChi.duong,
+                'La Khê',
                 'Hà Đông',
-                'Hà Nội', 
-                data.NgayLap, 
+                'Hà Nội',
+                data.NgayLap,
                 data.GhiChu
             ]);
 
@@ -138,7 +141,7 @@ const HoKhauModel = {
             );
 
             await client.query('COMMIT');
-            return { message: "Tạo hộ khẩu thành công" };
+            return {message: "Tạo hộ khẩu thành công"};
         } catch (error) {
             await client.query('ROLLBACK');
             throw error;
@@ -155,7 +158,7 @@ const HoKhauModel = {
 
             // 1. Tạo Mã hộ khẩu mới (có thể sẽ cần sửa lại sau)
             // Ở đây giả định tạo mã mới dựa trên hộ cũ để test, ví dụ: HK_NEW_123
-            const newHkId = 'HK' + Date.now().toString().slice(-3); 
+            const newHkId = 'HK' + Date.now().toString().slice(-3);
 
             // 2. Tìm CCCD của chủ hộ mới dựa trên Họ tên (vì Payload FE gửi Họ tên)
             // Lưu ý: Tốt nhất FE nên gửi CCCD để tránh trùng tên
@@ -195,7 +198,7 @@ const HoKhauModel = {
             );
 
             await client.query('COMMIT');
-            return { message: "Tách hộ thành công", newHkId };
+            return {message: "Tách hộ thành công", newHkId};
         } catch (error) {
             await client.query('ROLLBACK');
             throw error;
@@ -210,32 +213,37 @@ const HoKhauModel = {
         try {
             await client.query('BEGIN');
 
-            // BƯỚC 1: Gỡ bỏ ràng buộc chủ hộ để tránh lỗi Foreign Key vòng quanh
+            // BƯỚC 1: Gỡ bỏ mối quan hệ chủ hộ
+            // Cần thực hiện đầu tiên để phá vỡ liên kết ngược từ hokhau về nhankhau
             await client.query('UPDATE hokhau SET chuhocccd = NULL WHERE sohokhau = $1', [sohokhau]);
 
-            // BƯỚC 2: Xóa dữ liệu ở các bảng con phụ thuộc vào nhân khẩu
-            // Phải tách riêng từng lệnh query để không bị lỗi "multiple commands"
+            // BƯỚC 2: Xóa các dữ liệu ở bảng "Cháu" (phụ thuộc vào nhân khẩu)
+            // Lỗi "fk_chuho_tamtru" của bạn được giải quyết ở đây
             const queryParams = [sohokhau];
+            const subQueryCCCD = '(SELECT cccd FROM nhankhau WHERE sohokhau = $1)';
 
-            await client.query('DELETE FROM tamtru WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
-            await client.query('DELETE FROM tamvang WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
-            await client.query('DELETE FROM biendongnhankhau WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
+            await client.query(`DELETE FROM tamtru WHERE cccd IN ${subQueryCCCD}`, queryParams);
+            await client.query(`DELETE FROM tamvang WHERE cccd IN ${subQueryCCCD}`, queryParams);
 
-            // BƯỚC 3: Xóa dữ liệu phụ thuộc vào hộ khẩu
+            // Mặc dù biendongnhankhau có CASCADE, ta vẫn xóa ở đây để đảm bảo an toàn tuyệt đối
+            await client.query(`DELETE FROM biendongnhankhau WHERE cccd IN ${subQueryCCCD}`, queryParams);
+
+            // BƯỚC 3: Xóa các bảng phụ thuộc trực tiếp vào số hộ khẩu
             await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', queryParams);
             await client.query('DELETE FROM tachho WHERE sohokhaucu = $1 OR sohokhaumoi = $1', queryParams);
 
-            // BƯỚC 4: Xóa toàn bộ NHÂN KHẨU thuộc hộ khẩu này
+            // BƯỚC 4: Xóa toàn bộ nhân khẩu thuộc hộ này
+            // Lúc này các bảng tamtru, tamvang đã sạch nên sẽ không bị lỗi khóa ngoại nữa
             await client.query('DELETE FROM nhankhau WHERE sohokhau = $1', queryParams);
 
-            // BƯỚC 5: Cuối cùng xóa chính HỘ KHẨU
+            // BƯỚC 5: Cuối cùng mới xóa hộ khẩu
             const result = await client.query('DELETE FROM hokhau WHERE sohokhau = $1', queryParams);
 
             await client.query('COMMIT');
             return result.rowCount;
         } catch (error) {
             await client.query('ROLLBACK');
-            console.error("Lỗi xóa dữ liệu liên kết:", error);
+            console.error("Lỗi xóa dữ liệu liên kết:", error.message);
             throw error;
         } finally {
             client.release();
