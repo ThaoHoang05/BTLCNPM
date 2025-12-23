@@ -261,7 +261,6 @@ async function createNewHousehold(event) {
     const v = Object.fromEntries(formData.entries());
 
         const payload = {
-            "Ma": v.sohokhau,
             "NgayLap": v.ngaylap,
             "DiaChi": { // Gửi dạng Object thay vì chuỗi
                 "sonha": v.sonha,

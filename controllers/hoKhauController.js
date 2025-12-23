@@ -1,6 +1,6 @@
 const HoKhauModel = require('../models/hoKhauModel');
 
-const adminController = {
+const hoKhauController = {
     getDashboardStats: async (req, res) => {
         try {
             const stats = await HoKhauModel.getDashboardStats();
@@ -73,4 +73,4 @@ const adminController = {
     
 };
 
-module.exports = adminController;
+module.exports = hoKhauController;
