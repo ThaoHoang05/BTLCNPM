@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-const adminController = require('../controllers/adminController');
+const hoKhauController = require('../controllers/hoKhauController');
 
-router.get('/dashboard', adminController.getDashboardStats);
-router.post('/new', adminController.createHousehold);
-router.get('/show', adminController.getHoKhauList);
+router.get('/dashboard', hoKhauController.getDashboardStats);
+router.post('/new', hoKhauController.createHousehold);
+router.get('/show', hoKhauController.getHoKhauList);
 
-router.get('/show/:id', adminController.getHouseholdDetail);
-router.post('/:id/new', adminController.splitHousehold);
-router.delete('/:id', adminController.deleteHousehold);
+router.get('/show/:id', hoKhauController.getHouseholdDetail);
+router.post('/:id/new', hoKhauController.splitHousehold);
+router.delete('/:id', hoKhauController.deleteHousehold);
 
 
 module.exports = router;
