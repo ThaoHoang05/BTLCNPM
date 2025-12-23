@@ -139,3 +139,25 @@
 /* Modal kích thước */
 .large-modal { width: 700px; }
 .small-modal { width: 400px; }
+
+.btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; border: none; color: white;}
+.btn-info { background-color: #17a2b8; }
+.badge-primary { background-color: #007bff; color: white; padding: 3px 8px; border-radius: 10px; font-size: 11px;}
+/* Thêm vào file CSS */
+
+/* Giữ cho nội dung trong badge không bị xuống dòng */
+.badge-primary, .badge {
+    white-space: nowrap;  /* Quan trọng: Cấm xuống dòng */
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 12px; /* Bo tròn đẹp hơn */
+    min-width: 80px;     /* Đặt chiều rộng tối thiểu để đều nhau */
+    text-align: center;
+}
+
+/* Đảm bảo cột Loại hình đủ rộng */
+.approval-table th:nth-child(4), 
+.approval-table td:nth-child(4) {
+    min-width: 120px; /* Mở rộng cột này ra một chút */
+}
