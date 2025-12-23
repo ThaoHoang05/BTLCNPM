@@ -210,28 +210,26 @@ const HoKhauModel = {
         try {
             await client.query('BEGIN');
 
-            // BƯỚC 1: Tạm thời gỡ bỏ mối quan hệ chủ hộ (SET NULL)
-            // Điều này giúp "giải phóng" nhân khẩu khỏi sự ràng buộc của bảng hokhau
+            // BƯỚC 1: Gỡ bỏ ràng buộc chủ hộ để tránh lỗi Foreign Key vòng quanh
             await client.query('UPDATE hokhau SET chuhocccd = NULL WHERE sohokhau = $1', [sohokhau]);
 
-            // BƯỚC 2: Xóa dữ liệu ở các bảng con phụ thuộc vào nhân khẩu (Tạm trú, Tạm vắng, Biến động)
-            // Phải xóa các bảng này trước khi xóa chính nhân khẩu
-            await client.query(`
-            DELETE FROM tamtru WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1);
-            DELETE FROM tamvang WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1);
-            DELETE FROM biendongnhankhau WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1);
-        `, [sohokhau]);
+            // BƯỚC 2: Xóa dữ liệu ở các bảng con phụ thuộc vào nhân khẩu
+            // Phải tách riêng từng lệnh query để không bị lỗi "multiple commands"
+            const queryParams = [sohokhau];
 
-            // BƯỚC 3: Xóa dữ liệu phụ thuộc vào hộ khẩu (Biến động hộ khẩu, Tách hộ)
-            await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', [sohokhau]);
-            await client.query('DELETE FROM tachho WHERE sohokhaucu = $1 OR sohokhaumoi = $1', [sohokhau]);
+            await client.query('DELETE FROM tamtru WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
+            await client.query('DELETE FROM tamvang WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
+            await client.query('DELETE FROM biendongnhankhau WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
 
-            // BƯỚC 4: Xóa toàn bộ NHÂN KHẨU của hộ này trước
-            // Lúc này các nhân khẩu đã có thể xóa được vì bảng hokhau không còn giữ CCCD của họ nữa
-            await client.query('DELETE FROM nhankhau WHERE sohokhau = $1', [sohokhau]);
+            // BƯỚC 3: Xóa dữ liệu phụ thuộc vào hộ khẩu
+            await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', queryParams);
+            await client.query('DELETE FROM tachho WHERE sohokhaucu = $1 OR sohokhaumoi = $1', queryParams);
 
-            // BƯỚC 5: Cuối cùng mới xóa HỘ KHẨU
-            const result = await client.query('DELETE FROM hokhau WHERE sohokhau = $1', [sohokhau]);
+            // BƯỚC 4: Xóa toàn bộ NHÂN KHẨU thuộc hộ khẩu này
+            await client.query('DELETE FROM nhankhau WHERE sohokhau = $1', queryParams);
+
+            // BƯỚC 5: Cuối cùng xóa chính HỘ KHẨU
+            const result = await client.query('DELETE FROM hokhau WHERE sohokhau = $1', queryParams);
 
             await client.query('COMMIT');
             return result.rowCount;
