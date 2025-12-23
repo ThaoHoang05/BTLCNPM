@@ -55,6 +55,21 @@ const adminController = {
             res.status(500).json({ message: error.message || "Lỗi khi tách hộ" });
         }
     },
+
+
+    deleteHousehold: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const rowsDeleted = await HoKhauModel.deleteHoKhau(id);
+            if (rowsDeleted === 0) {
+                return res.status(404).json({ message: "Không tìm thấy mã hộ khẩu để xóa" });
+            }
+            res.status(200).json({ message: `Đã xóa thành công hộ khẩu ${id} và các nhân khẩu liên quan.` });
+        } catch (error) {
+            console.error("Lỗi xóa hộ khẩu:", error.message);
+            res.status(500).json({ message: "Lỗi hệ thống khi xóa hộ khẩu" });
+        }
+    },
     
 };
 

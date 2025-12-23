@@ -9,7 +9,7 @@ router.get('/show', adminController.getHoKhauList);
 
 router.get('/show/:id', adminController.getHouseholdDetail);
 router.post('/:id/new', adminController.splitHousehold);
-
+router.delete('/:id', adminController.deleteHousehold);
 
 
 module.exports = router;

@@ -204,6 +204,32 @@ const HoKhauModel = {
         }
     },
 
+    //Xóa hộ khẩu (Transaction)
+    deleteHoKhau: async (sohokhau) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+
+            // Bước 1: Xóa nhân khẩu thuộc hộ này trước để tránh lỗi Foreign Key
+            await client.query('DELETE FROM nhankhau WHERE sohokhau = $1', [sohokhau]);
+
+            // Bước 2: Xóa lịch sử biến động hộ khẩu (nếu có)
+            await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', [sohokhau]);
+
+            // Bước 3: Xóa chính hộ khẩu
+            const result = await client.query('DELETE FROM hokhau WHERE sohokhau = $1', [sohokhau]);
+
+            await client.query('COMMIT');
+            return result.rowCount; // Trả về 1 nếu xóa thành công, 0 nếu không tìm thấy
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error("Lỗi tại HoKhauModel.deleteHoKhau:", error);
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
 };
 
 module.exports = HoKhauModel;
