@@ -329,26 +329,24 @@ async function openSplitModal(hkCode) {
     ownerSelect.innerHTML = '<option value="">-- Chọn chủ hộ --</option>';
 
     try {
-        // Gọi API lấy chi tiết hộ cũ để biết có những ai
         const response = await fetch(`/api/hokhau/show/${hkCode}`);
         const data = await response.json();
         
-        container.innerHTML = ''; // Xóa loading
-        
-        // Render danh sách checkbox
-        // Giả sử API trả về data.danhSachNhanKhau là mảng các thành viên
-        if (data.danhSachNhanKhau && data.danhSachNhanKhau.length > 0) {
-            data.danhSachNhanKhau.forEach(member => {
-                // Tạo checkbox cho từng thành viên
+        container.innerHTML = ''; 
+
+        const members = data.danhSachNhanKhau || []; 
+
+        if (members.length > 0) {
+            members.forEach(member => {
                 const div = document.createElement('div');
                 div.className = 'checkbox-item';
                 div.innerHTML = `
                     <label style="display:block; padding: 5px 0;">
                         <input type="checkbox" class="split-member-check" 
-                               value="${member.cccd}" 
-                               data-name="${member.hoTen}"
+                               value="${member.CCCD}" 
+                               data-name="${member.HoTenTV}"
                                onchange="updateNewOwnerList()"> 
-                        ${member.hoTen} (${member.cccd})
+                        ${member.HoTenTV} (${member.CCCD})
                     </label>
                 `;
                 container.appendChild(div);

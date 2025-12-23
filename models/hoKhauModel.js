@@ -145,7 +145,64 @@ const HoKhauModel = {
         } finally {
             client.release();
         }
-    }
+    },
+
+    // Thực hiện tách hộ
+    split: async (oldHkId, data) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+
+            // 1. Tạo Mã hộ khẩu mới (có thể sẽ cần sửa lại sau)
+            // Ở đây giả định tạo mã mới dựa trên hộ cũ để test, ví dụ: HK_NEW_123
+            const newHkId = 'HK' + Date.now().toString().slice(-3); 
+
+            // 2. Tìm CCCD của chủ hộ mới dựa trên Họ tên (vì Payload FE gửi Họ tên)
+            // Lưu ý: Tốt nhất FE nên gửi CCCD để tránh trùng tên
+            const ownerRes = await client.query(
+                'SELECT cccd FROM nhankhau WHERE hoten = $1 AND sohokhau = $2',
+                [data.HoTen, oldHkId]
+            );
+            if (ownerRes.rows.length === 0) throw new Error("Không tìm thấy chủ hộ mới trong hộ cũ");
+            const newOwnerCCCD = ownerRes.rows[0].cccd;
+
+            // 3. Thêm hộ mới vào bảng hokhau
+            const insertHK = `
+                INSERT INTO hokhau (sohokhau, chuhocccd, sonha, duong, phuong, quan, tinh, ngaylap, ghichu)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+            await client.query(insertHK, [
+                newHkId, newOwnerCCCD, '', data.DiaChi, 'La Khê', 'Hà Đông', 'Hà Nội', data.NgayTach, data.LyDo
+            ]);
+
+            // 4. Cập nhật mã hộ khẩu mới cho Chủ hộ và các Thành viên tách cùng
+            const allMovingCCCDs = [newOwnerCCCD, ...data.ThanhVien];
+            const updateNK = 'UPDATE nhankhau SET sohokhau = $1 WHERE cccd = ANY($2)';
+            await client.query(updateNK, [newHkId, allMovingCCCDs]);
+
+            // 5. Cập nhật quan hệ chủ hộ cho người đứng đầu hộ mới
+            await client.query('UPDATE nhankhau SET quanhevoichuho = $1 WHERE cccd = $2', ['Chủ hộ', newOwnerCCCD]);
+
+            // 6. Ghi nhận vào bảng tách hộ (lưu vết hộ cũ - hộ mới)
+            await client.query(
+                'INSERT INTO tachho (sohokhaucu, sohokhaumoi, ngaytach, ghichu) VALUES ($1, $2, $3, $4)',
+                [oldHkId, newHkId, data.NgayTach, data.LyDo]
+            );
+
+            // 7. Ghi lịch sử biến động cho cả 2 hộ
+            await client.query(
+                'INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi) VALUES ($1, $2, $3)',
+                [oldHkId, `Tách hộ: Chuyển ${allMovingCCCDs.length} người sang hộ ${newHkId}`, data.NgayTach]
+            );
+
+            await client.query('COMMIT');
+            return { message: "Tách hộ thành công", newHkId };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
 
 };
 

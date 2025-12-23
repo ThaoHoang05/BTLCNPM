@@ -44,6 +44,17 @@ const adminController = {
             res.status(500).json({ message: "Lỗi Server khi tạo hộ khẩu" });
         }
     },
+
+    splitHousehold: async (req, res) => {
+        const { id } = req.params; // ID hộ cũ
+        try {
+            const result = await HoKhauModel.split(id, req.body);
+            res.status(201).json(result);
+        } catch (error) {
+            console.error("Lỗi tách hộ:", error.message);
+            res.status(500).json({ message: error.message || "Lỗi khi tách hộ" });
+        }
+    },
     
 };
 
