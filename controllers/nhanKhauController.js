@@ -5,4 +5,4 @@ const nhanKhauController = {
 
 };
 
-module.exports = NhanKhauModel;
+module.exports = nhanKhauController;
