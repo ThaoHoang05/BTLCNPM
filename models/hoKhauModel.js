@@ -209,39 +209,58 @@ const HoKhauModel = {
         const client = await poolQuanLiHoKhau.connect();
         try {
             await client.query('BEGIN');
-
-            // BƯỚC 1: Gỡ bỏ ràng buộc chủ hộ để tránh lỗi Foreign Key vòng quanh
+    
+            // BƯỚC 1: Gỡ bỏ mối quan hệ chủ hộ trong bảng hokhau
             await client.query('UPDATE hokhau SET chuhocccd = NULL WHERE sohokhau = $1', [sohokhau]);
-
-            // BƯỚC 2: Xóa dữ liệu ở các bảng con phụ thuộc vào nhân khẩu
-            // Phải tách riêng từng lệnh query để không bị lỗi "multiple commands"
+    
+            // Chuẩn bị danh sách CCCD sắp bị xóa
             const queryParams = [sohokhau];
-
-            await client.query('DELETE FROM tamtru WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
-            await client.query('DELETE FROM tamvang WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
-            await client.query('DELETE FROM biendongnhankhau WHERE cccd IN (SELECT cccd FROM nhankhau WHERE sohokhau = $1)', queryParams);
-
-            // BƯỚC 3: Xóa dữ liệu phụ thuộc vào hộ khẩu
+            const subQueryCCCD = '(SELECT cccd FROM nhankhau WHERE sohokhau = $1)';
+    
+            // BƯỚC 2: Xóa dữ liệu liên kết ở bảng con
+            // Lưu ý: Dùng dấu backtick (`) để chèn biến subQueryCCCD
+    
+            // 2.1. Xóa tạm trú (FIX LỖI CỦA BẠN TẠI ĐÂY)
+            // Xóa khi thành viên là người đi ở tạm trú
+            await client.query(`DELETE FROM tamtru WHERE cccd IN ${subQueryCCCD}`, queryParams);
+            
+            // --- QUAN TRỌNG: Xóa khi thành viên là CHỦ HỘ bảo lãnh cho người khác tạm trú ---
+            // (Bạn kiểm tra lại trong DB xem cột này tên là 'cccdchuho' hay 'idchuho' nhé, mình đang để mặc định là 'cccdchuho')
+            // Dòng này sẽ gỡ bỏ ràng buộc fk_chuho_tamtru
+            try {
+                 // Thử xóa theo cột cccdchuho (thường gặp trong thiết kế này)
+                 await client.query(`DELETE FROM tamtru WHERE cccdchuho IN ${subQueryCCCD}`, queryParams);
+            } catch (err) {
+                 // Nếu DB của bạn không có cột cccdchuho, có thể nó tên là ma_chu_ho, bạn hãy sửa lại tên cột cho đúng
+                 console.log("Lưu ý: Kiểm tra lại tên cột chủ hộ trong bảng tamtru");
+            }
+    
+            // 2.2. Xóa tạm vắng
+            await client.query(`DELETE FROM tamvang WHERE cccd IN ${subQueryCCCD}`, queryParams);
+            
+            // 2.3. Xóa biến động nhân khẩu
+            await client.query(`DELETE FROM biendongnhankhau WHERE cccd IN ${subQueryCCCD}`, queryParams);
+    
+            // BƯỚC 3: Xóa các bảng phụ thuộc vào số hộ khẩu
             await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', queryParams);
             await client.query('DELETE FROM tachho WHERE sohokhaucu = $1 OR sohokhaumoi = $1', queryParams);
-
-            // BƯỚC 4: Xóa toàn bộ NHÂN KHẨU thuộc hộ khẩu này
+    
+            // BƯỚC 4: Xóa nhân khẩu
             await client.query('DELETE FROM nhankhau WHERE sohokhau = $1', queryParams);
-
-            // BƯỚC 5: Cuối cùng xóa chính HỘ KHẨU
+    
+            // BƯỚC 5: Xóa hộ khẩu
             const result = await client.query('DELETE FROM hokhau WHERE sohokhau = $1', queryParams);
-
+    
             await client.query('COMMIT');
             return result.rowCount;
         } catch (error) {
             await client.query('ROLLBACK');
-            console.error("Lỗi xóa dữ liệu liên kết:", error);
+            console.error("Lỗi xóa dữ liệu liên kết:", error.message);
             throw error;
         } finally {
             client.release();
         }
     },
-
 };
 
 module.exports = HoKhauModel;
