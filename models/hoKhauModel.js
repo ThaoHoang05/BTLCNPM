@@ -165,6 +165,20 @@ const HoKhauModel = {
         try {
             await client.query('BEGIN');
 
+            //  Kiểm tra xem người dùng có đang cố tách Chủ hộ hiện tại đi không?
+            const currentOwnerRes = await client.query('SELECT chuho_id FROM hokhau WHERE sohokhau = $1', [oldHkId]);
+            if (currentOwnerRes.rows.length === 0) throw new Error("Hộ khẩu cũ không tồn tại.");
+            
+            const currentOwnerId = currentOwnerRes.rows[0].chuho_id;
+
+            const allMovingIDs = [data.HoTenID, ...data.ThanhVienIDs];
+
+            const isOwnerMoving = allMovingIDs.some(id => id == currentOwnerId);
+            
+            if (isOwnerMoving) {
+                throw new Error("Không thể tách Chủ hộ hiện tại ra khỏi hộ. Vui lòng chuyển quyền Chủ hộ cho người khác trước khi tách!");
+            };
+
             // 1. Sinh mã hộ mới 
             const maxIdRes = await client.query(`SELECT MAX(CAST(SUBSTRING(sohokhau, 3) AS INTEGER)) as "maxNum" FROM hokhau`);
             const nextHkId = 'HK' + ((maxIdRes.rows[0].maxNum || 0) + 1).toString().padStart(3, '0');
@@ -181,7 +195,6 @@ const HoKhauModel = {
             );
 
             // 4. Di chuyển chủ hộ và thành viên đi kèm qua ID
-            const allMovingIDs = [data.HoTenID, ...data.ThanhVienIDs];
             await client.query('UPDATE nhankhau SET sohokhau = $1 WHERE id = ANY($2)', [nextHkId, allMovingIDs]);
             await client.query('UPDATE nhankhau SET quanhevoichuho = $1 WHERE id = $2', ['Chủ hộ', data.HoTenID]);
 

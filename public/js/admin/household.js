@@ -337,6 +337,9 @@ async function openSplitModal(hkCode) {
 
         if (members.length > 0) {
             members.forEach(member => {
+                if (member.QuanHeChuHo === 'Chủ hộ') {
+                    return; // Bỏ qua, không render checkbox cho chủ hộ cũ
+                }
                 const div = document.createElement('div');
                 div.className = 'checkbox-item';
                 div.innerHTML = `
@@ -373,7 +376,7 @@ function updateNewOwnerList() {
     
     checkboxes.forEach(chk => {
         const option = document.createElement('option');
-        option.value = chk.dataset.name; // API yêu cầu gửi "Họ Tên", không phải CCCD
+        option.value = chk.value;
         option.innerText = chk.dataset.name;
         select.appendChild(option);
     });
