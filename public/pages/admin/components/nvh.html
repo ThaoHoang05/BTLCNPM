@@ -3,6 +3,26 @@
         
         <div class="section-header">
             <h2><i class="fas fa-tasks"></i> Quản lý Đăng ký Sử dụng</h2>
+            <div class="filter-toolbar">
+                <div class="search-group">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="keyword" class="form-control" placeholder="Tìm theo tên, SĐT hoặc mã đơn...">
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">Từ:</span>
+                    <input type="date" id="fromDate" class="form-control date-input">
+                    
+                    <span class="filter-label">Đến:</span>
+                    <input type="date" id="toDate" class="form-control date-input">
+                </div>
+
+                <div class="action-group">
+                    <button class="btn-refresh" onclick="filterByRange()">
+                        <i class="fas fa-filter"></i> Lọc dữ liệu
+                    </button>
+                </div>
+            </div>
             <div class="tabs-header">
                 <button class="tab-btn active" onclick="filterRequests('pending')">
                     Chờ duyệt <span class="badge-count" id="countPending">0</span>
@@ -28,6 +48,33 @@
                 <tbody id="requestTableBody">
                     </tbody>
             </table>
+        </div>
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Hiển thị <strong>1-10</strong> trên tổng số <strong>50</strong> đơn
+            </div>
+        
+            <ul class="pagination-controls">
+                <li>
+                    <button class="page-btn disabled" title="Trang trước">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </li>
+        
+                <li><button class="page-btn active">1</button></li>
+                <li><button class="page-btn">2</button></li>
+                <li><button class="page-btn">3</button></li>
+                
+                <li><span class="page-dots">...</span></li>
+                
+                <li><button class="page-btn">12</button></li>
+        
+                <li>
+                    <button class="page-btn" title="Trang sau">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
@@ -93,6 +140,17 @@
             <div class="form-group">
                 <label>Phí sử dụng (VNĐ):</label>
                 <input type="number" id="feeInput" class="form-control" value="0">
+            </div>
+            <div class="form-group">
+                <label>Phân công phòng <span class="text-danger">*</span>:</label>
+                <select id="roomSelect" class="form-control">
+                    <option value="" disabled selected>-- Chọn phòng sử dụng --</option>
+                    <option value="1">Hội Trường Lớn (300 chỗ)</option>
+                    <option value="2">Phòng Sinh Hoạt Cộng Đồng (100 chỗ)</option>
+                    <option value="3">Phòng Đa Năng (50 chỗ)</option>
+                    <option value="4">Sân sinh hoạt chung</option>
+                </select>
+                <small class="hint-text">Vui lòng kiểm tra lịch trống trước khi chọn.</small>
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('approveModal')">Hủy</button>
