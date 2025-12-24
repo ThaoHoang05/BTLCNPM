@@ -27,6 +27,32 @@ const nhanKhauController = {
         }
     },
 
+    // Đăng ký nhân khẩu mới (POST /nhankhau/new)
+    createNhanKhau: async (req, res) => {
+        try {
+            // Nhận payload từ Frontend
+            const result = await NhanKhauModel.create(req.body);
+
+            res.status(201).json({
+                success: true,
+                message: "Đăng ký nhân khẩu thành công.",
+                data: result
+            });
+        } catch (error) {
+            console.error("Lỗi Controller createNhanKhau:", error.message);
+
+            // Xử lý các lỗi ràng buộc dữ liệu từ Database
+            if (error.code === '23505') {
+                return res.status(400).json({ message: "Số CCCD này đã tồn tại trên hệ thống." });
+            }
+            if (error.code === '23503') {
+                return res.status(400).json({ message: "Mã hộ khẩu (SoHoKhau) không tồn tại." });
+            }
+
+            res.status(500).json({ message: "Lỗi hệ thống khi đăng ký nhân khẩu mới." });
+        }
+    },
+
 };
 
 module.exports = nhanKhauController;
