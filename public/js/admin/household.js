@@ -552,7 +552,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Hàm mở Modal Quản lý Cư trú
 function openManageResidence() {
-    loadResidenceData(); // Gọi hàm tải dữ liệu
+    loadTamTruData();  // Tải danh sách tạm trú
+    loadTamVangData(); // Tải danh sách tạm vắng
     openModal('manageResidenceModal');
     
     // Mặc định active tab đầu tiên khi mở
@@ -560,54 +561,32 @@ function openManageResidence() {
     if(firstTabBtn) switchResidenceTab('tabTamTru', firstTabBtn);
 }
 
-// Hàm tải dữ liệu (Tách riêng 2 danh sách)
-async function loadResidenceData() {
-    // 1. Lấy 2 thẻ tbody theo đúng HTML
+// --- HÀM 1: TẢI DANH SÁCH TẠM TRÚ ---
+async function loadTamTruData() {
     const tbodyTamTru = document.getElementById('residentListBody');
-    const tbodyTamVang = document.getElementById('listTamVang'); // ID mới trong HTML
-
-    // Hiển thị loading
     if(tbodyTamTru) tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
-    if(tbodyTamVang) tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
 
     try {
-        // --- DỮ LIỆU GIẢ LẬP (MOCK DATA) ---
-        // Khi có API thật, thay thế đoạn này bằng fetch
-        /*
-        const [resTamTru, resTamVang] = await Promise.all([
-            fetch('/api/tamtru').then(r => r.json()),
-            fetch('/api/tamvang').then(r => r.json())
-        ]);
-        */
-        
-        // Mock Tạm Trú (Đến địa phương)
-        const listTamTru = [
-            { id: 1, hoTen: "Nguyễn Thị B", cccd: "0381990001", diaChi: "Số 5, Ao Sen", tuNgay: "2024-01-01", denNgay: "2024-06-01" },
-            { id: 2, hoTen: "Trần Văn C", cccd: "0010980002", diaChi: "102 Trần Phú", tuNgay: "2024-02-15", denNgay: "2024-08-15" }
-        ];
+        const response = await fetch('/api/tamtru');
+        const listTamTru = await response.json();
 
-        // Mock Tạm Vắng (Đi khỏi địa phương)
-        const listTamVang = [
-            { id: 10, hoTen: "Lê Văn D", noiDen: "KTX Bách Khoa, HN", tuNgay: "2024-09-01", denNgay: "2025-06-01", lyDo: "Đi học đại học" },
-            { id: 11, hoTen: "Phạm Thị E", noiDen: "KCN Bắc Thăng Long", tuNgay: "2024-01-01", denNgay: "2024-12-31", lyDo: "Đi làm công nhân" }
-        ];
-
-        // 2. Render Tab Tạm Trú (residentListBody)
         if(tbodyTamTru) {
             tbodyTamTru.innerHTML = '';
             if (listTamTru.length === 0) {
                 tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu tạm trú</td></tr>';
             } else {
                 listTamTru.forEach(item => {
+                    const statusClass = item.TrangThai === 'Còn hạn' ? 'badge-success' : 'badge-danger';
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${item.hoTen}</td>
-                        <td>${item.cccd}</td>
-                        <td>${item.diaChi}</td>
-                        <td>${item.tuNgay} <br> <small>đến ${item.denNgay}</small></td>
-                        <td><span class="badge-status active">Đang tạm trú</span></td>
+                        <td>${item.HoTen}</td>
+                        <td>${item.CCCD || '---'}</td>
+                        <td>${item.DiaChi || '---'}</td>
+                        <td>${new Date(item.Tu).toLocaleDateString('vi-VN')} <br> 
+                            <small>đến ${new Date(item.Den).toLocaleDateString('vi-VN')}</small></td>
+                        <td><span class="badge ${statusClass}">${item.TrangThai}</span></td>
                         <td class="text-center">
-                            <button class="icon-btn danger" onclick="deleteTempResidence('${item.id}')" title="Xóa">
+                            <button class="icon-btn danger" onclick="deleteTempResidence('${item.ID}')" title="Xóa">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
@@ -616,8 +595,22 @@ async function loadResidenceData() {
                 });
             }
         }
+    } catch (err) {
+        console.error("Lỗi tải dữ liệu tạm trú:", err);
+        if(tbodyTamTru) tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Lỗi kết nối server</td></tr>';
+    }
+}
 
-        // 3. Render Tab Tạm Vắng (listTamVang)
+// --- HÀM 2: TẢI DANH SÁCH TẠM VẮNG ---
+async function loadTamVangData() {
+    const tbodyTamVang = document.getElementById('listTamVang');
+    if(tbodyTamVang) tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
+
+    try {
+        // API này bạn sẽ cần xây dựng tương tự như /api/tamtru
+        const response = await fetch('/api/tamvang'); 
+        const listTamVang = await response.json();
+
         if(tbodyTamVang) {
             tbodyTamVang.innerHTML = '';
             if (listTamVang.length === 0) {
@@ -625,13 +618,16 @@ async function loadResidenceData() {
             } else {
                 listTamVang.forEach(item => {
                     const row = document.createElement('tr');
-                    // Cấu trúc cột khớp với HTML: Họ tên | Nơi đến | Thời hạn | Lý do | Trạng thái | Thao tác
+                    // Sử dụng định dạng ngày Việt Nam
+                    const tuNgay = new Date(item.tuNgay).toLocaleDateString('vi-VN');
+                    const denNgay = new Date(item.denNgay).toLocaleDateString('vi-VN');
+
                     row.innerHTML = `
                         <td>${item.hoTen}</td>
                         <td>${item.noiDen}</td>
-                        <td>${item.tuNgay} <br> <small>đến ${item.denNgay}</small></td>
+                        <td>${tuNgay} <br> <small>đến ${denNgay}</small></td>
                         <td>${item.lyDo}</td>
-                        <td><span class="badge-status warning">Đang tạm vắng</span></td>
+                        <td><span class="badge-status warning">${item.trangThai || 'Đang tạm vắng'}</span></td>
                         <td class="text-center">
                             <button class="icon-btn success" onclick="confirmReturnEarly('${item.id}')" title="Đã về trước hạn">
                                 <i class="fas fa-undo-alt"></i>
@@ -642,10 +638,9 @@ async function loadResidenceData() {
                 });
             }
         }
-
     } catch (err) {
-        console.error("Lỗi tải dữ liệu cư trú:", err);
-        if(tbodyTamTru) tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-danger">Lỗi kết nối server</td></tr>';
+        console.error("Lỗi tải dữ liệu tạm vắng:", err);
+        if(tbodyTamVang) tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Lỗi kết nối server</td></tr>';
     }
 }
 

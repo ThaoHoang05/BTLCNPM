@@ -17,10 +17,12 @@ const authRoutes = require('./routes/authRoutes');
 const hoKhauRoutes = require('./routes/hoKhauRoutes');
 const nhanKhauRoutes = require('./routes/nhanKhauRoutes');
 const nhaVanHoaRoutes = require('./routes/nhaVanHoaRoutes');
+const tamVangTamTruRoutes = require('./routes/tamVangTamTruRoutes');
 
 //api
-app.use('/api/dang-ky', dangKyRoutes);
 app.use('/api', authRoutes); 
+app.use('/api', tamVangTamTruRoutes);
+app.use('/api/dang-ky', dangKyRoutes);
 app.use('/api/hokhau', hoKhauRoutes);
 app.use('/api/nhankhau', nhanKhauRoutes);
 app.use('/api/nha-van-hoa', nhaVanHoaRoutes);
