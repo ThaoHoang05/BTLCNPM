@@ -114,6 +114,11 @@ function renderResidentManagement(){
     })
     .then(html => {
         mainContent.innerHTML = html;
+        if (typeof loadCitizenList === 'function') {
+            loadCitizenList();
+        } else {
+            console.error("Chưa tìm thấy hàm loadCitizenList. Kiểm tra lại việc nhúng file resident.js");
+        }
     })
     .catch(error =>{
         console.error('Lỗi tải trang:', error);

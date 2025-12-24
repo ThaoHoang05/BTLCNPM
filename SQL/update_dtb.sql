@@ -59,3 +59,9 @@ UPDATE nhankhau
 SET trangthai = 'Tạm trú'
 WHERE trangthai = 'default'
    OR trangthai IS NULL;
+
+
+--update bỏ các NOT NULL của cccd
+ALTER TABLE biendongnhankhau ALTER COLUMN cccd DROP NOT NULL;
+ALTER TABLE tamtru ALTER COLUMN cccd DROP NOT NULL;
+ALTER TABLE tamvang ALTER COLUMN cccd DROP NOT NULL;
