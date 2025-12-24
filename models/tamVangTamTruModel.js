@@ -71,6 +71,88 @@ const TamVangTamTruModel = {
         }
     },
 
+    // Đăng ký tạm trú
+    addTamTru: async (data) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+            // BƯỚC 1: XÁC THỰC CHỦ HỘ & LẤY ĐỊA CHỈ
+            const hostQuery = `
+                SELECT nk.id, hk.sonha, hk.duong, hk.phuong, hk.quan, hk.tinh
+                FROM nhankhau nk
+                JOIN hokhau hk ON nk.id = hk.chuho_id
+                WHERE nk.cccd = $1 AND nk.hoten = $2
+            `;
+            const hostRes = await client.query(hostQuery, [data.cccdChuHo, data.hoTenChuHo]);
+
+            if (hostRes.rows.length === 0) {
+                throw new Error("Thông tin Chủ hộ không chính xác hoặc người này không đứng tên hộ khẩu nào.");
+            }
+            const hostId = hostRes.rows[0].id;
+            // Tạo chuỗi địa chỉ từ hộ khẩu của chủ hộ
+            const hostAddress = `${hostRes.rows[0].sonha} ${hostRes.rows[0].duong}, ${hostRes.rows[0].phuong}, ${hostRes.rows[0].quan}, ${hostRes.rows[0].tinh}`;
+
+            // BƯỚC 2: XỬ LÝ NHÂN KHẨU NGƯỜI ĐĂNG KÝ
+            let registrantId = null;
+            // Trường hợp 1: Có CCCD -> Kiểm tra tồn tại
+            if (data.cccdNguoiDK && data.cccdNguoiDK.trim() !== "") {
+                const checkExist = await client.query('SELECT id FROM nhankhau WHERE cccd = $1', [data.cccdNguoiDK]);
+                
+                if (checkExist.rows.length > 0) {
+                    // đã có trong hệ thống -> Lấy ID
+                    registrantId = checkExist.rows[0].id;
+                } else {
+                    // Chưa có -> Insert mới
+                    const insertNK = `
+                        INSERT INTO nhankhau (hoten, cccd, trangthai, ngaysinh, gioitinh, dantoc, nguyenquan)
+                        VALUES ($1, $2, 'Tạm trú', $3, 'Nam', 'N/A', 'N/A')
+                        RETURNING id
+                    `;
+                    // Lưu ý: data không gửi ngày sinh, giới tính... nên ta để tạm hoặc null
+                    // Để tránh lỗi NOT NULL, bạn có thể cần sửa DB hoặc yêu cầu FE gửi thêm.
+                    const newNk = await client.query(insertNK, [data.hoTenNguoiDK, data.cccdNguoiDK, '2000-01-01']); 
+                    registrantId = newNk.rows[0].id;
+                }
+            } 
+            // Trường hợp 2: Không có CCCD (Trẻ em) -> Luôn tạo mới
+            else {
+                const insertNK = `
+                    INSERT INTO nhankhau (hoten, cccd, trangthai, ngaysinh)
+                    VALUES ($1, NULL, 'Tạm trú', '2020-01-01') 
+                    RETURNING id
+                `;
+                const newNk = await client.query(insertNK, [data.hoTenNguoiDK]);
+                registrantId = newNk.rows[0].id;
+            }
+
+            // BƯỚC 3: TẠO PHIẾU TẠM TRÚ
+            const insertTamTru = `
+                INSERT INTO tamtru (nhankhau_id, chuho_id, diaphuong, tungay, denngay, lydo, trangthai, chuhocccd, chuho)
+                VALUES ($1, $2, $3, $4, $5, $6, 'Còn hạn', $7, $8)
+            `;
+            
+            await client.query(insertTamTru, [
+                registrantId,
+                hostId,
+                hostAddress, // Dùng địa chỉ của chủ hộ vừa tìm được
+                data.thoiGian.tu,
+                data.thoiGian.den,
+                data.lyDo,
+                data.cccdChuHo,
+                data.hoTenChuHo
+            ]);
+
+            await client.query('COMMIT');
+            return { message: "Đăng ký tạm trú thành công" };
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
 // ==============================================
 // QUẢN LÝ CƯ TRÚ (TẠM VẮNG)
 // ==============================================

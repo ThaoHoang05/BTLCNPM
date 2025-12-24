@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (splitForm) {
         splitForm.addEventListener('submit', submitSplitHousehold);
     };
+
+    const tamTruForm = document.getElementById('addTamTruForm');
+    if (tamTruForm) {
+        tamTruForm.addEventListener('submit', submitRegisterTamTru);
+    }
 });
 
 // Hàm mở Modal bất kỳ theo ID
@@ -559,7 +564,7 @@ function openManageResidence() {
 }
 
 // --- HÀM 1: TẢI DANH SÁCH TẠM TRÚ ---
-const ITEMS_PER_PAGE = 10; // Khớp với limit trong Model của bạn
+const ITEMS_PER_PAGE = 10;
 
 async function loadTamTruData(page = 1) {
     currentTamTruPage = page;
@@ -761,6 +766,47 @@ async function confirmMoveOut(id) {
             alert('Cập nhật thành công!');
             loadTamTruData(currentTamTruPage);
         }
+    }
+}
+
+// Hàm xử lý submit form Đăng ký tạm trú
+async function submitRegisterTamTru(event) {
+    event.preventDefault();
+    const form = document.getElementById('addTamTruForm'); // Đảm bảo ID form đúng
+    const formData = new FormData(form);
+
+    const payload = {
+        "hoTenNguoiDK": formData.get('hoten_nguoidk'),
+        "cccdNguoiDK": formData.get('cccd_nguoidk'),
+        "hoTenChuHo": formData.get('hoten_chuho'),
+        "cccdChuHo": formData.get('cccd_chuho'),
+        "diaChi": formData.get('diachi_tamtru'), // Gửi lên nhưng BE sẽ ignore và dùng địa chỉ chủ hộ
+        "thoiGian": {
+            "tu": formData.get('tungay'),
+            "den": formData.get('denngay')
+        },
+        "lyDo": formData.get('lydo')
+    };
+
+    try {
+        const response = await fetch('/api/tamtru/new', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert('Đăng ký tạm trú thành công!');
+            closeModal('tempResidenceModal');
+            form.reset();
+            loadTamTruData(1);
+        } else {
+            const err = await response.json();
+            alert('Lỗi: ' + (err.message || 'Đăng ký thất bại'));
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Lỗi kết nối server');
     }
 }
 
