@@ -235,8 +235,19 @@
                         <input type="text" class="form-control" name="hoten_nguoidk" required> 
                     </div>
                     <div class="form-group"> 
-                        <label>CCCD người ĐK <span class="required">*</span></label> 
+                        <label>CCCD người ĐK <span class="required">* nếu có</span></label> 
                         <input type="text" class="form-control" name="cccd_nguoidk"> 
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày sinh <span class="required">*</span></label>
+                        <input type="date" class="form-control" name="ngaysinh_nguoidk">
+                    </div>
+                    <div class="form-group">
+                        <label>Giới tính <span class="required">*</span></label>
+                        <select class="form-control" name="gioitinh_nguoidk">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
                     </div>
                 </div>
 
@@ -251,12 +262,6 @@
                         <input type="text" class="form-control" placeholder="Số CCCD..." name="cccd_chuho" required> 
                     </div>
                 </div>
-                
-                <div class="form-group"> 
-                    <label>Địa chỉ tạm trú <span class="required">*</span></label> 
-                    <input type="text" class="form-control" placeholder="VD: E3 Phùng Hưng..." name="diachi_tamtru" required> 
-                </div>
-                
                 <div class="form-grid-2">
                     <div class="form-group"> 
                         <label>Từ ngày <span class="required">*</span></label> 
@@ -464,33 +469,33 @@
                 <div class="form-grid-2">
                     <div class="form-group">
                         <label>Họ và tên <span class="required">*</span></label>
-                        <input type="text" class="form-control" required placeholder="Nguyễn Văn A">
+                        <input type="text" id="tvFullName" class="form-control" required placeholder="Nguyễn Văn A">
                     </div>
                     <div class="form-group">
-                        <label>CCCD/CMND <span class="required">*</span></label>
-                        <input type="text" class="form-control" required placeholder="Số CCCD...">
+                        <label>CCCD/CMND <span class="required">* dành cho các cá nhân có cccd</span></label>
+                        <input type="text" id="tvCCCD" class="form-control" required placeholder="Số CCCD...">
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="form-group"> 
                         <label>Từ ngày <span class="required">*</span></label> 
-                        <input type="date" class="form-control" required> 
+                        <input type="date" id="tvDateFrom" class="form-control" required> 
                     </div>
                     <div class="form-group"> 
                         <label>Đến ngày <span class="required">*</span></label> 
-                        <input type="date" class="form-control" required> 
+                        <input type="date" id="tvDateTo" class="form-control" required> 
                     </div>
                 </div>
 
                 <div class="form-group"> 
-                    <label>Nơi đến (Tạm trú) <span class="required">*</span></label> 
-                    <input type="text" class="form-control" placeholder="VD: KTX Đại học Bách Khoa, Hà Nội..." required> 
+                    <label>Mã HK<span class="required">*</span></label> 
+                    <input type="text" id="tvMaHK" class="form-control" placeholder="Nhập mã hộ khẩu" required> 
                 </div>
 
                 <div class="form-group"> 
                     <label>Lý do</label> 
-                    <textarea class="form-control" rows="2" placeholder="VD: Đi học, đi làm xa..."></textarea> 
+                    <textarea class="form-control" id="tvReason" rows="2" placeholder="VD: Đi học, đi làm xa..."></textarea> 
                 </div>
                 
                 <div class="modal-footer">
