@@ -402,29 +402,53 @@ function updateNewOwnerList() {
 async function submitSplitHousehold(event) {
     event.preventDefault(); 
 
-    const oldHkId = document.getElementById('srcHkCode').dataset.id;
+    // Lấy ID hộ cũ từ dataset đã gán lúc mở modal
+    const srcElement = document.getElementById('srcHkCode');
+    const oldHkId = srcElement ? srcElement.dataset.id : null;
+
+    if (!oldHkId) {
+        alert("Lỗi: Không xác định được hộ gốc.");
+        return;
+    }
+
     const form = document.getElementById('splitHouseholdForm');
     const formData = new FormData(form);
 
+    // Kiểm tra thành viên được chọn
     const checkedBoxes = document.querySelectorAll('.split-member-check:checked');
     if (checkedBoxes.length === 0) {
         alert("Vui lòng chọn ít nhất 1 thành viên để tách!");
         return;
     }
 
+    // Kiểm tra chủ hộ mới
+    const newOwnerId = formData.get('newOwner');
+    if (!newOwnerId) {
+        alert("Vui lòng chọn chủ hộ mới cho hộ được tách!");
+        return;
+    }
+
     // Lấy danh sách ID từ value của checkbox
     const listThanhVienIDs = Array.from(checkedBoxes).map(chk => chk.value); 
 
-    // Payload gửi ID
+    // Tạo Payload gửi đi (Cập nhật phần Địa Chỉ)
     const payload = {
-        "HoTenID": formData.get('newOwner'), // ID chủ hộ mới
-        "ThanhVienIDs": listThanhVienIDs,   // Mảng ID các thành viên
+        "HoTenID": newOwnerId,               // ID chủ hộ mới
+        "ThanhVienIDs": listThanhVienIDs,    // Mảng ID các thành viên
         "NgayTach": formData.get('ngayTach'),
         "LyDo": formData.get('lyDo'),
-        "DiaChi": formData.get('diaChi')
+        "DiaChi": {                          // Gom nhóm các trường địa chỉ từ form
+            "sonha": formData.get('sonha'),
+            "duong": formData.get('duong'),
+            "phuong": formData.get('phuong'),
+            "quan": formData.get('quan'),
+            "tinh": formData.get('tinh')
+        }
     };
 
     try {
+        console.log("Đang gửi yêu cầu tách hộ:", payload); // Log để kiểm tra
+
         const response = await fetch(`/api/hokhau/${oldHkId}/new`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -434,14 +458,14 @@ async function submitSplitHousehold(event) {
         if (response.ok) {
             alert('Tách hộ thành công!');
             closeModal('splitModal');
-            loadHouseHoldList();
+            loadHouseHoldList(); // Tải lại danh sách hộ khẩu chính
         } else {
             const errData = await response.json();
             alert('Lỗi: ' + (errData.message || 'Tách hộ thất bại'));
         }
     } catch (err) {
         console.error("Lỗi kết nối:", err);
-        alert('Lỗi kết nối đến server');
+        alert('Lỗi kết nối đến server khi thực hiện tách hộ.');
     }
 }
 
