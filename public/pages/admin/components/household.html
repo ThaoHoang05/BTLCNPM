@@ -227,31 +227,51 @@
             <span class="close-btn" onclick="closeModal('tempResidenceModal')">&times;</span>
         </div>
         <div class="modal-body">
-            <form>
+            <form id="addTamTruForm" onsubmit="submitRegisterTamTru(event)">
                 <div class="section-title">Thông tin người tạm trú</div>
                 <div class="form-grid-2">
-                    <div class="form-group"> <label>Họ tên người ĐK <span class="required">*</span></label> <input type="text" class="form-control" required> </div>
-                    <div class="form-group"> <label>CCCD người ĐK <span class="required">*</span></label> <input type="text" class="form-control" required> </div>
+                    <div class="form-group"> 
+                        <label>Họ tên người ĐK <span class="required">*</span></label> 
+                        <input type="text" class="form-control" name="hoten_nguoidk" required> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>CCCD người ĐK <span class="required">*</span></label> 
+                        <input type="text" class="form-control" name="cccd_nguoidk"> 
+                    </div>
                 </div>
 
                 <div class="section-title">Thông tin Chủ hộ (Nơi đến tạm trú)</div>
                 <div class="form-grid-2">
                     <div class="form-group"> 
                         <label>Họ tên Chủ hộ <span class="required">*</span></label> 
-                        <input type="text" class="form-control" placeholder="Chủ nhà trọ/Chủ hộ..." required> 
+                        <input type="text" class="form-control" placeholder="Chủ nhà trọ/Chủ hộ..." name="hoten_chuho" required> 
                     </div>
                     <div class="form-group"> 
                         <label>CCCD Chủ hộ <span class="required">*</span></label> 
-                        <input type="text" class="form-control" placeholder="Số CCCD..." required> 
+                        <input type="text" class="form-control" placeholder="Số CCCD..." name="cccd_chuho" required> 
                     </div>
                 </div>
-                <div class="form-group"> <label>Địa chỉ tạm trú <span class="required">*</span></label> <input type="text" class="form-control" placeholder="VD: E3 Phùng Hưng..." required> </div>
+                
+                <div class="form-group"> 
+                    <label>Địa chỉ tạm trú <span class="required">*</span></label> 
+                    <input type="text" class="form-control" placeholder="VD: E3 Phùng Hưng..." name="diachi_tamtru" required> 
+                </div>
                 
                 <div class="form-grid-2">
-                    <div class="form-group"> <label>Từ ngày <span class="required">*</span></label> <input type="date" class="form-control" required> </div>
-                    <div class="form-group"> <label>Đến ngày <span class="required">*</span></label> <input type="date" class="form-control" required> </div>
+                    <div class="form-group"> 
+                        <label>Từ ngày <span class="required">*</span></label> 
+                        <input type="date" class="form-control" name="tungay" required> 
+                    </div>
+                    <div class="form-group"> 
+                        <label>Đến ngày <span class="required">*</span></label> 
+                        <input type="date" class="form-control" name="denngay" required> 
+                    </div>
                 </div>
-                <div class="form-group"> <label>Lý do</label> <textarea class="form-control" rows="2" placeholder="VD: Sinh viên thuê trọ..."></textarea> </div>
+                
+                <div class="form-group"> 
+                    <label>Lý do</label> 
+                    <textarea class="form-control" rows="2" name="lydo" placeholder="VD: Sinh viên thuê trọ..."></textarea> 
+                </div>
                 
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeModal('tempResidenceModal')">Hủy</button>
@@ -629,6 +649,13 @@
                         <tbody id="residentListBody"></tbody>
                     </table>
                 </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <tbody id="residentListBody">
+                            </tbody>
+                    </table>
+                </div>
+<div id="tamTruPagination" class="pagination-container" style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 5px;"></div>
             </div>
 
             <div id="tabTamVang" class="tab-panel">
