@@ -4,23 +4,20 @@
     <div class="filter-bar">
         <div class="filter-group">
             <label>Tiêu chí thống kê:</label>
-            <select id="criteriaSelect" class="form-control">
-                <option value="gender">Theo Giới tính (Nam/Nữ)</option>
+            <select id="criteriaSelect" class="form-control" onchange="handleCriteriaChange()">
+                <option value="gender">Theo Giới tính</option>
                 <option value="age">Theo Độ tuổi (Mầm non - Nghỉ hưu)</option>
                 <option value="residence">Tạm trú / Tạm vắng</option>
             </select>
         </div>
-
         <div class="filter-group">
             <label>Từ ngày:</label>
             <input type="date" id="dateFrom" class="form-control">
         </div>
-
         <div class="filter-group">
             <label>Đến ngày:</label>
             <input type="date" id="dateTo" class="form-control">
         </div>
-
         <button class="btn-primary" onclick="updateReport()">
             <i class="icon-chart"></i> Thống kê
         </button>
@@ -29,25 +26,24 @@
 
     <div class="summary-cards" id="summarySection">
         <div class="card">
-            <h3>Tổng nhân khẩu</h3>
-            <p class="number">1,250</p>
-            <span class="trend up">+5 so với tháng trước</span>
+            <h3 id="card1Label">Tổng số</h3>
+            <p class="number" id="card1Value">0</p>
         </div>
         <div class="card">
-            <h3>Nam giới</h3>
-            <p class="number">600</p>
-            <span class="label">48%</span>
+            <h3 id="card2Label">Nhóm 1</h3> <p class="number" id="card2Value">0</p>
+            <span class="label" id="card2Desc"></span>
         </div>
         <div class="card">
-            <h3>Nữ giới</h3>
-            <p class="number">650</p>
-            <span class="label">52%</span>
+            <h3 id="card3Label">Nhóm 2</h3> <p class="number" id="card3Value">0</p>
+            <span class="label" id="card3Desc"></span>
         </div>
     </div>
 
     <div class="report-layout">
         <div class="chart-section">
-            <canvas id="myChart"></canvas>
+            <div style="height: 300px;">
+                <canvas id="myChart"></canvas>
+            </div>
         </div>
 
         <div class="table-section">
