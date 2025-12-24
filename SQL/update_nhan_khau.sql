@@ -157,8 +157,15 @@ INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, Ghi
 INSERT INTO BienDongHoKhau (SoHoKhau, NoiDungThayDoi, NgayThayDoi) VALUES
                                                                        ('HK001', 'Thiết lập hộ khẩu thường trú', '2010-05-15');
 
+-- Cập nhật lại chuhocccd trong bảng HoKhau dựa trên QuanHeVoiChuHo
 UPDATE HoKhau hk
 SET chuhocccd = nk.CCCD
 FROM NhanKhau nk
 WHERE hk.SoHoKhau = nk.SoHoKhau
   AND nk.QuanHeVoiChuHo = 'Chủ hộ';
+
+-- Cập nhật lại chuho_id trong bảng TamTru sau khi đã có dữ liệu
+UPDATE tamtru tt
+SET chuho_id = nk.id
+FROM nhankhau nk
+WHERE tt.chuhocccd = nk.cccd;
