@@ -588,3 +588,22 @@ ul.history-list li:last-child {
     pointer-events: none;           /* Không cho bấm */
     font-weight: bold;
 }
+
+ul.history-list li {
+        padding-left: 15px !important;
+        position: relative;
+        margin-bottom: 10px;
+    }
+ul.history-list li::before {
+    top:50%;
+    transform: translateY(-50%);
+    left: 0; /* Đảm bảo dấu chấm nằm sát lề trái */
+}
+
+ul.history-list li {
+    display: flex;              /* Kích hoạt Flexbox */
+    align-items: center;        /* Căn giữa theo chiều dọc (trục Y) */
+    gap: 15px;                  /* Khoảng cách giữa chấm và chữ */
+    margin-bottom: 15px;        /* Khoảng cách giữa các dòng */
+    position: relative;
+}

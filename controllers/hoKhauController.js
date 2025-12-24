@@ -80,6 +80,40 @@ const hoKhauController = {
             res.status(400).json({ message: error.message || "Lỗi hệ thống." });
         }
     },
+
+    getHouseholdInfo: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const data = await HoKhauModel.getById(id);
+            
+            if (!data) {
+                return res.status(404).json({ message: "Không tìm thấy hộ khẩu này." });
+            }
+            res.status(200).json(data);
+        } catch (error) {
+            console.error("Lỗi lấy thông tin hộ khẩu:", error);
+            res.status(500).json({ message: "Lỗi hệ thống." });
+        }
+    },
+    
+    updateGeneralInfo: async (req, res) => {
+        try {
+            const { id } = req.params; // Lấy mã hộ khẩu (VD: HK001)
+            const data = req.body;     // Dữ liệu gửi lên
+
+            // Validate sơ bộ
+            if (!data.CCCD || !data.HoTen) {
+                return res.status(400).json({ message: "Thiếu thông tin chủ hộ (Họ tên/CCCD)." });
+            }
+
+            await HoKhauModel.updateGeneralInfo(id, data);
+            
+            res.status(200).json({ message: "Cập nhật thành công." });
+        } catch (error) {
+            console.error("Lỗi cập nhật hộ khẩu:", error.message);
+            res.status(500).json({ message: error.message || "Lỗi hệ thống." });
+        }
+    },
     
 };
 

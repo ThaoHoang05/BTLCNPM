@@ -310,6 +310,112 @@ const HoKhauModel = {
         }
     },
 
+    // Lấy thông tin hộ khẩu theo ID
+    getById: async (sohokhau) => {
+        try {
+            const query = `
+                SELECT 
+                    hk.sohokhau AS "soHoKhau",
+                    hk.chuhocccd AS "cccdChuHo",
+                    nk.hoten AS "tenChuHo",
+                    hk.sonha AS "soNha",
+                    hk.duong AS "duong",
+                    hk.phuong AS "phuong",
+                    hk.quan AS "quan",
+                    hk.tinh AS "tinh",
+                    hk.ngaylap AS "ngayLap",
+                    hk.ghichu AS "ghiChu"
+                FROM hokhau hk
+                LEFT JOIN nhankhau nk ON hk.chuho_id = nk.id
+                WHERE hk.sohokhau = $1
+            `;
+            const { rows } = await poolQuanLiHoKhau.query(query, [sohokhau]);
+            return rows[0];
+        } catch (error) {
+            console.error("Lỗi Model getById:", error);
+            throw error;
+        }
+    },
+    
+    // Cập nhật thông tin chung hộ khẩu
+    updateGeneralInfo: async (hkId, data) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+            // 1. Lấy thông tin hộ khẩu hiện tại
+            const currentHkRes = await client.query('SELECT * FROM hokhau WHERE sohokhau = $1', [hkId]);
+            if (currentHkRes.rows.length === 0) throw new Error("Hộ khẩu không tồn tại.");
+            const currentHk = currentHkRes.rows[0];
+            // 2. Cập nhật các thông tin cơ bản (Địa chỉ, Ngày lập, Ghi chú)
+            const updateBasicQuery = `
+                UPDATE hokhau 
+                SET sonha = $1, duong = $2, phuong = $3, quan = $4, tinh = $5, ngaylap = $6, ghichu = $7
+                WHERE sohokhau = $8
+            `;
+            await client.query(updateBasicQuery, [
+                data.DiaChi.SoNha, 
+                data.DiaChi.Duong, 
+                data.DiaChi.Phuong, 
+                data.DiaChi.Quan, 
+                data.DiaChi.Tinh, 
+                data.NgayLap, 
+                data.GhiChu,
+                hkId
+            ]);
+            // 3. Xử lý logic CHỦ HỘ
+            // Nếu CCCD gửi lên KHÁC với CCCD chủ hộ hiện tại -> Có sự thay đổi chủ hộ
+            if (data.CCCD && data.CCCD !== currentHk.chuhocccd) {
+                // a. Tìm người chủ hộ mới trong bảng nhân khẩu
+                const newHeadRes = await client.query('SELECT id, hoten, sohokhau FROM nhankhau WHERE cccd = $1', [data.CCCD]);
+                if (newHeadRes.rows.length === 0) {
+                    throw new Error("Không tìm thấy nhân khẩu với số CCCD này trong hệ thống.");
+                }
+                const newHead = newHeadRes.rows[0];
+                // b. Giáng chức chủ hộ cũ -> Thành viên
+                if (currentHk.chuho_id) {
+                    await client.query(
+                        `UPDATE nhankhau SET quanhevoichuho = 'Thành viên' WHERE id = $1`,
+                        [currentHk.chuho_id]
+                    );
+                }
+                // c. Thăng chức chủ hộ mới
+                // - Cập nhật quan hệ thành 'Chủ hộ'
+                // - Nếu người này đang ở hộ khác, chuyển họ về hộ này luôn
+                await client.query(
+                    `UPDATE nhankhau SET quanhevoichuho = 'Chủ hộ', sohokhau = $1 WHERE id = $2`,
+                    [hkId, newHead.id]
+                );
+                // d. Cập nhật bảng Hộ khẩu trỏ đến chủ hộ mới
+                await client.query(
+                    `UPDATE hokhau SET chuho_id = $1, chuhocccd = $2 WHERE sohokhau = $3`,
+                    [newHead.id, data.CCCD, hkId]
+                );
+                // e. Ghi log biến động thay đổi chủ hộ
+                await client.query(
+                    `INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi) VALUES ($1, $2, CURRENT_DATE)`,
+                    [hkId, `Thay đổi chủ hộ: Từ ${currentHk.chuhocccd} sang ${data.CCCD} (${newHead.hoten})`]
+                );
+            } else {
+                // Nếu CCCD vẫn như cũ, chỉ kiểm tra xem có cần cập nhật tên không (Sửa lỗi chính tả tên chủ hộ)
+                if (data.HoTen && currentHk.chuho_id) {
+                    await client.query('UPDATE nhankhau SET hoten = $1 WHERE id = $2', [data.HoTen, currentHk.chuho_id]);
+                }
+                // Ghi log thay đổi thông tin thường
+                await client.query(
+                    `INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi) VALUES ($1, $2, CURRENT_DATE)`,
+                    [hkId, `Cập nhật thông tin chung.`]
+                );
+            }
+            await client.query('COMMIT');
+            return { message: "Cập nhật thông tin hộ khẩu thành công." };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
 };
 
 module.exports = HoKhauModel;

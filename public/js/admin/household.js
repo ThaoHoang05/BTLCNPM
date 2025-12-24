@@ -141,7 +141,7 @@ async function openDetailModal(hkCode) {
             lichSuNhanKhau.forEach(entry => {
                 let text = `<b>${entry.hoTen}</b>: ${entry.loaiBienDong}`;
                 if(entry.noiDen) text += ` đến ${entry.noiDen}`;
-                createItem(entry.ngayThayDoi, text, entry.ghiChu);
+                createItem(entry.ngayThayDoi,`<b>Nhân khẩu</b> - ${text}`, entry.ghiChu);
             });
 
             // Render Lịch sử Hộ khẩu
@@ -211,15 +211,15 @@ async function openEditHouseholdModal(hkCode) {
         form.querySelector('input[name="ghichu"]').value = data.ghiChu || '';
         
         // Cập nhật nút Submit để nó biết đang sửa hộ nào
-        const submitBtn = form.querySelector('button[type="submit"]');
-        // Thay đổi type để không submit form reload trang, chuyển sang gọi hàm JS
-        submitBtn.type = "button"; 
-        submitBtn.onclick = () => editHousehold(hkCode);
-
+        const submitBtn = form.querySelector('.modal-footer .btn-primary');
+        if (submitBtn) {
+            submitBtn.type = "button"; // Đảm bảo luôn là button thường để không reload trang
+            submitBtn.onclick = () => editHousehold(hkCode);
+        }
         openModal('editHouseholdModal');
-
     } catch (err) {
         console.error("Lỗi tải dữ liệu sửa:", err);
+        alert("Không thể tải thông tin hộ khẩu.");
     }
 }
 
