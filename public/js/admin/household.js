@@ -440,9 +440,6 @@ async function submitSplitHousehold(event) {
         "DiaChi": {                          // Gom nhóm các trường địa chỉ từ form
             "sonha": formData.get('sonha'),
             "duong": formData.get('duong'),
-            "phuong": formData.get('phuong'),
-            "quan": formData.get('quan'),
-            "tinh": formData.get('tinh')
         }
     };
 

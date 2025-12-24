@@ -191,7 +191,18 @@ const HoKhauModel = {
             await client.query(`
                 INSERT INTO hokhau (sohokhau, chuho_id, chuhocccd, sonha, duong, phuong, quan, tinh, ngaylap, ghichu)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`, 
-                [nextHkId, data.HoTenID, ownerInfo.rows[0].cccd, '', data.DiaChi, 'La Khê', 'Hà Đông', 'Hà Nội', data.NgayTach, data.LyDo]
+                [
+                    nextHkId, 
+                    data.HoTenID, 
+                    ownerInfo.rows[0].cccd, 
+                    data.DiaChi.sonha,
+                    data.DiaChi.duong,
+                    'La Khê',
+                    'Hà Đông',  
+                    'Hà Nội',   
+                    data.NgayTach, 
+                    data.LyDo
+                ]
             );
 
             // 4. Di chuyển chủ hộ và thành viên đi kèm qua ID
