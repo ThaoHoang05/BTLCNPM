@@ -13,9 +13,11 @@ const commonConfig = {
 const poolQuanLiHoKhau = new Pool({ ...commonConfig, database: process.env.DB_QUAN_LI_HO_KHAU });
 const poolQuanLiNhaVanHoa = new Pool({ ...commonConfig, database: process.env.DB_QUAN_LI_NHA_VAN_HOA });
 const poolDangNhapPhanQuyen = new Pool({ ...commonConfig, database: process.env.DB_DANG_NHAP_PHAN_QUYEN });
+const poolThongKeBaoCao = new Pool({ ...commonConfig, database: process.env.DB_THONG_KE_BAO_CAO });
 
 module.exports = {
     poolQuanLiHoKhau,
     poolQuanLiNhaVanHoa,
-    poolDangNhapPhanQuyen
+    poolDangNhapPhanQuyen,
+    poolThongKeBaoCao,
 };
