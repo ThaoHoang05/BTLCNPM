@@ -156,3 +156,9 @@ INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, Ghi
 
 INSERT INTO BienDongHoKhau (SoHoKhau, NoiDungThayDoi, NgayThayDoi) VALUES
                                                                        ('HK001', 'Thiết lập hộ khẩu thường trú', '2010-05-15');
+
+UPDATE HoKhau hk
+SET chuhocccd = nk.CCCD
+FROM NhanKhau nk
+WHERE hk.SoHoKhau = nk.SoHoKhau
+  AND nk.QuanHeVoiChuHo = 'Chủ hộ';
