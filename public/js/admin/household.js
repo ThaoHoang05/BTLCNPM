@@ -98,7 +98,7 @@ async function openDetailModal(hkCode) {
                             <button class="icon-btn warning" onclick="openEditHouseholdMemberModal('${member.id}')" title="Sửa thông tin">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.CCCD}')">
+                            <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.id}')" title="Xóa khỏi hộ">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
@@ -268,15 +268,8 @@ async function editHousehold(hkCode) {
     }
 }
 
-// Ham chinh sua thong tin nhan khau trong ho khau
-async function openEditMemberModal(cccd){
-    var form = document.getElementById('editMemberForm');
-    // Lấy dữ liệu người dùng bằng cccd
-    openModal('editMemberModal');
-}
-
+// ==============================================
 // Hàm thêm hộ khẩu mới
-// Hàm thêm mới hộ khẩu
 async function createNewHousehold(event) {
     // Ngăn chặn hành động submit mặc định của form (tránh reload trang)
     event.preventDefault(); 
@@ -1044,5 +1037,29 @@ async function updateHouseholdMember(event) {
     } catch (err) {
         console.error(err);
         alert('Lỗi server khi cập nhật');
+    }
+}
+
+// Hàm 3: Xóa thành viên khỏi hộ khẩu
+async function deleteMemberFromHousehold(hkId, memberId) {
+    if (!confirm(`Bạn có chắc muốn xóa thành viên này khỏi hộ ${hkId}?`)) {
+        return;
+    }
+    try {
+        const response = await fetch(`/api/hokhau/${hkId}/${memberId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert("Đã xóa thành viên thành công!");
+            // Reload lại modal chi tiết để thấy danh sách mới
+            openDetailModal(hkId);
+        } else {
+            const err = await response.json();
+            alert("Lỗi: " + (err.message || "Không thể xóa thành viên."));
+        }
+    } catch (error) {
+        console.error("Lỗi kết nối:", error);
+        alert("Lỗi kết nối đến server.");
     }
 }

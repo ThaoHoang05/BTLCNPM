@@ -56,7 +56,6 @@ const hoKhauController = {
         }
     },
 
-
     deleteHousehold: async (req, res) => {
         const { id } = req.params;
         try {
@@ -68,6 +67,17 @@ const hoKhauController = {
         } catch (error) {
             console.error("Lỗi xóa hộ khẩu:", error.message);
             res.status(500).json({ message: "Lỗi hệ thống khi xóa hộ khẩu" });
+        }
+    },
+
+    removeMember: async (req, res) => {
+        try {
+            const { idHK, idNK } = req.params;
+            await HoKhauModel.removeMember(idHK, idNK);
+            res.status(200).json({ message: "Đã xóa thành viên khỏi hộ khẩu." });
+        } catch (error) {
+            console.error("Lỗi xóa thành viên:", error.message);
+            res.status(400).json({ message: error.message || "Lỗi hệ thống." });
         }
     },
     

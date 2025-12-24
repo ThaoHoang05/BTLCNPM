@@ -263,6 +263,53 @@ const HoKhauModel = {
         }
     },
 
+    // Xóa thành viên khỏi hộ (Set NULL)
+    removeMember: async (hkId, memberId) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+            // 1. Kiểm tra xem thành viên này có phải là Chủ hộ không
+            const checkOwner = `SELECT chuho_id FROM hokhau WHERE sohokhau = $1`;
+            const resOwner = await client.query(checkOwner, [hkId]);
+
+            if (resOwner.rows.length === 0) {
+                throw new Error("Hộ khẩu không tồn tại.");
+            }
+            // Lưu ý: memberId truyền vào là string/number, cần so sánh lỏng hoặc ép kiểu
+            if (resOwner.rows[0].chuho_id == memberId) {
+                throw new Error("Không thể xóa Chủ hộ khỏi danh sách. Vui lòng chuyển quyền chủ hộ trước hoặc xóa cả hộ khẩu.");
+            }
+            // 2. Lấy tên thành viên để ghi log (Tùy chọn)
+            const resName = await client.query('SELECT hoten FROM nhankhau WHERE id = $1', [memberId]);
+            const memberName = resName.rows[0]?.hoten || 'Thành viên';
+            // 3. Thực hiện Xóa (Update sohokhau = NULL)
+            const updateQuery = `
+                UPDATE nhankhau 
+                SET sohokhau = NULL, quanhevoichuho = NULL 
+                WHERE id = $1 AND sohokhau = $2
+            `;
+            const resUpdate = await client.query(updateQuery, [memberId, hkId]);
+
+            if (resUpdate.rowCount === 0) {
+                throw new Error("Thành viên này không thuộc hộ khẩu đã chọn.");
+            }
+            // 4. Ghi lại lịch sử biến động hộ khẩu
+            await client.query(
+                `INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi) VALUES ($1, $2, CURRENT_DATE)`,
+                [hkId, `Xóa thành viên: ${memberName} (ID: ${memberId}) khỏi hộ`]
+            );
+
+            await client.query('COMMIT');
+            return { message: "Đã xóa thành viên khỏi hộ thành công." };
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
 };
 
 module.exports = HoKhauModel;
