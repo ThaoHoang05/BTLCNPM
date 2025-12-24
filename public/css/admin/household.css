@@ -555,3 +555,36 @@ ul.history-list li:last-child {
     font-size: 0.9em;
     font-style: italic;
 }
+
+/* CSS cho nút phân trang */
+.pagination-container .btn {
+    background-color: #ffffff;      /* Nền trắng */
+    border: 1px solid #dee2e6;      /* Viền xám nhẹ */
+    color: #333333 !important;      /* Chữ màu đen đậm */
+    font-weight: 500;
+    margin: 0 2px;                  /* Cách nhau một chút */
+    min-width: 35px;                /* Độ rộng tối thiểu cho đều */
+}
+
+/* Hiệu ứng khi di chuột vào */
+.pagination-container .btn:hover:not(:disabled) {
+    background-color: #e9ecef;
+    color: #0056b3 !important;
+}
+
+/* Nút đang được chọn (Active) */
+.pagination-container .btn.active {
+    background-color: #0d6efd !important; /* Màu xanh dương chuẩn Bootstrap */
+    color: #ffffff !important;            /* Chữ trắng */
+    border-color: #0d6efd;
+    pointer-events: none;                 /* Không cho bấm lại */
+}
+
+/* Nút dấu 3 chấm (...) */
+.pagination-dots {
+    border: none !important;
+    background: none !important;
+    color: #6c757d !important;
+    pointer-events: none;           /* Không cho bấm */
+    font-weight: bold;
+}

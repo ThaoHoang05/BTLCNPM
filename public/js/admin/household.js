@@ -5,6 +5,23 @@
 // 1. CÁC HÀM CƠ BẢN (MODAL, TAB)
 // ==============================================
 
+// Khởi tạo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Quản lý Hộ khẩu đã sẵn sàng!');
+    loadHouseHoldList(); // Gọi hàm này để nạp dữ liệu vào bảng ngay khi mở trang
+
+    // Gán sự kiện submit cho form ngay khi trang tải xong
+    const addForm = document.getElementById('addHouseholdForm');
+    if (addForm) {
+        addForm.addEventListener('submit', createNewHousehold);
+    };
+
+    const splitForm = document.getElementById('splitHouseholdForm');
+    if (splitForm) {
+        splitForm.addEventListener('submit', submitSplitHousehold);
+    };
+});
+
 // Hàm mở Modal bất kỳ theo ID
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
@@ -304,14 +321,6 @@ async function createNewHousehold(event) {
     }
 }
 
-// Gán sự kiện submit cho form ngay khi trang tải xong
-document.addEventListener('DOMContentLoaded', function() {
-    const addForm = document.getElementById('addHouseholdForm');
-    if (addForm) {
-        addForm.addEventListener('submit', createNewHousehold);
-    }
-});
-
 // ==============================================
 // TÁCH HỘ KHẨU
 // ==============================================
@@ -431,14 +440,6 @@ async function submitSplitHousehold(event) {
     }
 }
 
-// Đăng ký sự kiện submit form khi trang tải xong
-document.addEventListener('DOMContentLoaded', function() {
-    const splitForm = document.getElementById('splitHouseholdForm');
-    if (splitForm) {
-        splitForm.addEventListener('submit', submitSplitHousehold);
-    }
-});
-
 // ==============================================
 // 4. LOGIC THÊM THÀNH VIÊN & TÌM KIẾM (TABS)
 // ==============================================
@@ -542,10 +543,6 @@ async function loadHouseHoldList(){
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    loadHouseHoldList(); // Gọi hàm này để nạp dữ liệu vào bảng ngay khi mở trang
-});
-
 // ==============================================
 // 6. QUẢN LÝ CƯ TRÚ (TẠM TRÚ / TẠM VẮNG)
 // ==============================================
@@ -562,43 +559,135 @@ function openManageResidence() {
 }
 
 // --- HÀM 1: TẢI DANH SÁCH TẠM TRÚ ---
-async function loadTamTruData() {
-    const tbodyTamTru = document.getElementById('residentListBody');
-    if(tbodyTamTru) tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
+const ITEMS_PER_PAGE = 10; // Khớp với limit trong Model của bạn
+
+async function loadTamTruData(page = 1) {
+    currentTamTruPage = page;
+    const tbody = document.getElementById('residentListBody');
+    const paginationContainer = document.getElementById('tamTruPagination');
+
+    // Hiển thị loading
+    if(tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
 
     try {
-        const response = await fetch('/api/tamtru');
-        const listTamTru = await response.json();
+        const response = await fetch(`/api/tamtru?page=${page}`);
+        const result = await response.json(); 
+        // result = { data: [...], total: 50, currentPage: 1 }
 
-        if(tbodyTamTru) {
-            tbodyTamTru.innerHTML = '';
-            if (listTamTru.length === 0) {
-                tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu tạm trú</td></tr>';
-            } else {
-                listTamTru.forEach(item => {
-                    const statusClass = item.TrangThai === 'Còn hạn' ? 'badge-success' : 'badge-danger';
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.HoTen}</td>
-                        <td>${item.CCCD || '---'}</td>
-                        <td>${item.DiaChi || '---'}</td>
-                        <td>${new Date(item.Tu).toLocaleDateString('vi-VN')} <br> 
-                            <small>đến ${new Date(item.Den).toLocaleDateString('vi-VN')}</small></td>
-                        <td><span class="badge ${statusClass}">${item.TrangThai}</span></td>
-                        <td class="text-center">
-                            <button class="icon-btn danger" onclick="deleteTempResidence('${item.ID}')" title="Xóa">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbodyTamTru.appendChild(row);
-                });
+        if(tbody) {
+            tbody.innerHTML = '';
+            if (result.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>';
+                if(paginationContainer) paginationContainer.innerHTML = '';
+                return;
+            }
+
+            // 1. Render dữ liệu bảng
+            result.data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.HoTen}</td>
+                    <td>${item.CCCD || '---'}</td>
+                    <td>${item.DiaChi || '---'}</td>
+                    <td>${new Date(item.Tu).toLocaleDateString('vi-VN')} <br> 
+                        - ${new Date(item.Den).toLocaleDateString('vi-VN')}</td>
+                    <td><b><span class="badge badge-success">${item.TrangThai}</span></b></td>
+                    <td class="text-center">
+                        <button class="icon-btn warning" onclick="confirmMoveOut('${item.ID}')" title="Chuyển đi">
+                            <i class="fas fa-walking"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // 2. Render nút phân trang
+            if(paginationContainer) {
+                renderPagination(paginationContainer, result.total, page);
             }
         }
     } catch (err) {
-        console.error("Lỗi tải dữ liệu tạm trú:", err);
-        if(tbodyTamTru) tbodyTamTru.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Lỗi kết nối server</td></tr>';
+        console.error("Lỗi tải tạm trú:", err);
     }
+}
+
+// --- HÀM VẼ NÚT PHÂN TRANG ---
+function renderPagination(container, totalRecords, currentPage) {
+    container.innerHTML = '';
+    
+    // Tính tổng số trang
+    const totalPages = Math.ceil(totalRecords / ITEMS_PER_PAGE);
+    
+    // Nếu chỉ có 1 trang thì ẩn luôn cho gọn
+    if (totalPages <= 1) return;
+
+    // --- 1. NÚT PREV (<<) ---
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'btn btn-sm'; // Class mặc định
+    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>'; // Dùng icon cho đẹp
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => loadTamTruData(currentPage - 1);
+    container.appendChild(prevBtn);
+
+    // --- 2. LOGIC TẠO SỐ TRANG (1 ... 4 5 6 ... 20) ---
+    
+    // Hàm phụ để tạo nút số
+    const createPageBtn = (i) => {
+        const btn = document.createElement('button');
+        btn.className = `btn btn-sm ${i === currentPage ? 'active' : ''}`;
+        btn.innerText = i;
+        btn.onclick = () => loadTamTruData(i);
+        container.appendChild(btn);
+    };
+
+    // Hàm phụ để tạo dấu ...
+    const createDots = () => {
+        const span = document.createElement('span');
+        span.className = 'btn btn-sm pagination-dots';
+        span.innerText = '...';
+        container.appendChild(span);
+    };
+
+    // THUẬT TOÁN HIỂN THỊ
+    if (totalPages <= 7) {
+        // Trường hợp ít trang (<= 7): Hiện hết (1 2 3 4 5 6 7)
+        for (let i = 1; i <= totalPages; i++) createPageBtn(i);
+    } else {
+        // Trường hợp nhiều trang (> 7): Cần tính toán
+        // Luôn hiện trang 1
+        createPageBtn(1);
+
+        // Xử lý đoạn đầu (Nếu đang ở trang > 3 thì hiện dấu ...)
+        if (currentPage > 3) {
+            createDots();
+        }
+
+        // Hiện các trang xung quanh trang hiện tại (Trừ trang 1 và trang Cuối ra)
+        // Lấy khoảng [Current-1, Current+1]
+        let start = Math.max(2, currentPage - 1);
+        let end = Math.min(totalPages - 1, currentPage + 1);
+
+        // Điều chỉnh đặc biệt: Nếu đang ở gần đầu hoặc gần cuối để không bị hụt
+        if (currentPage <= 3) { end = 4; }
+        if (currentPage >= totalPages - 2) { start = totalPages - 3; }
+        for (let i = start; i <= end; i++) {
+            createPageBtn(i);
+        }
+        // Xử lý đoạn cuối (Nếu còn cách xa trang cuối thì hiện ...)
+        if (currentPage < totalPages - 2) {
+            createDots();
+        }
+        // Luôn hiện trang cuối
+        createPageBtn(totalPages);
+    }
+
+    // --- 3. NÚT NEXT (>>) ---
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-sm';
+    nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => loadTamTruData(currentPage + 1);
+    container.appendChild(nextBtn);
 }
 
 // --- HÀM 2: TẢI DANH SÁCH TẠM VẮNG ---
@@ -665,10 +754,13 @@ function switchResidenceTab(tabId, btnElement) {
 }
 
 // Hàm giả lập xóa tạm trú
-function deleteTempResidence(id) {
-    if(confirm('Bạn có chắc chắn muốn xóa phiếu tạm trú này?')) {
-        alert('Đã xóa thành công (Giả lập)');
-        loadResidenceData(); // Load lại bảng
+async function confirmMoveOut(id) {
+    if(confirm('Xác nhận công dân này đã kết thúc tạm trú và chuyển đi?')) {
+        const response = await fetch(`/api/tamtru/${id}/chuyendi`, { method: 'POST' });
+        if(response.ok) {
+            alert('Cập nhật thành công!');
+            loadTamTruData(currentTamTruPage);
+        }
     }
 }
 
@@ -679,7 +771,3 @@ function confirmReturnEarly(id) {
         loadResidenceData();
     }
 }
-// Khởi tạo
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Quản lý Hộ khẩu đã sẵn sàng!');
-});
