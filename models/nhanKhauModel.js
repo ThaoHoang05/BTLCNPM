@@ -88,6 +88,78 @@ const NhanKhauModel = {
             client.release();
         }
     },
+
+    // Thêm mới nhân khẩu (API /nhankhau/new)
+    create: async (data) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+
+            // 1. Thêm vào bảng nhankhau (Chấp nhận CCCD null cho trẻ em/mới sinh)
+            const insertNK = `
+                INSERT INTO nhankhau (
+                    cccd, hoten, bidanh, gioitinh, ngaysinh, 
+                    noisinh, nguyenquan, dantoc, nghenghiep, noilamviec, 
+                    ngaycapcccd, noicapcccd, ngaydkthuongtru, 
+                    quanhevoichuho, sohokhau, trangthai
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_DATE, $13, $14, $15)
+                RETURNING id, hoten;
+            `;
+
+            const resNK = await client.query(insertNK, [
+                data.cccd || null,
+                data.hoTen,
+                data.bietDanh || null,
+                data.gioiTinh,
+                data.ngaySinh,
+                data.noiSinh,
+                data.nguyenQuan,
+                data.danToc,
+                data.ngheNghiep || null,
+                data.noiLamViec || null,
+                data.ngayCap || null,
+                data.noiCap || null,
+                data.quanheChuHo || null,
+                data.maHK || null,
+                data.trangThai
+            ]);
+
+            const newId = resNK.rows[0].id;
+            const hoTen = resNK.rows[0].hoten;
+
+            // 2. Ghi vào bảng biendongnhankhau bằng nhankhau_id
+            const insertBDNK = `
+                INSERT INTO biendongnhankhau (nhankhau_id, cccd, loaibiendong, ngaybiendong, noiden, ghichu)
+                VALUES ($1, $2, 'Thêm mới', CURRENT_DATE, $3, $4)
+            `;
+            await client.query(insertBDNK, [
+                newId,
+                data.cccd || null,
+                data.maHK || 'Khai báo tự do',
+                `Đăng ký nhân khẩu mới: ${hoTen} (Trạng thái: ${data.trangThai})`
+            ]);
+
+            // 3. Tự động ghi vào biendonghokhau nếu không phải Tạm trú
+            if (data.trangThai !== 'Tạm trú' && data.maHK) {
+                const insertBDHK = `
+                    INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi)
+                    VALUES ($1, $2, CURRENT_DATE)
+                `;
+                const noiDung = `Thêm thành viên mới: ${hoTen} (ID: ${newId})`;
+                await client.query(insertBDHK, [data.maHK, noiDung]);
+            }
+
+            await client.query('COMMIT');
+            return { id: newId, hoTen: hoTen };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error("Lỗi Model create NhanKhau:", error);
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
     
 };
 
