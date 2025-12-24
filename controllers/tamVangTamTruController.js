@@ -30,6 +30,20 @@ const tamVangTamTruController = {
     }
     },
 
+    createTamTru: async (req, res) => {
+        try {
+            const { hoTenNguoiDK, hoTenChuHo, cccdChuHo, thoiGian } = req.body;
+            if (!hoTenNguoiDK || !hoTenChuHo || !cccdChuHo || !thoiGian?.tu || !thoiGian?.den) {
+                return res.status(400).json({ message: "Thiếu thông tin bắt buộc (Tên người ĐK, Chủ hộ, Thời gian)" });
+            }
+
+            const result = await TamVangTamTruModel.addTamTru(req.body);
+            res.status(201).json(result);
+        } catch (error) {
+            console.error("Lỗi đăng ký tạm trú:", error);
+            res.status(500).json({ message: error.message || "Lỗi server" });
+        }
+    },
 
 // ==============================================
 // QUẢN LÝ CƯ TRÚ (TẠM VẮNG)
