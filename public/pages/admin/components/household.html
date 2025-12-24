@@ -514,14 +514,15 @@
     </div>
 </div>
 
-<div id="editMemberModal" class="modal-overlay">
+<div id="editHouseholdMemberModal" class="modal-overlay">
     <div class="modal-content large-modal">
         <div class="modal-header">
             <h3><i class="fas fa-user-edit"></i> Chỉnh Sửa Thông Tin Nhân Khẩu</h3>
-            <span class="close-btn" onclick="closeModal('editMemberModal')">&times;</span>
+            <span class="close-btn" onclick="closeModal('editHouseholdMemberModal')">&times;</span>
         </div>
         <div class="modal-body">
-            <form id="editMemberForm">
+            <form id="editHouseholdMemberForm" onsubmit="updateHouseholdMember(event)">
+                
                 <div class="section-title">I. Thông tin cá nhân</div>
                 <div class="form-grid-3">
                     <div class="form-group"> 
@@ -537,7 +538,8 @@
                         <input type="date" class="form-control" name="ngaysinh" required> 
                     </div>
                 </div>
-                 <div class="form-grid-3">
+
+                <div class="form-grid-3">
                     <div class="form-group"> 
                         <label>Giới tính</label> 
                         <select class="form-control" name="gioitinh">
@@ -549,11 +551,8 @@
                         <label>Dân tộc</label> 
                         <input type="text" class="form-control" name="dantoc"> 
                     </div>
-                    <div class="form-group"> 
-                        <label>Tôn giáo</label> 
-                        <input type="text" class="form-control" name="tongiao"> 
                     </div>
-                </div>
+
                 <div class="form-grid-2">
                     <div class="form-group"> 
                         <label>Nguyên quán</label> 
@@ -568,8 +567,8 @@
                 <div class="section-title">II. Định danh & Công việc</div>
                 <div class="form-grid-3">
                     <div class="form-group"> 
-                        <label>CCCD/CMND (Khóa chính)</label> 
-                        <input type="text" class="form-control readonly-input" name="cccd" readonly> 
+                        <label>CCCD/CMND</label> 
+                        <input type="text" class="form-control" name="cccd"> 
                     </div>
                     <div class="form-group"> 
                         <label>Ngày cấp</label> 
@@ -595,16 +594,17 @@
                 <div class="form-grid-3">
                     <div class="form-group"> 
                         <label>Mã hộ khẩu</label> 
-                        <input type="text" class="form-control readonly-input" name="sohokhau" readonly> 
+                        <input type="text" class="form-control" name="sohokhau">
                     </div>
                     <div class="form-group"> 
-                        <label>Quan hệ với chủ hộ <span class="required">*</span></label> 
-                        <input type="text" class="form-control" name="quanhevoichuho" required> 
+                        <label>Quan hệ với chủ hộ</label> 
+                        <input type="text" class="form-control" name="quanhevoichuho"> 
                     </div>
                     <div class="form-group"> 
-                        <label>Trạng thái</label> 
-                        <select class="form-control" name="trangthai">
+                        <label>Trạng thái <span class="required">*</span></label> 
+                        <select class="form-control" name="trangthai" required>
                             <option value="Thường trú">Thường trú</option>
+                            <option value="Tạm trú">Tạm trú</option>
                             <option value="Tạm vắng">Tạm vắng</option>
                             <option value="Chuyển đi">Chuyển đi</option>
                             <option value="Qua đời">Qua đời</option>
@@ -613,13 +613,14 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeModal('editMemberModal')">Hủy bỏ</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('editHouseholdMemberModal')">Hủy bỏ</button>
                     <button type="submit" class="btn-primary">Cập nhật thông tin</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 <div id="manageResidenceModal" class="modal-overlay">
     <div class="modal-content large-modal">
         <div class="modal-header">

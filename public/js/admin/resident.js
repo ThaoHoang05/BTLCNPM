@@ -172,7 +172,6 @@ async function openEditCitizenModal(id) {
         form.querySelector('[name="ngaysinh"]').value = data.ngaySinh ? new Date(data.ngaySinh).toISOString().split('T')[0] : '';
         form.querySelector('[name="gioitinh"]').value = data.gioiTinh || 'Nam';
         form.querySelector('[name="dantoc"]').value = data.danToc || '';
-        form.querySelector('[name="tongiao"]').value = data.tonGiao || '';
         form.querySelector('[name="nguyenquan"]').value = data.nguyenQuan || '';
         form.querySelector('[name="noisinh"]').value = data.noiSinh || '';
         
@@ -186,7 +185,7 @@ async function openEditCitizenModal(id) {
         
         form.querySelector('[name="sohokhau"]').value = data.maHoKhau || '';
         form.querySelector('[name="quanhevoichuho"]').value = data.quanHeVoiChuHo || '';
-        form.querySelector('[name="trangthai"]').value = data.trangThai || 'ThuongTru';
+        form.querySelector('[name="trangthai"]').value = data.trangThai || 'Thường Trú';
 
         // 3. Mở Modal
         openModal('editCitizenModal');
@@ -214,10 +213,9 @@ async function updateCitizen(event) {
         "ngaySinh": v.ngaysinh,
         "gioiTinh": v.gioitinh,
         "danToc": v.dantoc,
-        "tonGiao": v.tongiao,
         "nguyenQuan": v.nguyenquan,
         "noiSinh": v.noisinh,
-        // CCCD thường không cho sửa, hoặc nếu có thì lấy v.cccd
+        "cccd": v.cccd,
         "ngayCapCCCD": v.ngaycapcccd,
         "noiCapCCCD": v.noicapcccd,
         "ngheNghiep": v.nghenghiep,

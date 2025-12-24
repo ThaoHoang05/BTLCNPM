@@ -42,7 +42,8 @@ const HoKhauModel = {
                     cccd as "CCCD",
                     trangthai as "TrangThai"
                 FROM nhankhau 
-                WHERE sohokhau = $1`;
+                WHERE sohokhau = $1
+                ORDER BY id ASC`;
 
             // 3. Biến động NHÂN KHẨU 
             const historyResidentQuery = `
@@ -94,7 +95,8 @@ const HoKhauModel = {
             hk.ngaylap AS "Ngày lập sổ",
             hk.chuhocccd AS "CCCD"
         FROM hokhau hk
-        LEFT JOIN nhankhau nk ON hk.chuho_id = nk.id;
+        LEFT JOIN nhankhau nk ON hk.chuho_id = nk.id
+        ORDER BY hk.sohokhau ASC;
     `;
         const { rows } = await poolQuanLiHoKhau.query(query);
         return rows;
