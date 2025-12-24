@@ -616,6 +616,111 @@ async function loadTamTruData(page = 1) {
     }
 }
 
+// HAm gui form Tam vang
+/**
+ * Hàm xử lý form Đăng ký Tạm vắng
+ * Tìm form trong modal #tempAbsenceModal và gắn sự kiện submit
+ */
+function handleKhaiBaoTamVang() {
+    // 1. Tìm form cụ thể nằm trong Modal Tạm Vắng
+    const modal = document.getElementById('tempAbsenceModal');
+    if (!modal) return; // Nếu không thấy modal thì thoát luôn
+
+    const form = modal.querySelector('form');
+    if (!form) return; // Nếu không thấy form thì thoát
+
+    // 2. Gắn sự kiện Submit
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault(); // Chặn reload trang
+
+        // Lấy các element input theo đúng ID bạn yêu cầu
+        const elmHoTen = document.getElementById("tvFullName");
+        const elmCCCD = document.getElementById("tvCCCD");
+        const elmTuNgay = document.getElementById("tvDateFrom");
+        const elmDenNgay = document.getElementById("tvDateTo");
+        const elmMaHK = document.getElementById("tvMaHK");
+        const elmLyDo = document.getElementById("tvReason");
+
+        // Lấy giá trị
+        const hoTen = elmHoTen.value.trim();
+        const cccd = elmCCCD.value.trim();
+        const tuNgay = elmTuNgay.value;
+        const denNgay = elmDenNgay.value;
+        const maHK = elmMaHK.value.trim();
+        const lyDo = elmLyDo.value.trim();
+
+        // Validate ngày tháng
+        if (new Date(tuNgay) > new Date(denNgay)) {
+            alert("Lỗi: Thời gian 'Từ ngày' không được lớn hơn 'Đến ngày'.");
+            return;
+        }
+
+        // 3. Tạo Payload theo cấu trúc API
+        const payload = {
+            "hoTenTamVang": hoTen,
+            "cccd": cccd,
+            "maHK": maHK,
+            "thoiGianTamVang": {
+                "tu": tuNgay,
+                "den": denNgay
+            },
+            "lyDo": lyDo
+        };
+
+        // 4. Xử lý nút bấm (UX)
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerText;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Đang xử lý...";
+
+        try {
+            // 5. Gọi API
+            const response = await fetch('/tamvang/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // 'Authorization': 'Bearer ' + token // Bỏ comment nếu cần token
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                // Thành công
+                const data = await response.json();
+                alert("Đăng ký tạm vắng thành công!");
+                
+                // Reset form
+                form.reset();
+                
+                // Đóng modal (Gọi hàm có sẵn của bạn hoặc ẩn tay)
+                if (typeof closeModal === 'function') {
+                    closeModal('tempAbsenceModal');
+                } else {
+                    modal.style.display = 'none';
+                }
+            } else {
+                // Thất bại từ phía Server
+                const errorData = await response.json();
+                alert("Lỗi: " + (errorData.message || "Không thể lưu dữ liệu."));
+            }
+        } catch (error) {
+            // Lỗi mạng/code
+            console.error("Lỗi gửi form tạm vắng:", error);
+            alert("Đã xảy ra lỗi kết nối.");
+        } finally {
+            // Mở lại nút bấm
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
+    });
+}
+
+// --- CÁCH SỬ DỤNG ---
+// Gọi hàm này khi trang web tải xong
+document.addEventListener("DOMContentLoaded", function() {
+    handleKhaiBaoTamVang();
+});
+
 // --- HÀM VẼ NÚT PHÂN TRANG ---
 function renderPagination(container, totalRecords, currentPage) {
     container.innerHTML = '';
@@ -778,9 +883,10 @@ async function submitRegisterTamTru(event) {
     const payload = {
         "hoTenNguoiDK": formData.get('hoten_nguoidk'),
         "cccdNguoiDK": formData.get('cccd_nguoidk'),
+        "ngaySinhNguoiDK": formData.get('ngaysinh_nguoidk'),
+        "gioiTinhNguoiDK": formData.get('gioitinh_nguoidk'),
         "hoTenChuHo": formData.get('hoten_chuho'),
         "cccdChuHo": formData.get('cccd_chuho'),
-        "diaChi": formData.get('diachi_tamtru'), // Gửi lên nhưng BE sẽ ignore và dùng địa chỉ chủ hộ
         "thoiGian": {
             "tu": formData.get('tungay'),
             "den": formData.get('denngay')
