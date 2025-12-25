@@ -18,14 +18,12 @@ async function fetchPendingList() {
         const fromDate = document.getElementById('fromDate').value;
         const toDate = document.getElementById('toDate').value;
         
-        let url = `${API_BASE_URL}/nvh/pending`;
-        
         // Nếu có chọn ngày thì thêm params
         if (fromDate && toDate) {
             url += `?from=${fromDate}&to=${toDate}`;
         }
 
-        const response = await fetch(url);
+        const response = await fetch(`/api/nvh/pending`);
         if (!response.ok) throw new Error('Lỗi khi tải danh sách chờ');
         
         const data = await response.json();
@@ -50,7 +48,7 @@ async function fetchPendingList() {
 // API: Lấy danh sách lịch sử
 async function fetchHistoryList() {
     try {
-        const response = await fetch(`${API_BASE_URL}/nvh/history`);
+        const response = await fetch(`/api/nvh/history`);
         if (!response.ok) throw new Error('Lỗi khi tải lịch sử');
         
         const data = await response.json();

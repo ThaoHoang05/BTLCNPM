@@ -32,7 +32,7 @@ function postForm() {
 
     console.log('Form Data to be sent:', formData);
     // Gửi dữ liệu đến backend bằng fetch
-    fetch('/api/dang-ky/submit-form', {
+    fetch('/api/nvh/submit-form', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

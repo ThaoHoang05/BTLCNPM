@@ -1,6 +1,10 @@
-const router = require('express').Router();
-const ctrl = require('../controllers/dangKySuDungController');
+const express = require('express');
+const router = express.Router();
 
-router.post('/submit-form', ctrl.guiDangKy);
+const dangKySuDungController = require('../controllers/dangKySuDungController');
+
+router.post('/submit-form', dangKySuDungController.guiDangKy);
+router.get('/pending', dangKySuDungController.getPendingList);
+router.get('/history', dangKySuDungController.getHistoryList);
 
 module.exports = router;

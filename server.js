@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Routes
-const dangKyRoutes = require('./routes/dangKySuDungRoutes');
+const dangKySuDungRoutes = require('./routes/dangKySuDungRoutes');
 const authRoutes = require('./routes/authRoutes');
 const hoKhauRoutes = require('./routes/hoKhauRoutes');
 const nhanKhauRoutes = require('./routes/nhanKhauRoutes');
@@ -22,10 +22,10 @@ const tamVangTamTruRoutes = require('./routes/tamVangTamTruRoutes');
 //api
 app.use('/api', authRoutes); 
 app.use('/api', tamVangTamTruRoutes);
-app.use('/api/dang-ky', dangKyRoutes);
 app.use('/api/hokhau', hoKhauRoutes);
 app.use('/api/nhankhau', nhanKhauRoutes);
-app.use('/api/nha-van-hoa', nhaVanHoaRoutes);
+app.use('/api/nvh', nhaVanHoaRoutes);
+app.use('/api/nvh', dangKySuDungRoutes);
 
 // Route mặc định (Server check)
 app.get('/', (_req, res) => {
