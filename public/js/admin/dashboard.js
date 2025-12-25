@@ -138,6 +138,9 @@ function renderNVHManagement() {
         })
         .then(html => {
             mainContent.innerHTML = html;
+            if( typeof fetchPendingList === 'function') {
+                fetchPendingList();
+            }
         })
         .catch(error => {
             console.error('Lỗi tải trang:', error);
