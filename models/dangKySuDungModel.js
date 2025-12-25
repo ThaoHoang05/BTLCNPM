@@ -40,7 +40,7 @@ const dangKySuDungModel = {
         }
     },
 
-    // 2. Lấy ds đơn đã duyệt (Đã duyệt hoặc Từ chối)
+    // 2. Lấy ds đơn đã duyệt
     getHistoryList: async () => {
         try {
             const query = `
@@ -53,13 +53,40 @@ const dangKySuDungModel = {
                     loaihinhthue as "loaiHinh",
                     trangthai as "trangThai" 
                 FROM dangkysudung
-                WHERE trangthai IN ('Đã duyệt', 'Từ chối')
+                WHERE trangthai = 'Đã duyệt'
                 ORDER BY id DESC
             `;
             const { rows } = await poolQuanLiNhaVanHoa.query(query);
             return rows;
         } catch (error) {
             console.error("Lỗi Model getHistoryList:", error);
+            throw error;
+        }
+    },
+
+    // Lấy chi tiết lịch sử đơn (kèm tên phòng nếu đã duyệt)
+    getHistoryDetail: async (id) => {
+        try {
+            const query = `
+                SELECT 
+                    dk.hotennguoidangky AS "hoTen",
+                    dk.dienthoai AS "sdt",
+                    dk.email AS "email",
+                    dk.loaihinhthue AS "loaiHinh",
+                    dk.thoigianbatdau AS "tu",
+                    dk.thoigianketthuc AS "den",
+                    dk.phisudung AS "phi",
+                    dk.tensukien AS "tenHD",
+                    p.tenphong AS "phong"
+                FROM dangkysudung dk
+                LEFT JOIN lichsudungphong l ON dk.dangkyid = l.dangkyid
+                LEFT JOIN phong p ON l.phongid = p.phongid
+                WHERE dk.dangkyid = $1
+            `;
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, [id]);
+            return rows[0];
+        } catch (error) {
+            console.error("Lỗi Model getHistoryDetail:", error);
             throw error;
         }
     },

@@ -73,7 +73,7 @@ async function fetchHistoryList() {
 // API: Lấy chi tiết đơn lịch sử
 async function fetchHistoryDetail(id) {
     try {
-        const response = await fetch(`${API_BASE_URL}/nvh/history/${id}`);
+        const response = await fetch(`/api/nvh/history/${id}`);
         if (!response.ok) throw new Error('Không tìm thấy chi tiết đơn');
         
         const data = await response.json();
@@ -254,9 +254,26 @@ async function openNVHDetailModal(id) {
     document.getElementById('detailPhone').innerText = detailData.phone;
     document.getElementById('detailEmail').innerText = detailData.email;
     document.getElementById('detailType').innerText = detailData.type;
-    document.getElementById('detailFrom').innerText = detailData.from;
-    document.getElementById('detailTo').innerText = detailData.to;
     document.getElementById('detailReason').innerText = detailData.reason;
+
+    // Hàm format ngày giờ
+    const formatDateTime = (dateString) => {
+        if (!dateString) return '---';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString; // Nếu lỗi format thì trả về chuỗi gốc
+
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Tháng bắt đầu từ 0
+        const year = date.getFullYear();
+
+        return `${hours}:${minutes} ${day}/${month}/${year}`;
+    };
+
+    // Áp dụng format mới
+    document.getElementById('detailFrom').innerText = formatDateTime(detailData.from);
+    document.getElementById('detailTo').innerText = formatDateTime(detailData.to);
 
     // Ẩn/Hiện nút Duyệt/Hủy
     const actionDiv = document.getElementById('detailActions');

@@ -59,6 +59,34 @@ const dangKySuDungController = {
         }
     },
 
+    // Xem chi tiết đơn đã duyệt
+    getHistoryDetail: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const item = await model.getHistoryDetail(id);
+            if (!item) {
+                return res.status(404).json({ message: "Không tìm thấy đơn đăng ký này" });
+            }
+            const responseData = {
+                hoTen: item.hoTen,
+                sdt: item.sdt || "Không có",
+                email: item.email || "Không có",
+                loaiHinh: item.loaiHinh === 'CaNhan' ? 'Cá nhân' : 'Tổ chức',
+                thoigian: {
+                    tu: item.tu,
+                    den: item.den
+                },
+                phi: item.phi ? parseInt(item.phi) : 0, // Chuyển về số
+                phong: item.phong || "Chưa xếp phòng / Đã từ chối",
+                tenHD: item.tenHD
+            };
+            res.status(200).json(responseData);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Lỗi khi lấy chi tiết đơn" });
+        }
+    },
+
 };
 
 module.exports = dangKySuDungController;
