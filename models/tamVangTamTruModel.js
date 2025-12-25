@@ -166,21 +166,19 @@ const TamVangTamTruModel = {
         const offset = (page - 1) * limit;
         try {
             const query = `
-                SELECT 
+                SELECT
                     nk.hoten AS "HoTen",
-                    json_build_object(
-                        'Tu', tv.tungay,
-                        'Den', tv.denngay
-                    ) AS "ThoiHan", -- Gộp thành trường ThoiHan
+                    tv.tungay AS "Tu",       -- Trả về ngày gốc để Frontend tự định dạng
+                    tv.denngay AS "Den",     -- Trả về ngày gốc
                     tv.lydo AS "LyDo",
                     tv.trangthai AS "TrangThai",
                     tv.tamvangid AS "ID",
                     COUNT(*) OVER() AS "total_count"
                 FROM tamvang tv
-                JOIN nhankhau nk ON tv.nhankhau_id = nk.id
+                         JOIN nhankhau nk ON tv.nhankhau_id = nk.id
                 WHERE tv.trangthai = 'Còn hạn'
                 ORDER BY tv.tamvangid ASC
-                LIMIT $1 OFFSET $2;
+                    LIMIT $1 OFFSET $2;
             `;
             const { rows } = await poolQuanLiHoKhau.query(query, [limit, offset]);
 
