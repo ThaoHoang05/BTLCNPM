@@ -8,4 +8,9 @@ router.post('/tamtru/new', tamVangTamTruController.createTamTru);
 
 router.post('/tamtru/:id/chuyendi', tamVangTamTruController.endTamTru);
 
+//Tạm vắng
+router.get('/tamvang', tamVangTamTruController.getTamVangList);
+router.post('/tamvang/new', tamVangTamTruController.createTamVang);
+router.post('/tamvang/:id/trove', tamVangTamTruController.handleTroVe);
+
 module.exports = router;

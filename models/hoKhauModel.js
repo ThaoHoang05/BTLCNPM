@@ -234,23 +234,45 @@ const HoKhauModel = {
         try {
             await client.query('BEGIN');
 
-            // BƯỚC 1: Lấy danh sách ID nhân khẩu thuộc hộ sắp xóa
-            const subQueryID = '(SELECT id FROM nhankhau WHERE sohokhau = $1)';
+            // BƯỚC 1: Lấy thông tin chủ hộ trước khi gỡ liên kết để ghi log chính xác
+            const infoQuery = `
+            SELECT h.sohokhau, n.hoten as ten_chu_ho 
+            FROM hokhau h 
+            LEFT JOIN nhankhau n ON h.chuho_id = n.id 
+            WHERE h.sohokhau = $1`;
+            const resInfo = await client.query(infoQuery, [sohokhau]);
 
-            // BƯỚC 2: Xóa dữ liệu ở các bảng con dựa trên nhankhau_id
-            await client.query(`DELETE FROM tamtru WHERE nhankhau_id IN ${subQueryID} OR chuho_id IN ${subQueryID}`, [sohokhau]);
-            await client.query(`DELETE FROM tamvang WHERE nhankhau_id IN ${subQueryID}`, [sohokhau]);
-            await client.query(`DELETE FROM biendongnhankhau WHERE nhankhau_id IN ${subQueryID}`, [sohokhau]);
+            if (resInfo.rows.length === 0) {
+                throw new Error("Hộ khẩu không tồn tại.");
+            }
+            const tenChuHo = resInfo.rows[0].ten_chu_ho || "Không rõ";
 
-            // BƯỚC 3: Xóa bảng biến động và tách hộ
-            await client.query('DELETE FROM biendonghokhau WHERE sohokhau = $1', [sohokhau]);
+            // BƯỚC 2: Ghi vào bảng biến động hộ khẩu trước
+            // Lưu ý: Nếu bảng biendonghokhau của bạn có khóa ngoại tham chiếu đến hokhau,
+            // bạn nên lưu nội dung này vào một bảng log hệ thống khác hoặc thiết kế bảng biến động
+            // không bị xóa theo cascade.
+            await client.query(
+                `INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi) 
+             VALUES ($1, $2, CURRENT_DATE)`,
+                [sohokhau, `Xóa hộ khẩu. Chủ hộ: ${tenChuHo}. Các thành viên trở thành nhân khẩu tự do.`]
+            );
+
+            // BƯỚC 3: Gỡ liên kết ở bảng Nhân Khẩu
+            await client.query(
+                'UPDATE nhankhau SET sohokhau = NULL, quanhevoichuho = NULL WHERE sohokhau = $1',
+                [sohokhau]
+            );
+
+            // BƯỚC 4: Gỡ các bảng liên quan khác (trừ biendonghokhau nếu muốn giữ lại lịch sử)
             await client.query('DELETE FROM tachho WHERE sohokhaucu = $1 OR sohokhaumoi = $1', [sohokhau]);
 
-            // BƯỚC 4: Gỡ khóa ngoại ở bảng hokhau trước khi xóa nhân khẩu
-            await client.query('UPDATE hokhau SET chuho_id = NULL WHERE sohokhau = $1', [sohokhau]);
+            // BƯỚC 5: Gỡ khóa ngoại tại bảng HoKhau
+            await client.query(
+                'UPDATE hokhau SET chuhocccd = NULL, chuho_id = NULL WHERE sohokhau = $1',
+                [sohokhau]
+            );
 
-            // BƯỚC 5: Xóa nhân khẩu và hộ khẩu
-            await client.query('DELETE FROM nhankhau WHERE sohokhau = $1', [sohokhau]);
+            // BƯỚC 6: Xóa bản ghi Hộ khẩu cuối cùng
             const result = await client.query('DELETE FROM hokhau WHERE sohokhau = $1', [sohokhau]);
 
             await client.query('COMMIT');
