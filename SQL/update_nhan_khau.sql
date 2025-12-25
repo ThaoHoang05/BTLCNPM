@@ -164,6 +164,7 @@ FROM NhanKhau nk
 WHERE hk.SoHoKhau = nk.SoHoKhau
   AND nk.QuanHeVoiChuHo = 'Chủ hộ';
 
+
 -- Cập nhật lại chuho_id trong bảng TamTru sau khi đã có dữ liệu
 UPDATE tamtru tt
 SET chuho_id = nk.id
