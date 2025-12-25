@@ -51,11 +51,16 @@ const tamVangTamTruController = {
 
     getTamVangList: async (req, res) => {
         try {
+            // Lấy số trang từ URL (ví dụ: /api/tamvang?page=2), mặc định là trang 1
             const page = parseInt(req.query.page) || 1;
+
+            // Gọi Model để lấy dữ liệu theo trang
             const result = await TamVangTamTruModel.getTamVangList(page);
+
+            // Trả về dữ liệu kèm theo status 200
             res.status(200).json(result);
         } catch (error) {
-            console.error(error);
+            console.error("Lỗi tại Controller getTamVangList:", error);
             res.status(500).json({ message: "Lỗi hệ thống khi tải danh sách tạm vắng" });
         }
     },

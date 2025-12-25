@@ -161,24 +161,37 @@ const TamVangTamTruModel = {
 // QUẢN LÝ CƯ TRÚ (TẠM VẮNG)
 // ==============================================
     //Lấy danh sách tạm vắng
-    getTamVangList: async (req, res) => {
+    getTamVangList: async (page = 1) => {
+        const limit = 10;
+        const offset = (page - 1) * limit;
         try {
-            // 1. Lấy số trang từ query parameters (mặc định là trang 1 nếu không có)
-            const page = parseInt(req.query.page) || 1;
+            const query = `
+                SELECT 
+                    nk.hoten AS "HoTen",
+                    json_build_object(
+                        'Tu', tv.tungay,
+                        'Den', tv.denngay
+                    ) AS "ThoiHan", -- Gộp thành trường ThoiHan
+                    tv.lydo AS "LyDo",
+                    tv.trangthai AS "TrangThai",
+                    tv.tamvangid AS "ID",
+                    COUNT(*) OVER() AS "total_count"
+                FROM tamvang tv
+                JOIN nhankhau nk ON tv.nhankhau_id = nk.id
+                WHERE tv.trangthai = 'Còn hạn'
+                ORDER BY tv.tamvangid ASC
+                LIMIT $1 OFFSET $2;
+            `;
+            const { rows } = await poolQuanLiHoKhau.query(query, [limit, offset]);
 
-            // 2. Gọi hàm từ Model để lấy dữ liệu đã được xử lý format và phân trang
-            const result = await TamVangTamTruModel.getTamVangList(page);
-
-            // 3. Trả về dữ liệu cho Client (Frontend)
-            // Kết quả sẽ bao gồm: data (mảng danh sách), total (tổng số bản ghi), currentPage
-            res.status(200).json(result);
-
+            return {
+                data: rows,
+                total: rows.length > 0 ? parseInt(rows[0].total_count) : 0,
+                currentPage: page
+            };
         } catch (error) {
-            console.error("Lỗi tại Controller getTamVangList:", error);
-            res.status(500).json({
-                message: "Lỗi hệ thống khi tải danh sách tạm vắng",
-                error: error.message
-            });
+            console.error("Lỗi Model getTamVangList:", error);
+            throw error;
         }
     },
 
