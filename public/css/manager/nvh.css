@@ -1,289 +1,130 @@
-/* =========================================
-   STYLE CHO THANH TAB (NVH TABS)
-   ========================================= */
-   .nvh-tabs {
+:root {
+    --primary: #2c3e50;
+    --accent: #3498db;     /* Màu xanh dương chủ đạo */
+    --accent-hover: #2980b9;
+    --bg-light: #f8f9fa;
+    --white: #ffffff;
+    --text-dark: #333;
+    --text-gray: #666;
+    --border: #e9ecef;
+    --shadow: 0 4px 6px rgba(0,0,0,0.05);
+    --radius: 8px;
+}
+
+/* --- LAYOUT CHUNG --- */
+.dashboard-wrapper {
+    font-family: 'Segoe UI', sans-serif;
+    color: var(--text-dark);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-section { margin-bottom: 25px; }
+.page-title { margin: 0; font-size: 24px; color: var(--primary); }
+.sub-title { margin: 5px 0 0; color: var(--text-gray); font-size: 14px; }
+
+/* --- TABS NAVIGATION (Thanh Tab đẹp) --- */
+.nav-tabs {
     display: flex;
     gap: 10px;
+    border-bottom: 2px solid var(--border);
     margin-bottom: 25px;
-    border-bottom: 2px solid #e0e0e0; /* Đường kẻ ngang dưới chân tab */
-    padding-bottom: 0;
 }
 
-.tab-item {
+.tab-btn {
+    padding: 12px 20px;
     background: transparent;
     border: none;
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #7f8c8d;
+    font-size: 15px;
+    color: var(--text-gray);
     cursor: pointer;
-    position: relative;
+    border-bottom: 3px solid transparent;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Khoảng cách giữa icon và chữ */
+    font-weight: 500;
 }
 
-/* Hiệu ứng khi di chuột */
-.tab-item:hover {
-    color: #3498db;
-    background-color: rgba(52, 152, 219, 0.05);
-    border-radius: 5px 5px 0 0;
+.tab-btn:hover { color: var(--accent); background: rgba(52, 152, 219, 0.05); }
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 700;
 }
 
-/* Trạng thái đang chọn (Active) */
-.tab-item.active {
-    color: #3498db; /* Màu xanh chủ đạo */
-    border-bottom: 3px solid #3498db; /* Viền đậm dưới chân */
-    margin-bottom: -2px; /* Đè lên đường kẻ ngang của container */
+/* --- TAB CONTENT HANDLING (Sửa lỗi chồng chéo) --- */
+.tab-content {
+    display: none; /* Mặc định ẩn hết */
+    animation: slideUp 0.3s ease-out;
 }
-
-.tab-item i {
-    font-size: 14px;
+.tab-content.active {
+    display: block; /* Chỉ hiện cái active */
 }
-
-/* Responsive: Trên màn hình nhỏ thì tab nhỏ lại */
-@media (max-width: 768px) {
-    .nvh-tabs {
-        flex-wrap: wrap; /* Xuống dòng nếu màn hình quá bé */
-    }
-    .tab-item {
-        font-size: 14px;
-        padding: 10px 15px;
-        flex: 1; /* Chia đều chiều rộng */
-        justify-content: center;
-    }
-}
-/* Container bao quanh nội dung Nhà văn hóa */
-.manager-layout {
-    width: 100%;
-    /* Không đặt height 100vh nữa vì nó nằm trong main-content */
-    background-color: transparent; 
-}
-
-.content {
-    /* Xóa margin/padding thừa để khớp với main-content của dashboard */
-    padding: 0; 
-    width: 100%;
-}
-
-/* =========================================
-   CÁC TAB (Overview, Assets, Schedule)
-   ========================================= */
-/* Ẩn hiện các Section */
-.section {
-    display: none; 
-    animation: slideIn 0.3s ease-out;
-}
-
-.section.active {
-    display: block;
-}
-
-@keyframes slideIn {
+@keyframes slideUp {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Tiêu đề H2 chung */
-.section h2 {
-    color: #2c3e50;
-    margin-top: 0;
-    margin-bottom: 25px;
-    border-bottom: 3px solid #3498db;
-    display: inline-block;
-    padding-bottom: 5px;
-    font-size: 1.5rem;
-}
-
-/* =========================================
-   PHẦN 1: THÔNG TIN CHUNG (OVERVIEW)
-   ========================================= */
-.facility-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    text-align: center;
-    border-bottom: 4px solid #3498db;
-    transition: transform 0.2s;
-}
-
-.stat-box:hover {
-    transform: translateY(-3px);
-}
-
-.stat-box h3 {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #7f8c8d;
-    text-transform: uppercase;
-}
-
-.stat-box .number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin: 10px 0;
-}
-
-.stat-box span {
-    display: block;
-    margin-top: 5px;
-    color: #e67e22;
-    font-style: italic;
-    font-size: 0.9rem;
-}
-
-.structure-detail {
-    background: #fff;
+/* --- CONTENT BOXES (Khối nội dung trắng, đổ bóng) --- */
+.content-box {
+    background: var(--white);
+    border-radius: var(--radius);
     padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.structure-detail ul {
-    list-style: none;
-    padding: 0;
-}
-
-.structure-detail li {
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.structure-detail i {
-    color: #3498db;
-    margin-right: 10px;
-}
-
-/* =========================================
-   PHẦN 2: BẢNG TÀI SẢN
-   ========================================= */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
     margin-bottom: 20px;
 }
+.section-title { margin-top: 0; margin-bottom: 20px; font-size: 18px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.text-primary { color: var(--accent); }
 
-.data-table {
+/* --- GRID & STATS --- */
+.stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+.stat-card { background: #f1f8ff; padding: 20px; border-radius: var(--radius); text-align: center; border: 1px solid #dbeafe; }
+.stat-card b { display: block; font-size: 24px; color: var(--accent); margin-top: 5px; }
+
+.room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+.room-item { background: #fff; border: 1px solid var(--border); padding: 15px; border-radius: var(--radius); transition: transform 0.2s; }
+.room-item:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--accent); }
+
+/* --- FORM STYLING (Làm đẹp Form) --- */
+.schedule-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; }
+@media (max-width: 768px) { .schedule-grid { grid-template-columns: 1fr; } }
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: var(--text-dark); }
+.required { color: red; }
+
+.form-input {
     width: 100%;
-    background: #fff;
-    border-collapse: collapse;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
 }
+.form-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
 
-.data-table th, .data-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #f0f0f0;
-}
+.form-row-dual { display: flex; gap: 15px; }
+.form-row-dual .form-group { flex: 1; }
 
-.data-table th {
-    background-color: #3498db;
-    color: white;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-}
-
-.status-good {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.status-warning {
-    background-color: #fff3e0;
-    color: #ef6c00;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-/* =========================================
-   PHẦN 3: FORM LỊCH
-   ========================================= */
-.form-container {
-    background: #fff;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    margin-bottom: 30px;
-}
-
-.form-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.form-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    font-weight: 600;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-}
-
-.form-group input, .form-group select {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.upcoming-list {
-    list-style: none;
-    padding: 0;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.upcoming-list li {
-    padding: 15px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    align-items: center;
-}
-
-.upcoming-list .date {
-    font-weight: bold;
-    color: #e74c3c;
-    width: 120px;
-}
-
-/* Nút bấm */
 .btn-primary {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
+    background: var(--accent); color: white; border: none; padding: 10px 20px;
+    border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s;
 }
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.full-width { width: 100%; }
 
-.icon-btn {
-    background: none;
-    border: none;
-    color: #95a5a6;
-    cursor: pointer;
+/* --- TABLE & LIST --- */
+.custom-table { width: 100%; border-collapse: collapse; }
+.custom-table th, .custom-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); }
+.custom-table th { background: #f8f9fa; color: var(--primary); font-weight: 600; }
+.custom-table tr:hover { background: #f1f8ff; }
+
+.event-list { list-style: none; padding: 0; margin: 0; }
+.event-item {
+    padding: 15px; border-bottom: 1px dashed var(--border);
+    display: flex; flex-direction: column; gap: 4px;
 }
+.event-item:last-child { border: none; }
+.event-time { font-size: 13px; font-weight: 700; color: var(--accent); }
+.event-title { font-size: 15px; font-weight: 600; color: var(--text-dark); }
+.event-loc { font-size: 13px; color: var(--text-gray); }
