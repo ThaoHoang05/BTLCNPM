@@ -40,50 +40,51 @@
             <span class="close-btn" onclick="closeModal('addCitizenModal')">&times;</span>
         </div>
         <div class="modal-body">
-                <form id="memberForm">
-                    <div class="section-title">I. Thông tin cá nhân</div>
-                    <div class="form-grid-3">
-                        <div class="form-group"> <label>Họ và tên <span class="required">*</span></label> <input type="text" class="form-control" name="hoten" required> </div>
-                        <div class="form-group"> <label>Biệt danh</label> <input type="text" class="form-control" name="bidanh"> </div>
-                        <div class="form-group"> <label>Ngày sinh <span class="required">*</span></label> <input type="date" class="form-control" name="ngaysinh" required> </div>
-                    </div>
-                     <div class="form-grid-3">
-                        <div class="form-group"> <label>Giới tính</label> <select class="form-control" name="gioitinh"><option>Nam</option><option>Nữ</option></select> </div>
-                        <div class="form-group"> <label>Dân tộc</label> <input type="text" class="form-control" name="dantoc" value="Kinh"> </div>
-                        <div class="form-group"> <label>Tôn giáo</label> <input type="text" class="form-control" name="tongiao"> </div>
-                    </div>
-                    <div class="form-grid-2">
-                        <div class="form-group"> <label>Nguyên quán</label> <input type="text" class="form-control" name="nguyenquan"> </div>
-                        <div class="form-group"> <label>Nơi sinh</label> <input type="text" class="form-control" name="noisinh"> </div>
-                    </div>
+            <form id="memberForm">
+                <div class="section-title">I. Thông tin cá nhân</div>
+                <div class="form-grid-3">
+                    <div class="form-group"> <label>Họ và tên <span class="required">*</span></label> <input type="text" class="form-control" name="hoten" required> </div>
+                    <div class="form-group"> <label>Biệt danh</label> <input type="text" class="form-control" name="bidanh"> </div>
+                    <div class="form-group"> <label>Ngày sinh <span class="required">*</span></label> <input type="date" class="form-control" name="ngaysinh" required> </div>
+                </div>
+                 <div class="form-grid-3">
+                    <div class="form-group"> <label>Giới tính</label> <select class="form-control" name="gioitinh"><option>Nam</option><option>Nữ</option></select> </div>
+                    <div class="form-group"> <label>Dân tộc</label> <input type="text" class="form-control" name="dantoc" value="Kinh"> </div>
+                    <div class="form-group"> <label>Tôn giáo</label> <input type="text" class="form-control" name="tongiao"> </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group"> <label>Nguyên quán</label> <input type="text" class="form-control" name="nguyenquan"> </div>
+                    <div class="form-group"> <label>Nơi sinh</label> <input type="text" class="form-control" name="noisinh"> </div>
+                </div>
 
-                    <div class="section-title">II. Định danh & Công việc</div>
-                    <div class="form-grid-3">
-                        <div class="form-group"> <label>CCCD/CMND </label> <input type="text" class="form-control" name="cccd"> </div>
-                        <div class="form-group"> <label>Ngày cấp</label> <input type="date" class="form-control" name="ngaycapcccd"> </div>
-                        <div class="form-group"> <label>Nơi cấp</label> <input type="text" class="form-control" name="noicapcccd"> </div>
-                    </div>
-                    <div class="form-grid-2">
-                        <div class="form-group"> <label>Nghề nghiệp</label> <input type="text" class="form-control" name="nghenghiep"> </div>
-                        <div class="form-group"> <label>Nơi làm việc</label> <input type="text" class="form-control" name="noilamviec"> </div>
-                    </div>
+                <div class="section-title">II. Định danh & Công việc</div>
+                <div class="form-grid-3">
+                    <div class="form-group"> <label>CCCD/CMND </label> <input type="text" class="form-control" name="cccd"> </div>
+                    <div class="form-group"> <label>Ngày cấp</label> <input type="date" class="form-control" name="ngaycapcccd"> </div>
+                    <div class="form-group"> <label>Nơi cấp</label> <input type="text" class="form-control" name="noicapcccd"> </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group"> <label>Nghề nghiệp</label> <input type="text" class="form-control" name="nghenghiep"> </div>
+                    <div class="form-group"> <label>Nơi làm việc</label> <input type="text" class="form-control" name="noilamviec"> </div>
+                </div>
 
-                    <div class="section-title">III. Quan hệ hộ khẩu</div>
-                    <div class="form-grid-3">
-                        <div class="form-group"> <label>Mã hộ khẩu</label> <input type="text" class="form-control" name="sohokhau"></div>
-                        <div class="form-group"> <label>Quan hệ với chủ hộ </label> <input type="text" class="form-control" name="quanhevoichuho"> </div>
-                        <div class="form-group"> <label>Trạng thái <span class="required">*</span></label> <select class="form-control" name="trangthai" required>
-                            <option value="default">Default</option>
-                            <option value="ThuongTru">Thường trú</option>
-                            <option value = "TamTru">Tạm trú</option>
-                        </select> </div>
+                <div class="section-title">III. Quan hệ hộ khẩu</div>
+                <div class="form-grid-3">
+                    <div class="form-group"> <label>Mã hộ khẩu</label> <input type="text" class="form-control" name="sohokhau" placeholder="Ví dụ: HK001"></div>
+                    <div class="form-group"> <label>Quan hệ với chủ hộ </label> <input type="text" class="form-control" name="quanhevoichuho"> </div>
+                    <div class="form-group"> 
+                        <label>Trạng thái <span class="required">*</span></label> 
+                        <select class="form-control" name="trangthai" required>
+                            <option value="Thường trú">Thường trú</option>
+                            <option value="Tạm trú">Tạm trú</option>
+                        </select> 
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-secondary" onclick="closeModal('addMemberModal')">Hủy</button>
-                        <button type="submit" class="btn-primary">Lưu Mới & Thêm</button>
-                    </div>
-                </form>
-
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('addCitizenModal')">Hủy</button>
+                    <button type="submit" class="btn-primary">Lưu Mới & Thêm</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -91,15 +91,31 @@ document.addEventListener('DOMContentLoaded', loadCitizenList);
 // 3. XỬ LÝ THÊM MỚI (Form ID: memberForm)
 // ==============================================
 
-async function createNewCitizen(event) {
-    event.preventDefault(); // Chặn reload
+// ==============================================
+// 3. XỬ LÝ THÊM MỚI (Đã sửa lỗi ID)
+// ==============================================
 
-    // Lấy form theo đúng ID trong HTML bạn gửi
-    const form = document.getElementById('memberForm'); 
+async function createNewCitizen(event) {
+    event.preventDefault(); // Chặn reload trang
+    console.log("Bắt đầu thêm nhân khẩu...");
+
+    const form = document.getElementById('memberForm');
+    
+    if (!form) {
+        alert("Lỗi: Không tìm thấy form nhập liệu!");
+        return;
+    }
+
     const formData = new FormData(form);
     const v = Object.fromEntries(formData.entries());
 
-    // Mapping dữ liệu từ các input name="..." sang JSON payload
+    // Validate cơ bản: Kiểm tra trạng thái
+    if (v.trangThai === 'default') {
+        alert("Vui lòng chọn Trạng thái cư trú hợp lệ!");
+        return;
+    }
+
+    // Payload gửi đi
     const payload = {
         "hoTen": v.hoten,
         "biDanh": v.bidanh,
@@ -114,13 +130,14 @@ async function createNewCitizen(event) {
         "noiCapCCCD": v.noicapcccd,
         "ngheNghiep": v.nghenghiep,
         "noiLamViec": v.noilamviec,
+        "maHoKhau": v.sohokhau,      
         "quanHeVoiChuHo": v.quanhevoichuho,
-        "maHoKhau": v.sohokhau, // Nếu có logic thêm vào hộ ngay
         "trangThai": v.trangthai
     };
 
     try {
-        const response = await fetch('/api/nhankhau/add', {
+        // LƯU Ý: Đổi đường dẫn API thành '/new' nếu backend quy định thế
+        const response = await fetch('/api/nhankhau/new', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -128,9 +145,12 @@ async function createNewCitizen(event) {
 
         if (response.ok) {
             alert('Thêm nhân khẩu mới thành công!');
-            closeModal('addCitizenModal'); // Đóng modal cha
-            form.reset(); // Xóa trắng form
-            loadCitizenList(); // Tải lại bảng
+            
+            // SỬA QUAN TRỌNG: Đóng đúng ID Modal trong file resident.html
+            closeModal('addCitizenModal'); 
+            
+            form.reset(); // Xóa dữ liệu cũ trên form
+            loadCitizenList(); // Tải lại bảng danh sách
         } else {
             const err = await response.json();
             alert('Lỗi: ' + (err.message || 'Thêm thất bại'));
@@ -141,14 +161,19 @@ async function createNewCitizen(event) {
     }
 }
 
-// Gắn sự kiện submit cho form thêm mới
+// Đảm bảo sự kiện được gắn đúng
 document.addEventListener('DOMContentLoaded', function() {
+    loadCitizenList(); // Tải danh sách
+
+    // Gắn sự kiện submit cho form thêm mới
     const addForm = document.getElementById('memberForm');
     if (addForm) {
-        addForm.addEventListener('submit', createNewCitizen);
+        // Xóa các event cũ (nếu có) để tránh duplicate bằng cách clone
+        const newForm = addForm.cloneNode(true);
+        addForm.parentNode.replaceChild(newForm, addForm);
+        newForm.addEventListener('submit', createNewCitizen);
     }
 });
-
 // ==============================================
 // 4. XỬ LÝ CẬP NHẬT (Form ID: editCitizenForm)
 // ==============================================
