@@ -1,143 +1,200 @@
-<div class="manager-layout">
-    <div class="content">
-        <div class="nvh-tabs">
-            <button class="tab-item active" onclick="switchTab('overview', this)">
-                <i class="fas fa-info-circle"></i> Thông tin chung
-            </button>
-            <button class="tab-item" onclick="switchTab('assets', this)">
-                <i class="fas fa-boxes"></i> Tài sản
-            </button>
-            <button class="tab-item" onclick="switchTab('schedule', this)">
-                <i class="fas fa-calendar-alt"></i> Lịch hoạt động
-            </button>
+<div class="dashboard-wrapper">
+    <div class="header-section">
+        <h2 class="page-title">Quản lý Nhà Văn Hóa - Tổ Dân Phố 7</h2>
+        <p class="sub-title">Hệ thống quản lý cơ sở vật chất và lịch hoạt động</p>
+    </div>
+    
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">
+            <i class="fas fa-info-circle"></i> Thông tin chung
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-assets', this)">
+            <i class="fas fa-boxes"></i> Tài sản & Thiết bị
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-schedule', this)">
+            <i class="fas fa-calendar-alt"></i> Lịch hoạt động
+        </button>
+    </div>
+
+    <div id="tab-overview" class="tab-content active">
+        <div class="stats-container" id="generalInfo">
+            <div class="loading-placeholder">Đang tải dữ liệu...</div>
         </div>
-        <div id="overview" class="section active">
-            <h2>Thông tin Cơ sở vật chất</h2>
-            <div class="facility-stats">
-                <div class="stat-box">
-                    <h3>Năm đưa vào sử dụng</h3>
-                    <p class="number">2018</p>
+        
+        <div class="content-box">
+            <h3 class="section-title"><i class="fas fa-door-open"></i> Danh sách các Phòng chức năng</h3>
+            <div class="room-grid" id="roomList">
                 </div>
-                <div class="stat-box">
-                    <h3>Diện tích khuôn viên</h3>
-                    <p class="number">822 <small>m²</small></p>
-                </div>
-                <div class="stat-box">
-                    <h3>Diện tích xây dựng</h3>
-                    <p class="number">480 <small>m²</small></p>
-                    <span>(Thiết kế 02 tầng)</span>
-                </div>
+        </div>
+    </div>
+
+    <div id="tab-assets" class="tab-content">
+        <div class="content-box">
+            <div class="flex-header">
+                <h3 class="section-title">Kho Tài sản & Thiết bị</h3>
+                <button class="btn-primary" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Thêm mới
+                </button>
             </div>
             
-            <div class="structure-detail">
-                <h3>Cấu trúc chi tiết</h3>
-                <ul>
-                    <li><strong><i class="fas fa-layer-group"></i> Tầng 1:</strong> 01 Hội trường rộng (Phục vụ hội họp lớn, đám cưới, sự kiện đông người).</li>
-                    <li><strong><i class="fas fa-layer-group"></i> Tầng 2:</strong> Các phòng chức năng (Sinh hoạt CLB, Thể dục thể thao, Đọc sách).</li>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Mã TS</th>
+                            <th>Tên tài sản</th>
+                            <th>Số lượng</th>
+                            <th>Tình trạng</th>
+                            <th>Vị trí</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-schedule" class="tab-content">
+        <div class="schedule-grid">
+            
+            <div class="content-box form-panel">
+                <h3 class="section-title text-primary">
+                    <i class="fas fa-edit"></i> Đăng ký Hoạt động
+                </h3>
+                
+                <div class="form-group">
+                    <label>Tên hoạt động <span class="required">*</span></label>
+                    <input type="text" id="evtName" class="form-input" placeholder="VD: Họp chi bộ tháng 12...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Phòng sử dụng</label>
+                    <select id="evtRoom" class="form-input">
+                        </select>
+                </div>
+                
+                <div class="form-row-dual">
+                    <div class="form-group">
+                        <label>Bắt đầu <span class="required">*</span></label>
+                        <input type="datetime-local" id="evtStart" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Kết thúc <span class="required">*</span></label>
+                        <input type="datetime-local" id="evtEnd" class="form-input">
+                    </div>
+                </div>
+            
+                <div class="form-group">
+                    <label>Ghi chú chi tiết</label>
+                    <textarea id="evtNote" class="form-input" rows="3" placeholder="Nhập nội dung họp, yêu cầu chuẩn bị..."></textarea>
+                </div>
+            
+                <div class="form-actions">
+                    <button class="btn-primary full-width" onclick="saveActivity()">
+                        <i class="fas fa-save"></i> Lưu lịch đăng ký
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-box list-panel">
+                <h3 class="section-title text-primary">
+                    <i class="fas fa-clock"></i> Lịch sắp tới
+                </h3>
+                <ul class="event-list" id="upcomingList">
+                    <li class="empty-state">Chưa có lịch nào sắp tới</li>
                 </ul>
             </div>
-        </div>
-
-        <div id="assets" class="section">
-            <div class="section-header">
-                <h2>Danh sách Tài sản & Thiết bị</h2>
-                <button class="btn-primary"><i class="fas fa-plus"></i> Thêm tài sản</button>
-            </div>
             
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Tên tài sản</th>
-                        <th>Vị trí</th>
-                        <th>Số lượng</th>
-                        <th>Tình trạng</th>
-                        <th>Cập nhật lần cuối</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Bàn hội trường (Gỗ)</td>
-                        <td>Tầng 1</td>
-                        <td>50</td>
-                        <td><span class="status-good">Tốt</span></td>
-                        <td>10/12/2025</td>
-                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
-                    </tr>
-                    <tr>
-                        <td>Ghế nhựa (Xếp)</td>
-                        <td>Kho Tầng 1</td>
-                        <td>200</td>
-                        <td><span class="status-warning">Hỏng 5 cái</span></td>
-                        <td>10/12/2025</td>
-                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
-                    </tr>
-                    <tr>
-                        <td>Hệ thống Loa đài</td>
-                        <td>Tầng 1</td>
-                        <td>01 bộ</td>
-                        <td><span class="status-good">Hoạt động tốt</span></td>
-                        <td>01/12/2025</td>
-                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
-                    </tr>
-                     <tr>
-                        <td>Bàn bóng bàn</td>
-                        <td>Tầng 2</td>
-                        <td>02 cái</td>
-                        <td><span class="status-good">Tốt</span></td>
-                        <td>15/11/2025</td>
-                        <td><button class="icon-btn"><i class="fas fa-edit"></i></button></td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
+    </div>
+</div>
 
-        <div id="schedule" class="section">
-            <div class="section-header">
-                <h2>Ghi nhận Lịch Hoạt động Chung</h2>
-            </div>
-            <div class="form-container">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Tên hoạt động (Họp, Tuyên truyền...)</label>
-                        <input type="text" placeholder="Ví dụ: Họp chi bộ tháng 12">
-                    </div>
-                    <div class="form-group">
-                        <label>Địa điểm</label>
-                        <select>
-                            <option>Hội trường Tầng 1</option>
-                            <option>Phòng chức năng Tầng 2</option>
-                            <option>Sân khuôn viên</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Thời gian bắt đầu</label>
-                        <input type="datetime-local">
-                    </div>
-                    <div class="form-group">
-                        <label>Thời gian kết thúc</label>
-                        <input type="datetime-local">
-                    </div>
-                </div>
-                <button class="btn-primary" style="margin-top:10px;">Lưu lịch hoạt động</button>
+<div id="modalEditAsset" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Cập nhật tài sản</h3>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="edit_id">
+
+            <div class="form-group">
+                <label>Tên tài sản:</label>
+                <input type="text" id="edit_name" class="form-input">
             </div>
 
-            <h3>Lịch sắp tới</h3>
-            <ul class="upcoming-list">
-                <li>
-                    <span class="date">20/12 - 19:30</span>
-                    <strong>Phát động phong trào "Toàn dân đoàn kết"</strong>
-                    <span class="location">(Hội trường Tầng 1)</span>
-                </li>
-                 <li>
-                    <span class="date">22/12 - 08:00</span>
-                    <strong>Sinh hoạt CLB Người cao tuổi</strong>
-                    <span class="location">(Phòng chức năng Tầng 2)</span>
-                </li>
-            </ul>
+            <div class="form-row-dual" style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Số lượng:</label>
+                    <input type="number" id="edit_qty" class="form-input">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Tình trạng:</label>
+                    <select id="edit_status" class="form-input">
+                        <option value="Tốt">Tốt</option>
+                        <option value="Cũ">Cũ</option>
+                        <option value="Đang hỏng">Đang hỏng</option>
+                        <option value="Cần thanh lý">Cần thanh lý</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Vị trí đặt:</label>
+                <input type="text" id="edit_place" class="form-input">
+            </div>
         </div>
 
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
+            <button class="btn-primary" onclick="saveAssetChanges()">Lưu thay đổi</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalAsset" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modalTitle">Thông tin tài sản</h3>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="asset_id">
+
+            <div class="form-group">
+                <label>Tên tài sản <span style="color:red">*</span>:</label>
+                <input type="text" id="asset_name" class="form-input" placeholder="VD: Quạt trần...">
+            </div>
+
+            <div class="form-row-dual" style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Số lượng:</label>
+                    <input type="number" id="asset_qty" class="form-input" value="1">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Tình trạng:</label>
+                    <select id="asset_status" class="form-input">
+                        <option value="Tốt">Tốt</option>
+                        <option value="Cũ">Cũ</option>
+                        <option value="Đang hỏng">Đang hỏng</option>
+                        <option value="Cần thanh lý">Cần thanh lý</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Vị trí đặt:</label>
+                <input type="text" id="asset_place" class="form-input" placeholder="VD: Kho tầng 2...">
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
+            <button class="btn-primary" onclick="saveAsset()">Lưu dữ liệu</button>
+        </div>
     </div>
 </div>
