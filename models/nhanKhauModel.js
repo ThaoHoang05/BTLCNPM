@@ -159,7 +159,103 @@ const NhanKhauModel = {
         } finally {
             client.release();
         }
-    }
+    },
+
+    // Lấy chi tiết nhân khẩu theo ID
+    getById: async (id) => {
+        try {
+            const query = `
+                SELECT 
+                    hoten AS "hoTen",
+                    bidanh AS "biDanh",
+                    ngaysinh AS "ngaySinh",
+                    gioitinh AS "gioiTinh",
+                    dantoc AS "danToc",
+                    nguyenquan AS "nguyenQuan",
+                    noisinh AS "noiSinh",
+                    cccd AS "cccd",
+                    ngaycapcccd AS "ngayCap",
+                    noicapcccd AS "noiCap",
+                    nghenghiep AS "ngheNghiep",
+                    noilamviec AS "noiLamViec",
+                    sohokhau AS "maHoKhau",
+                    quanhevoichuho AS "quanHeVoiChuHo",
+                    trangthai AS "trangThai"
+                FROM nhankhau
+                WHERE id = $1
+            `;
+            const { rows } = await poolQuanLiHoKhau.query(query, [id]);
+            return rows[0];
+        } catch (error) {
+            console.error("Lỗi Model getById:", error);
+            throw error;
+        }
+    },
+
+    // Cập nhật thông tin nhân khẩu
+    update: async (id, data) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+
+            const query = `
+                UPDATE nhankhau
+                SET 
+                    hoten = $1,
+                    bidanh = $2,
+                    ngaysinh = $3,
+                    gioitinh = $4,
+                    dantoc = $5,
+                    nguyenquan = $6,
+                    noisinh = $7,
+                    nghenghiep = $8,
+                    noilamviec = $9,
+                    quanhevoichuho = $10,
+                    sohokhau = $11,
+                    trangthai = $12,
+                    ngaycapcccd = $13,
+                    noicapcccd = $14,
+                    cccd = $15
+                WHERE id = $16
+            `;
+
+            const values = [
+                data.hoTen,
+                data.biDanh,
+                data.ngaySinh,
+                data.gioiTinh,
+                data.danToc,
+                data.nguyenQuan,    // $6
+                data.noiSinh,       // $7
+                data.ngheNghiep,    // $8
+                data.noiLamViec,    // $9
+                data.quanHeVoiChuHo,// $10
+                data.maHoKhau,      // $11
+                data.trangThai,     // $12
+                data.ngayCapCCCD,   // $13
+                data.noiCapCCCD,    // $14
+                data.cccd,          // $15
+                id                  // $16
+            ];
+
+            await client.query(query, values);
+
+            // Ghi nhận biến động
+            const logQuery = `
+                INSERT INTO biendongnhankhau (nhankhau_id, cccd, loaibiendong, ngaybiendong, ghichu)
+                VALUES ($1, $2, 'Thay đổi thông tin', CURRENT_DATE, $3)
+            `;
+            await client.query(logQuery, [id, data.cccd, `Cập nhật thông tin nhân khẩu: ${data.hoTen}`]);
+
+            await client.query('COMMIT');
+            return { message: "Cập nhật thành công" };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
     
 };
 

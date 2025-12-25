@@ -53,6 +53,38 @@ const nhanKhauController = {
         }
     },
 
+    // Lấy thông tin chi tiết nhân khẩu
+    getNhanKhauDetail: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const data = await NhanKhauModel.getById(id);
+            
+            if (!data) {
+                return res.status(404).json({ message: "Không tìm thấy nhân khẩu" });
+            }
+            res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Lỗi khi lấy chi tiết nhân khẩu" });
+        }
+    },
+
+    // Sửa thông tin nhân khẩu
+    updateNhanKhau: async (req, res) => {
+        try {
+            const { id } = req.params;
+            await NhanKhauModel.update(id, req.body);
+            
+            res.status(200).json({ message: "Cập nhật thông tin thành công" });
+        } catch (error) {
+            console.error("Lỗi update:", error);
+            if (error.code === '23505') { 
+                return res.status(400).json({ message: "Số CCCD này đã tồn tại trên hệ thống. Vui lòng kiểm tra lại!" });
+            }
+            res.status(500).json({ message: "Lỗi hệ thống khi cập nhật" });
+        }
+    },
+
 };
 
 module.exports = nhanKhauController;

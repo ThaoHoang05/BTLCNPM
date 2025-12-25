@@ -86,22 +86,25 @@ async function openDetailModal(hkCode) {
             memberListBody.innerHTML = ''; // XÓA DỮ LIỆU CŨ TRƯỚC KHI THÊM MỚI
             
             const thanhvien = data.danhSachNhanKhau || []; // Nếu null thì gán mảng rỗng để không lỗi
-            
-            thanhvien.forEach(function(member) { // Sửa cú pháp forEach
-                var row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${member.HoTenTV || ''}</td>
-                    <td>${member.NgaySinh ? new Date(member.NgaySinh).toLocaleDateString('vi-VN') : ''}</td>
-                    <td>${member.QuanHeChuHo || ''}</td>
-                    <td>${member.CCCD || ''}</td>
-                    <td>${member.TrangThai || ''}</td>
-                    <td class="text-center">
-                        <button class="icon-btn warning" onclick="openEditMemberModal('${member.CCCD}')"><i class="fas fa-edit"></i></button>
-                        <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.CCCD}')"><i class="fas fa-trash-alt"></i></button>
-                    </td>
-                `;
-                memberListBody.appendChild(row);
-            });
+            thanhvien.forEach(function(member) {
+                    var row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${member.HoTenTV || ''}</td>
+                        <td>${member.NgaySinh ? new Date(member.NgaySinh).toLocaleDateString('vi-VN') : ''}</td>
+                        <td>${member.QuanHeChuHo || ''}</td>
+                        <td>${member.CCCD || ''}</td>
+                        <td>${member.TrangThai || ''}</td>
+                        <td class="text-center">
+                            <button class="icon-btn warning" onclick="openEditHouseholdMemberModal('${member.id}')" title="Sửa thông tin">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.id}')" title="Xóa khỏi hộ">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    memberListBody.appendChild(row);
+                });
         }
 
         // 5. Xử lý logic cho nút thêm thành viên
@@ -138,7 +141,7 @@ async function openDetailModal(hkCode) {
             lichSuNhanKhau.forEach(entry => {
                 let text = `<b>${entry.hoTen}</b>: ${entry.loaiBienDong}`;
                 if(entry.noiDen) text += ` đến ${entry.noiDen}`;
-                createItem(entry.ngayThayDoi, text, entry.ghiChu);
+                createItem(entry.ngayThayDoi,`<b>Nhân khẩu</b> - ${text}`, entry.ghiChu);
             });
 
             // Render Lịch sử Hộ khẩu
@@ -208,15 +211,15 @@ async function openEditHouseholdModal(hkCode) {
         form.querySelector('input[name="ghichu"]').value = data.ghiChu || '';
         
         // Cập nhật nút Submit để nó biết đang sửa hộ nào
-        const submitBtn = form.querySelector('button[type="submit"]');
-        // Thay đổi type để không submit form reload trang, chuyển sang gọi hàm JS
-        submitBtn.type = "button"; 
-        submitBtn.onclick = () => editHousehold(hkCode);
-
+        const submitBtn = form.querySelector('.modal-footer .btn-primary');
+        if (submitBtn) {
+            submitBtn.type = "button"; // Đảm bảo luôn là button thường để không reload trang
+            submitBtn.onclick = () => editHousehold(hkCode);
+        }
         openModal('editHouseholdModal');
-
     } catch (err) {
         console.error("Lỗi tải dữ liệu sửa:", err);
+        alert("Không thể tải thông tin hộ khẩu.");
     }
 }
 
@@ -265,15 +268,8 @@ async function editHousehold(hkCode) {
     }
 }
 
-// Ham chinh sua thong tin nhan khau trong ho khau
-async function openEditMemberModal(cccd){
-    var form = document.getElementById('editMemberForm');
-    // Lấy dữ liệu người dùng bằng cccd
-    openModal('editMemberModal');
-}
-
+// ==============================================
 // Hàm thêm hộ khẩu mới
-// Hàm thêm mới hộ khẩu
 async function createNewHousehold(event) {
     // Ngăn chặn hành động submit mặc định của form (tránh reload trang)
     event.preventDefault(); 
@@ -440,9 +436,6 @@ async function submitSplitHousehold(event) {
         "DiaChi": {                          // Gom nhóm các trường địa chỉ từ form
             "sonha": formData.get('sonha'),
             "duong": formData.get('duong'),
-            "phuong": formData.get('phuong'),
-            "quan": formData.get('quan'),
-            "tinh": formData.get('tinh')
         }
     };
 
@@ -945,5 +938,128 @@ function confirmReturnEarly(id) {
     if(confirm('Công dân này đã quay về địa phương?')) {
         alert('Cập nhật trạng thái thành công!');
         loadResidenceData();
+    }
+}
+
+// ==============================================
+// 7. CHỈNH SỬA NHÂN KHẨU (TÁI SỬ DỤNG TỪ RESIDENT.JS)
+// ==============================================
+
+let currentEditingMemberId = null; 
+
+// Hàm 1: Mở Modal và Load dữ liệu
+async function openEditHouseholdMemberModal(id) {
+    currentEditingMemberId = id; 
+    const form = document.getElementById('editHouseholdMemberForm');
+
+    try {
+        const response = await fetch(`/api/nhankhau/detail/${id}`);
+        const data = await response.json();
+
+        if(!response.ok) throw new Error("Không tìm thấy dữ liệu");
+
+        // Binding dữ liệu vào form
+        form.querySelector('[name="hoten"]').value = data.hoTen || '';
+        form.querySelector('[name="bidanh"]').value = data.biDanh || '';
+        form.querySelector('[name="ngaysinh"]').value = data.ngaySinh ? new Date(data.ngaySinh).toISOString().split('T')[0] : '';
+        form.querySelector('[name="gioitinh"]').value = data.gioiTinh || 'Nam';
+        form.querySelector('[name="dantoc"]').value = data.danToc || '';
+        form.querySelector('[name="nguyenquan"]').value = data.nguyenQuan || '';
+        form.querySelector('[name="noisinh"]').value = data.noiSinh || '';
+        
+        form.querySelector('[name="cccd"]').value = data.cccd || '';
+        form.querySelector('[name="ngaycapcccd"]').value = data.ngayCap ? new Date(data.ngayCap).toISOString().split('T')[0] : '';
+        form.querySelector('[name="noicapcccd"]').value = data.noiCap || '';
+        
+        form.querySelector('[name="nghenghiep"]').value = data.ngheNghiep || '';
+        form.querySelector('[name="noilamviec"]').value = data.noiLamViec || '';
+        
+        form.querySelector('[name="sohokhau"]').value = data.maHoKhau || '';
+        form.querySelector('[name="quanhevoichuho"]').value = data.quanHeVoiChuHo || '';
+
+        form.querySelector('[name="trangthai"]').value = data.trangThai || 'Thường trú';
+
+        openModal('editHouseholdMemberModal');
+
+    } catch (err) {
+        console.error("Lỗi lấy thông tin sửa:", err);
+        alert("Không thể tải thông tin người này.");
+    }
+}
+
+// Hàm 2: Gửi API Cập nhật
+async function updateHouseholdMember(event) {
+    event.preventDefault(); 
+    
+    if (!currentEditingMemberId) return;
+
+    const form = document.getElementById('editHouseholdMemberForm');
+    const formData = new FormData(form);
+    const v = Object.fromEntries(formData.entries());
+
+    // Payload (Khớp với resident.js và Model)
+    const payload = {
+        "hoTen": v.hoten,
+        "biDanh": v.bidanh,
+        "ngaySinh": v.ngaysinh,
+        "gioiTinh": v.gioitinh,
+        "danToc": v.dantoc,
+        "nguyenQuan": v.nguyenquan,
+        "noiSinh": v.noisinh,
+        "cccd": v.cccd,
+        "ngayCapCCCD": v.ngaycapcccd,
+        "noiCapCCCD": v.noicapcccd,
+        "ngheNghiep": v.nghenghiep,
+        "noiLamViec": v.noilamviec,
+        "quanHeVoiChuHo": v.quanhevoichuho,
+        "maHoKhau": v.sohokhau,
+        "trangThai": v.trangthai
+    };
+
+    try {
+        const response = await fetch(`/api/nhankhau/update/${currentEditingMemberId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert('Cập nhật thông tin thành công!');
+            closeModal('editHouseholdMemberModal');
+            // Tải lại chi tiết hộ khẩu để thấy thay đổi
+            const hkCode = v.sohokhau; 
+            if(hkCode) openDetailModal(hkCode); 
+            
+        } else {
+            const err = await response.json();
+            alert('Lỗi: ' + (err.message || 'Cập nhật thất bại'));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Lỗi server khi cập nhật');
+    }
+}
+
+// Hàm 3: Xóa thành viên khỏi hộ khẩu
+async function deleteMemberFromHousehold(hkId, memberId) {
+    if (!confirm(`Bạn có chắc muốn xóa thành viên này khỏi hộ ${hkId}?`)) {
+        return;
+    }
+    try {
+        const response = await fetch(`/api/hokhau/${hkId}/${memberId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert("Đã xóa thành viên thành công!");
+            // Reload lại modal chi tiết để thấy danh sách mới
+            openDetailModal(hkId);
+        } else {
+            const err = await response.json();
+            alert("Lỗi: " + (err.message || "Không thể xóa thành viên."));
+        }
+    } catch (error) {
+        console.error("Lỗi kết nối:", error);
+        alert("Lỗi kết nối đến server.");
     }
 }
