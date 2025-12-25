@@ -25,6 +25,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tamTruForm) {
         tamTruForm.addEventListener('submit', submitRegisterTamTru);
     }
+
+    const memberForm = document.getElementById('memberForm');
+    if (memberForm) {
+        memberForm.addEventListener('submit', submitNewMember);
+    }
 });
 
 // Hàm mở Modal bất kỳ theo ID
@@ -730,6 +735,87 @@ function handleKhaiBaoTamVang() {
             submitBtn.innerText = originalText;
         }
     });
+}
+
+// ==============================================
+// XỬ LÝ THÊM NHÂN KHẨU MỚI (TAB NHẬP MỚI)
+// ==============================================
+
+async function submitNewMember(event) {
+    event.preventDefault(); // Ngăn reload trang
+    
+    const form = document.getElementById('memberForm');
+    const formData = new FormData(form);
+    const v = Object.fromEntries(formData.entries());
+
+    // 1. Kiểm tra dữ liệu đầu vào cơ bản (nếu cần thiết ngoài HTML validation)
+    if (!v.sohokhau) {
+        alert("Lỗi: Không xác định được mã hộ khẩu để thêm vào!");
+        return;
+    }
+
+    // 2. Chuẩn bị Payload gửi lên Server
+    // Mapping tên trường từ name="" trong HTML sang key JSON mà API (Nhân Khẩu) mong đợi
+    const payload = {
+        "hoTen": v.hoten,
+        "biDanh": v.bidanh,
+        "ngaySinh": v.ngaysinh,
+        "gioiTinh": v.gioitinh,
+        "danToc": v.dantoc,
+        "tonGiao": v.tongiao,
+        "nguyenQuan": v.nguyenquan,
+        "noiSinh": v.noisinh,
+        
+        // Định danh
+        "cccd": v.cccd,
+        "ngayCap": v.ngaycapcccd, // Lưu ý: Backend có thể tên là ngayCapCCCD
+        "noiCap": v.noicapcccd,
+        
+        // Nghề nghiệp
+        "ngheNghiep": v.nghenghiep,
+        "noiLamViec": v.noilamviec,
+
+        // Thông tin hộ khẩu (QUAN TRỌNG)
+        "maHoKhau": v.sohokhau,
+        "quanHeVoiChuHo": v.quanhevoichuho,
+        "trangThai": v.trangthai // Thường trú / Tạm trú
+    };
+
+    try {
+        // Log kiểm tra trước khi gửi
+        console.log("Đang thêm nhân khẩu mới:", payload);
+
+        // 3. Gọi API
+        // Giả định endpoint là POST /api/nhankhau/new (Tạo nhân khẩu mới và link vào hộ)
+        const response = await fetch('/api/nhankhau/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert('Thêm thành viên mới thành công!');
+            
+            // 4. Xử lý sau khi thành công
+            closeModal('addMemberModal'); // Đóng modal thêm
+            form.reset(); // Xóa trắng form
+
+            // Tải lại modal chi tiết hộ khẩu để hiển thị người vừa thêm
+            // v.sohokhau lấy từ input readonly trong form
+            if (typeof openDetailModal === 'function') {
+                openDetailModal(v.sohokhau);
+            }
+        } else {
+            const errorData = await response.json();
+            alert('Thêm thất bại: ' + (errorData.message || 'Lỗi từ server'));
+        }
+
+    } catch (err) {
+        console.error("Lỗi khi thêm nhân khẩu:", err);
+        alert('Lỗi kết nối đến máy chủ.');
+    }
 }
 
 // --- CÁCH SỬ DỤNG ---
