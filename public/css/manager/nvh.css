@@ -128,3 +128,88 @@
 .event-time { font-size: 13px; font-weight: 700; color: var(--accent); }
 .event-title { font-size: 15px; font-weight: 600; color: var(--text-dark); }
 .event-loc { font-size: 13px; color: var(--text-gray); }
+
+.btn-delete {
+    background-color: #dc3545; /* Màu đỏ tiêu chuẩn */
+    color: white;              /* Chữ màu trắng */
+    border: none;              /* Bỏ viền cũ */
+    padding: 6px 12px;         /* Căn chỉnh khoảng cách lề */
+    border-radius: 4px;        /* Bo tròn góc giống nút Sửa */
+    font-size: 14px;
+    cursor: pointer;           /* Con trỏ chuột dạng tay */
+    transition: background-color 0.3s ease; /* Hiệu ứng mượt khi di chuột */
+  }
+  
+  /* Hiệu ứng khi di chuột vào */
+  .btn-delete:hover {
+    background-color: #c82333; /* Màu đỏ đậm hơn */
+  }
+
+  /* CSS cho Modal */
+.modal-overlay {
+    display: none; /* Ẩn mặc định */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* Nền đen mờ */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Hiển thị modal khi có class 'show' (dùng JS để bật) */
+.modal-overlay.show {
+    display: flex; 
+}
+
+.modal-box {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    animation: slideDown 0.3s ease-out;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+.modal-header h3 { margin: 0; color: #2c3e50; }
+
+.close-btn {
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+}
+.close-btn:hover { color: red; }
+
+.modal-footer {
+    margin-top: 20px;
+    text-align: right;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+/* Nút phụ cho nút Hủy */
+.btn-secondary {
+    background-color: #f1f2f6;
+    border: 1px solid #ccc;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-secondary:hover { background-color: #e4e6eb; }
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
