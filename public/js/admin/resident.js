@@ -198,6 +198,7 @@ async function openEditCitizenModal(id) {
         form.querySelector('[name="sohokhau"]').value = data.maHoKhau || '';
         form.querySelector('[name="quanhevoichuho"]').value = data.quanHeVoiChuHo || '';
         form.querySelector('[name="trangthai"]').value = data.trangThai || 'Thường Trú';
+        form.querySelector('[name="tongiao"]').value = data.tonGiao || 'Không';
 
         // 3. Mở Modal
         openModal('editCitizenModal');
@@ -234,7 +235,8 @@ async function updateCitizen(event) {
         "noiLamViec": v.noilamviec,
         "quanHeVoiChuHo": v.quanhevoichuho,
         "maHoKhau": v.sohokhau,
-        "trangThai": v.trangthai
+        "trangThai": v.trangthai,
+        "tonGiao": v.tongiao,
     };
 
     try {
