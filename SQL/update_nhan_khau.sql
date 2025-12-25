@@ -170,3 +170,8 @@ UPDATE tamtru tt
 SET chuho_id = nk.id
 FROM nhankhau nk
 WHERE tt.chuhocccd = nk.cccd;
+
+-- Cập nhật trường tôn giáo
+ALTER TABLE nhankhau ADD COLUMN tongiao VARCHAR(50) DEFAULT 'Không';
+
+UPDATE NhanKhau SET tongiao = 'Không' WHERE tongiao IS NULL;
