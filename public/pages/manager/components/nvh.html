@@ -32,7 +32,7 @@
         <div class="content-box">
             <div class="flex-header">
                 <h3 class="section-title">Kho Tài sản & Thiết bị</h3>
-                <button class="btn-primary" onclick="alert('Chức năng thêm mới')">
+                <button class="btn-primary" onclick="openAddModal()">
                     <i class="fas fa-plus"></i> Thêm mới
                 </button>
             </div>
@@ -45,6 +45,7 @@
                             <th>Tên tài sản</th>
                             <th>Số lượng</th>
                             <th>Tình trạng</th>
+                            <th>Vị trí</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
@@ -106,6 +107,94 @@
                 </ul>
             </div>
             
+        </div>
+    </div>
+</div>
+
+<div id="modalEditAsset" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Cập nhật tài sản</h3>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="edit_id">
+
+            <div class="form-group">
+                <label>Tên tài sản:</label>
+                <input type="text" id="edit_name" class="form-input">
+            </div>
+
+            <div class="form-row-dual" style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Số lượng:</label>
+                    <input type="number" id="edit_qty" class="form-input">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Tình trạng:</label>
+                    <select id="edit_status" class="form-input">
+                        <option value="Tốt">Tốt</option>
+                        <option value="Cũ">Cũ</option>
+                        <option value="Đang hỏng">Đang hỏng</option>
+                        <option value="Cần thanh lý">Cần thanh lý</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Vị trí đặt:</label>
+                <input type="text" id="edit_place" class="form-input">
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
+            <button class="btn-primary" onclick="saveAssetChanges()">Lưu thay đổi</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalAsset" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modalTitle">Thông tin tài sản</h3>
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="asset_id">
+
+            <div class="form-group">
+                <label>Tên tài sản <span style="color:red">*</span>:</label>
+                <input type="text" id="asset_name" class="form-input" placeholder="VD: Quạt trần...">
+            </div>
+
+            <div class="form-row-dual" style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Số lượng:</label>
+                    <input type="number" id="asset_qty" class="form-input" value="1">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Tình trạng:</label>
+                    <select id="asset_status" class="form-input">
+                        <option value="Tốt">Tốt</option>
+                        <option value="Cũ">Cũ</option>
+                        <option value="Đang hỏng">Đang hỏng</option>
+                        <option value="Cần thanh lý">Cần thanh lý</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Vị trí đặt:</label>
+                <input type="text" id="asset_place" class="form-input" placeholder="VD: Kho tầng 2...">
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
+            <button class="btn-primary" onclick="saveAsset()">Lưu dữ liệu</button>
         </div>
     </div>
 </div>
