@@ -1,200 +1,154 @@
-<div class="dashboard-wrapper">
-    <div class="header-section">
-        <h2 class="page-title">Quản lý Nhà Văn Hóa - Tổ Dân Phố 7</h2>
-        <p class="sub-title">Hệ thống quản lý cơ sở vật chất và lịch hoạt động</p>
-    </div>
-    
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">
-            <i class="fas fa-info-circle"></i> Thông tin chung
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-assets', this)">
-            <i class="fas fa-boxes"></i> Tài sản & Thiết bị
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-schedule', this)">
-            <i class="fas fa-calendar-alt"></i> Lịch hoạt động
-        </button>
-    </div>
+<div class="dashboard-wrapper"> <div class="header-section">
+    <h2 class="page-title">Quản lý Nhà Văn Hóa</h2>
+    <p class="sub-title">Theo dõi tài sản, lịch hoạt động và thông tin chung</p>
+</div>
 
-    <div id="tab-overview" class="tab-content active">
-        <div class="stats-container" id="generalInfo">
-            <div class="loading-placeholder">Đang tải dữ liệu...</div>
+<div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('overview', this)">
+        <i class="fas fa-info-circle"></i> Thông tin chung
+    </button>
+    <button class="tab-btn" onclick="switchTab('assets', this)">
+        <i class="fas fa-boxes"></i> Tài sản
+    </button>
+    <button class="tab-btn" onclick="switchTab('schedule', this)">
+        <i class="fas fa-calendar-alt"></i> Lịch hoạt động
+    </button>
+</div>
+
+<div id="overview" class="tab-content active">
+    <h3 class="section-title">Thông tin Cơ sở vật chất</h3>
+    
+    <div id="generalInfo" class="stats-container">
+        </div>
+
+    <h3 class="section-title" style="margin-top: 30px;">Danh sách phòng chức năng</h3>
+    <div id="roomList" class="room-grid">
+        </div>
+</div>
+
+<div id="assets" class="tab-content">
+    <div class="content-box">
+        <div class="flex-header">
+            <h3 class="section-title" style="margin:0; border:none;">Kho Tài sản & Thiết bị</h3>
+            <button class="btn-primary" onclick="openAddModal()">
+                <i class="fas fa-plus"></i> Thêm mới
+            </button>
         </div>
         
-        <div class="content-box">
-            <h3 class="section-title"><i class="fas fa-door-open"></i> Danh sách các Phòng chức năng</h3>
-            <div class="room-grid" id="roomList">
-                </div>
-        </div>
-    </div>
-
-    <div id="tab-assets" class="tab-content">
-        <div class="content-box">
-            <div class="flex-header">
-                <h3 class="section-title">Kho Tài sản & Thiết bị</h3>
-                <button class="btn-primary" onclick="openAddModal()">
-                    <i class="fas fa-plus"></i> Thêm mới
-                </button>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Mã TS</th>
-                            <th>Tên tài sản</th>
-                            <th>Số lượng</th>
-                            <th>Tình trạng</th>
-                            <th>Vị trí</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody id="assetTableBody">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-schedule" class="tab-content">
-        <div class="schedule-grid">
-            
-            <div class="content-box form-panel">
-                <h3 class="section-title text-primary">
-                    <i class="fas fa-edit"></i> Đăng ký Hoạt động
-                </h3>
-                
-                <div class="form-group">
-                    <label>Tên hoạt động <span class="required">*</span></label>
-                    <input type="text" id="evtName" class="form-input" placeholder="VD: Họp chi bộ tháng 12...">
-                </div>
-                
-                <div class="form-group">
-                    <label>Phòng sử dụng</label>
-                    <select id="evtRoom" class="form-input">
-                        </select>
-                </div>
-                
-                <div class="form-row-dual">
-                    <div class="form-group">
-                        <label>Bắt đầu <span class="required">*</span></label>
-                        <input type="datetime-local" id="evtStart" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label>Kết thúc <span class="required">*</span></label>
-                        <input type="datetime-local" id="evtEnd" class="form-input">
-                    </div>
-                </div>
-            
-                <div class="form-group">
-                    <label>Ghi chú chi tiết</label>
-                    <textarea id="evtNote" class="form-input" rows="3" placeholder="Nhập nội dung họp, yêu cầu chuẩn bị..."></textarea>
-                </div>
-            
-                <div class="form-actions">
-                    <button class="btn-primary full-width" onclick="saveActivity()">
-                        <i class="fas fa-save"></i> Lưu lịch đăng ký
-                    </button>
-                </div>
-            </div>
-
-            <div class="content-box list-panel">
-                <h3 class="section-title text-primary">
-                    <i class="fas fa-clock"></i> Lịch sắp tới
-                </h3>
-                <ul class="event-list" id="upcomingList">
-                    <li class="empty-state">Chưa có lịch nào sắp tới</li>
-                </ul>
-            </div>
-            
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Mã TS</th>
+                        <th>Tên tài sản</th>
+                        <th>Số lượng</th>
+                        <th>Tình trạng</th>
+                        <th>Vị trí</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="assetTableBody">
+                    </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<div id="modalEditAsset" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3>Cập nhật tài sản</h3>
-            <span class="close-btn" onclick="closeModal()">&times;</span>
+<div id="schedule" class="tab-content">
+    <div class="schedule-grid">
+        
+        <div class="content-box">
+            <h3 class="section-title text-primary">
+                <i class="fas fa-edit"></i> Đăng ký Hoạt động
+            </h3>
+            
+            <div class="form-group">
+                <label>Tên hoạt động <span class="required">*</span></label>
+                <input type="text" id="evtName" class="form-input" placeholder="VD: Họp chi bộ tháng 12...">
+            </div>
+            
+            <div class="form-group">
+                <label>Phòng sử dụng</label>
+                <select id="evtRoom" class="form-input">
+                    </select>
+            </div>
+            
+            <div class="form-row-dual">
+                <div class="form-group">
+                    <label>Bắt đầu <span class="required">*</span></label>
+                    <input type="datetime-local" id="evtStart" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Kết thúc <span class="required">*</span></label>
+                    <input type="datetime-local" id="evtEnd" class="form-input">
+                </div>
+            </div>
+        
+            <div class="form-group">
+                <label>Ghi chú chi tiết</label>
+                <textarea id="evtNote" class="form-input" rows="3" placeholder="Nhập nội dung họp, yêu cầu chuẩn bị..."></textarea>
+            </div>
+        
+            <div class="form-actions">
+                <button class="btn-primary full-width" onclick="saveActivity()">
+                    <i class="fas fa-save"></i> Lưu lịch đăng ký
+                </button>
+            </div>
+        </div>
+
+        <div class="content-box">
+            <h3 class="section-title text-primary">
+                <i class="fas fa-clock"></i> Lịch sắp tới
+            </h3>
+            <ul class="event-list" id="upcomingList">
+                <li class="empty-state">Chưa có lịch nào sắp tới</li>
+            </ul>
         </div>
         
-        <div class="modal-body">
-            <input type="hidden" id="edit_id">
-
-            <div class="form-group">
-                <label>Tên tài sản:</label>
-                <input type="text" id="edit_name" class="form-input">
-            </div>
-
-            <div class="form-row-dual" style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1">
-                    <label>Số lượng:</label>
-                    <input type="number" id="edit_qty" class="form-input">
-                </div>
-                <div class="form-group" style="flex:1">
-                    <label>Tình trạng:</label>
-                    <select id="edit_status" class="form-input">
-                        <option value="Tốt">Tốt</option>
-                        <option value="Cũ">Cũ</option>
-                        <option value="Đang hỏng">Đang hỏng</option>
-                        <option value="Cần thanh lý">Cần thanh lý</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Vị trí đặt:</label>
-                <input type="text" id="edit_place" class="form-input">
-            </div>
-        </div>
-
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
-            <button class="btn-primary" onclick="saveAssetChanges()">Lưu thay đổi</button>
-        </div>
     </div>
+</div>
 </div>
 
 <div id="modalAsset" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3 id="modalTitle">Thông tin tài sản</h3>
-            <span class="close-btn" onclick="closeModal()">&times;</span>
+<div class="modal-box">
+    <div class="modal-header">
+        <h3 id="modalTitle">Thông tin tài sản</h3>
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+    </div>
+    
+    <div class="modal-body">
+        <input type="hidden" id="asset_id">
+
+        <div class="form-group">
+            <label>Tên tài sản <span style="color:red">*</span>:</label>
+            <input type="text" id="asset_name" class="form-input" placeholder="VD: Quạt trần...">
         </div>
-        
-        <div class="modal-body">
-            <input type="hidden" id="asset_id">
 
+        <div class="form-row-dual">
             <div class="form-group">
-                <label>Tên tài sản <span style="color:red">*</span>:</label>
-                <input type="text" id="asset_name" class="form-input" placeholder="VD: Quạt trần...">
+                <label>Số lượng:</label>
+                <input type="number" id="asset_qty" class="form-input" value="1">
             </div>
-
-            <div class="form-row-dual" style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1">
-                    <label>Số lượng:</label>
-                    <input type="number" id="asset_qty" class="form-input" value="1">
-                </div>
-                <div class="form-group" style="flex:1">
-                    <label>Tình trạng:</label>
-                    <select id="asset_status" class="form-input">
-                        <option value="Tốt">Tốt</option>
-                        <option value="Cũ">Cũ</option>
-                        <option value="Đang hỏng">Đang hỏng</option>
-                        <option value="Cần thanh lý">Cần thanh lý</option>
-                    </select>
-                </div>
-            </div>
-
             <div class="form-group">
-                <label>Vị trí đặt:</label>
-                <input type="text" id="asset_place" class="form-input" placeholder="VD: Kho tầng 2...">
+                <label>Tình trạng:</label>
+                <select id="asset_status" class="form-input">
+                    <option value="Tốt">Tốt</option>
+                    <option value="Cũ">Cũ</option>
+                    <option value="Đang hỏng">Đang hỏng</option>
+                    <option value="Cần thanh lý">Cần thanh lý</option>
+                </select>
             </div>
         </div>
 
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
-            <button class="btn-primary" onclick="saveAsset()">Lưu dữ liệu</button>
+        <div class="form-group">
+            <label>Vị trí đặt:</label>
+            <input type="text" id="asset_place" class="form-input" placeholder="VD: Kho tầng 2...">
         </div>
     </div>
+
+    <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
+        <button class="btn-primary" onclick="saveAsset()">Lưu dữ liệu</button>
+    </div>
+</div>
 </div>
