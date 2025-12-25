@@ -1,61 +1,91 @@
 <div class="stats-container">
-    <h2 class="page-title">Báo cáo & Thống kê Nhân khẩu</h2>
+    <div class="header-section">
+        <h2 class="page-title">Báo cáo & Thống kê Định kỳ</h2>
+        <p class="sub-title">Hệ thống quản lý dân cư / Tổ dân phố</p>
+    </div>
 
     <div class="filter-bar">
         <div class="filter-group">
-            <label>Tiêu chí thống kê:</label>
-            <select id="criteriaSelect" class="form-control" onchange="handleCriteriaChange()">
-                <option value="gender">Theo Giới tính</option>
-                <option value="age">Theo Độ tuổi (Mầm non - Nghỉ hưu)</option>
-                <option value="residence">Tạm trú / Tạm vắng</option>
+            <label>Loại báo cáo:</label>
+            <select id="reportType" class="form-control" onchange="handleReportTypeChange()">
+                <option value="gioi_tinh">Thống kê Giới tính</option>
+                <option value="do_tuoi">Thống kê Độ tuổi</option>
+                <option value="cu_tru">Thống kê Tạm trú/Tạm vắng</option>
+                <option value="bien_dong">Biến động (Thêm/Chuyển/Tử)</option>
             </select>
         </div>
+
         <div class="filter-group">
-            <label>Từ ngày:</label>
-            <input type="date" id="dateFrom" class="form-control">
+            <label>Kỳ báo cáo:</label>
+            <select id="periodType" class="form-control" onchange="handlePeriodTypeChange()">
+                <option value="Tháng">Theo Tháng</option>
+                <option value="Quý">Theo Quý</option>
+                <option value="Năm" selected>Theo Năm</option>
+            </select>
         </div>
-        <div class="filter-group">
-            <label>Đến ngày:</label>
-            <input type="date" id="dateTo" class="form-control">
+
+        <div class="filter-group" id="dynamicTimeInput">
+            <label>Chọn thời gian:</label>
+            <input type="number" id="timeValue" class="form-control" value="2025" placeholder="Nhập năm (VD: 2025)">
         </div>
-        <button class="btn-primary" onclick="updateReport()">
-            <i class="icon-chart"></i> Thống kê
-        </button>
-        <button class="btn-outline">Xuất Excel</button>
+
+        <div class="filter-actions">
+            <button class="btn-primary" onclick="fetchAndRenderStats()">
+                <i class="icon-chart"></i> Xem Thống kê
+            </button>
+            <button class="btn-outline">
+                <i class="icon-export"></i> Xuất Excel
+            </button>
+        </div>
     </div>
 
     <div class="summary-cards" id="summarySection">
-        <div class="card">
-            <h3 id="card1Label">Tổng số</h3>
-            <p class="number" id="card1Value">0</p>
+        <div class="card card-blue">
+            <div class="card-icon">👥</div>
+            <div class="card-info">
+                <h3 id="lblCard1">Tổng số</h3>
+                <p class="number" id="valCard1">0</p>
+            </div>
         </div>
-        <div class="card">
-            <h3 id="card2Label">Nhóm 1</h3> <p class="number" id="card2Value">0</p>
-            <span class="label" id="card2Desc"></span>
+        <div class="card card-green">
+            <div class="card-icon">📊</div>
+            <div class="card-info">
+                <h3 id="lblCard2">Nhóm A</h3>
+                <p class="number" id="valCard2">0</p>
+            </div>
         </div>
-        <div class="card">
-            <h3 id="card3Label">Nhóm 2</h3> <p class="number" id="card3Value">0</p>
-            <span class="label" id="card3Desc"></span>
+        <div class="card card-orange">
+            <div class="card-icon">📈</div>
+            <div class="card-info">
+                <h3 id="lblCard3">Nhóm B</h3>
+                <p class="number" id="valCard3">0</p>
+            </div>
         </div>
     </div>
 
     <div class="report-layout">
-        <div class="chart-section">
-            <div style="height: 300px;">
-                <canvas id="myChart"></canvas>
+        <div class="chart-section box-shadow">
+            <div class="chart-header">
+                <h3>Biểu đồ trực quan</h3>
+            </div>
+            <div class="canvas-container">
+                <canvas id="mainChart"></canvas>
             </div>
         </div>
 
-        <div class="table-section">
-            <h3 id="tableTitle">Chi tiết danh sách</h3>
-            <table class="data-table">
-                <thead>
-                    <tr id="tableHeader">
-                        </tr>
-                </thead>
-                <tbody id="tableBody">
-                    </tbody>
-            </table>
+        <div class="table-section box-shadow">
+            <div class="table-header-row">
+                <h3 id="tableTitle">Chi tiết số liệu</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr id="tableHeader"></tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
