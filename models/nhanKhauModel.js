@@ -98,31 +98,34 @@ const NhanKhauModel = {
             // 1. Thêm vào bảng nhankhau (Chấp nhận CCCD null cho trẻ em/mới sinh)
             const insertNK = `
                 INSERT INTO nhankhau (
-                    cccd, hoten, bidanh, gioitinh, ngaysinh, 
-                    noisinh, nguyenquan, dantoc, nghenghiep, noilamviec, 
-                    ngaycapcccd, noicapcccd, ngaydkthuongtru, 
+                    cccd, hoten, bidanh, gioitinh, ngaysinh,
+                    noisinh, nguyenquan, dantoc, tongiao, -- Thêm tongiao ở đây
+                    nghenghiep, noilamviec,
+                    ngaycapcccd, noicapcccd, ngaydkthuongtru,
                     quanhevoichuho, sohokhau, trangthai
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_DATE, $13, $14, $15)
-                RETURNING id, hoten;
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_DATE, $14, $15, $16)
+                    RETURNING id, hoten;
             `;
 
+// 2. Cập nhật mảng tham số
             const resNK = await client.query(insertNK, [
-                data.cccd || null,
-                data.hoTen,
-                data.bietDanh || null,
-                data.gioiTinh,
-                data.ngaySinh,
-                data.noiSinh,
-                data.nguyenQuan,
-                data.danToc,
-                data.ngheNghiep || null,
-                data.noiLamViec || null,
-                data.ngayCap || null,
-                data.noiCap || null,
-                data.quanheChuHo || null,
-                data.maHK || null,
-                data.trangThai
+                data.cccd || null,       // $1
+                data.hoTen,              // $2
+                data.bietDanh || null,   // $3
+                data.gioiTinh,           // $4
+                data.ngaySinh,           // $5
+                data.noiSinh,            // $6
+                data.nguyenQuan,         // $7
+                data.danToc,             // $8
+                data.tonGiao || 'Không', // $9
+                data.ngheNghiep || null, // $10
+                data.noiLamViec || null, // $11
+                data.ngayCap || null,    // $12
+                data.noiCap || null,     // $13
+                data.quanheChuHo || null,// $14
+                data.maHK || null,       // $15
+                data.trangThai           // $16
             ]);
 
             const newId = resNK.rows[0].id;
