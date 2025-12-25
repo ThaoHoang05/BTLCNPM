@@ -1081,6 +1081,7 @@ async function openEditHouseholdMemberModal(id) {
         form.querySelector('[name="quanhevoichuho"]').value = data.quanHeVoiChuHo || '';
 
         form.querySelector('[name="trangthai"]').value = data.trangThai || 'Thường trú';
+        form.querySelector('[name="tongiao"]').value = data.tonGiao || 'Không';
 
         openModal('editHouseholdMemberModal');
 
@@ -1116,7 +1117,8 @@ async function updateHouseholdMember(event) {
         "noiLamViec": v.noilamviec,
         "quanHeVoiChuHo": v.quanhevoichuho,
         "maHoKhau": v.sohokhau,
-        "trangThai": v.trangthai
+        "trangThai": v.trangthai,
+        "tonGiao": v.tongiao,
     };
 
     try {

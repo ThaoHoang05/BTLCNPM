@@ -183,7 +183,8 @@ const NhanKhauModel = {
                     noilamviec AS "noiLamViec",
                     sohokhau AS "maHoKhau",
                     quanhevoichuho AS "quanHeVoiChuHo",
-                    trangthai AS "trangThai"
+                    trangthai AS "trangThai",
+                    tongiao AS "tonGiao"
                 FROM nhankhau
                 WHERE id = $1
             `;
@@ -218,8 +219,9 @@ const NhanKhauModel = {
                     trangthai = $12,
                     ngaycapcccd = $13,
                     noicapcccd = $14,
-                    cccd = $15
-                WHERE id = $16
+                    cccd = $15,
+                    tongiao = $16
+                WHERE id = $17
             `;
 
             const values = [
@@ -228,17 +230,18 @@ const NhanKhauModel = {
                 data.ngaySinh,
                 data.gioiTinh,
                 data.danToc,
-                data.nguyenQuan,    // $6
-                data.noiSinh,       // $7
-                data.ngheNghiep,    // $8
-                data.noiLamViec,    // $9
-                data.quanHeVoiChuHo,// $10
-                data.maHoKhau,      // $11
-                data.trangThai,     // $12
-                data.ngayCapCCCD,   // $13
-                data.noiCapCCCD,    // $14
-                data.cccd,          // $15
-                id                  // $16
+                data.nguyenQuan,   
+                data.noiSinh,  
+                data.ngheNghiep,  
+                data.noiLamViec,  
+                data.quanHeVoiChuHo,
+                data.maHoKhau,
+                data.trangThai,   
+                data.ngayCapCCCD, 
+                data.noiCapCCCD,  
+                data.cccd,
+                data.tonGiao,       
+                id            
             ];
 
             await client.query(query, values);
