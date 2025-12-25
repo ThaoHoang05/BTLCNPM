@@ -111,50 +111,6 @@
     </div>
 </div>
 
-<div id="modalEditAsset" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3>Cập nhật tài sản</h3>
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-        </div>
-        
-        <div class="modal-body">
-            <input type="hidden" id="edit_id">
-
-            <div class="form-group">
-                <label>Tên tài sản:</label>
-                <input type="text" id="edit_name" class="form-input">
-            </div>
-
-            <div class="form-row-dual" style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex:1">
-                    <label>Số lượng:</label>
-                    <input type="number" id="edit_qty" class="form-input">
-                </div>
-                <div class="form-group" style="flex:1">
-                    <label>Tình trạng:</label>
-                    <select id="edit_status" class="form-input">
-                        <option value="Tốt">Tốt</option>
-                        <option value="Cũ">Cũ</option>
-                        <option value="Đang hỏng">Đang hỏng</option>
-                        <option value="Cần thanh lý">Cần thanh lý</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Vị trí đặt:</label>
-                <input type="text" id="edit_place" class="form-input">
-            </div>
-        </div>
-
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeModal()" style="margin-right: 10px;">Hủy bỏ</button>
-            <button class="btn-primary" onclick="saveAssetChanges()">Lưu thay đổi</button>
-        </div>
-    </div>
-</div>
-
 <div id="modalAsset" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-header">
