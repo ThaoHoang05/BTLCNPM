@@ -28,13 +28,23 @@
 
 <div id="assets" class="tab-content">
     <div class="content-box">
+        
         <div class="flex-header">
             <h3 class="section-title" style="margin:0; border:none;">Kho Tài sản & Thiết bị</h3>
-            <button class="btn-primary" onclick="openAddModal()">
-                <i class="fas fa-plus"></i> Thêm mới
-            </button>
+            
+            <div style="display: flex; gap: 10px;">
+                <input type="text" 
+                       id="assetSearchInput" 
+                       class="form-input" 
+                       placeholder="Tìm theo Mã hoặc Tên..." 
+                       onkeyup="searchAssets()"
+                       style="width: 250px;">
+                
+                <button class="btn-primary" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Thêm mới
+                </button>
+            </div>
         </div>
-        
         <div class="table-responsive">
             <table class="custom-table">
                 <thead>
