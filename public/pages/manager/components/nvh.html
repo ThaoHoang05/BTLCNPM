@@ -1,29 +1,26 @@
-<div class="dashboard-wrapper">
-    <div class="header-section">
-        <h2 class="page-title">Quản lý Nhà Văn Hóa - Tổ Dân Phố 7</h2>
-        <p class="sub-title">Hệ thống quản lý cơ sở vật chất và lịch hoạt động</p>
-    </div>
-    
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-overview', this)">
-            <i class="fas fa-info-circle"></i> Thông tin chung
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-assets', this)">
-            <i class="fas fa-boxes"></i> Tài sản & Thiết bị
-        </button>
-        <button class="tab-btn" onclick="switchTab('tab-schedule', this)">
-            <i class="fas fa-calendar-alt"></i> Lịch hoạt động
-        </button>
-    </div>
-
-    <div id="tab-overview" class="tab-content active">
-        <div class="stats-container" id="generalInfo">
-            <div class="loading-placeholder">Đang tải dữ liệu...</div>
+<div class="manager-layout">
+    <div class="content">
+        <div class="nvh-tabs">
+            <button class="tab-item active" onclick="switchTab('overview', this)">
+                <i class="fas fa-info-circle"></i> Thông tin chung
+            </button>
+            <button class="tab-item" onclick="switchTab('assets', this)">
+                <i class="fas fa-boxes"></i> Tài sản
+            </button>
+            <button class="tab-item" onclick="switchTab('schedule', this)">
+                <i class="fas fa-calendar-alt"></i> Lịch hoạt động
+            </button>
         </div>
-        
-        <div class="content-box">
-            <h3 class="section-title"><i class="fas fa-door-open"></i> Danh sách các Phòng chức năng</h3>
-            <div class="room-grid" id="roomList">
+        <div id="overview" class="section active">
+            <h2>Thông tin Cơ sở vật chất</h2>
+            <div class="facility-stats">
+                <div class="stat-box">
+                    <h3>Năm đưa vào sử dụng</h3>
+                    <p class="number">2018</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Diện tích khuôn viên</h3>
+                    <p class="number">822 <small>m²</small></p>
                 </div>
         </div>
     </div>

@@ -25,21 +25,68 @@
 
 /* --- TABS NAVIGATION (Thanh Tab đẹp) --- */
 .nav-tabs {
+:root {
+    --primary: #2c3e50;
+    --accent: #3498db;     /* Màu xanh dương chủ đạo */
+    --accent-hover: #2980b9;
+    --bg-light: #f8f9fa;
+    --white: #ffffff;
+    --text-dark: #333;
+    --text-gray: #666;
+    --border: #e9ecef;
+    --shadow: 0 4px 6px rgba(0,0,0,0.05);
+    --radius: 8px;
+}
+
+/* --- LAYOUT CHUNG --- */
+.dashboard-wrapper {
+    font-family: 'Segoe UI', sans-serif;
+    color: var(--text-dark);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-section { margin-bottom: 25px; }
+.page-title { margin: 0; font-size: 24px; color: var(--primary); }
+.sub-title { margin: 5px 0 0; color: var(--text-gray); font-size: 14px; }
+
+/* --- TABS NAVIGATION (Thanh Tab đẹp) --- */
+.nav-tabs {
     display: flex;
     gap: 10px;
+    border-bottom: 2px solid var(--border);
     border-bottom: 2px solid var(--border);
     margin-bottom: 25px;
 }
 
 .tab-btn {
     padding: 12px 20px;
+.tab-btn {
+    padding: 12px 20px;
     background: transparent;
     border: none;
     font-size: 15px;
     color: var(--text-gray);
+    font-size: 15px;
+    color: var(--text-gray);
     cursor: pointer;
     border-bottom: 3px solid transparent;
+    border-bottom: 3px solid transparent;
     transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.tab-btn:hover { color: var(--accent); background: rgba(52, 152, 219, 0.05); }
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 700;
+}
+
+/* --- TAB CONTENT HANDLING (Sửa lỗi chồng chéo) --- */
+.tab-content {
+    display: none; /* Mặc định ẩn hết */
+    animation: slideUp 0.3s ease-out;
     font-weight: 500;
 }
 
@@ -57,7 +104,10 @@
 }
 .tab-content.active {
     display: block; /* Chỉ hiện cái active */
+.tab-content.active {
+    display: block; /* Chỉ hiện cái active */
 }
+@keyframes slideUp {
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
