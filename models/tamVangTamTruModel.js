@@ -160,7 +160,152 @@ const TamVangTamTruModel = {
 // ==============================================
 // QUẢN LÝ CƯ TRÚ (TẠM VẮNG)
 // ==============================================
+    //Lấy danh sách tạm vắng
+    getTamVangList: async (req, res) => {
+        try {
+            // 1. Lấy số trang từ query parameters (mặc định là trang 1 nếu không có)
+            const page = parseInt(req.query.page) || 1;
 
+            // 2. Gọi hàm từ Model để lấy dữ liệu đã được xử lý format và phân trang
+            const result = await TamVangTamTruModel.getTamVangList(page);
+
+            // 3. Trả về dữ liệu cho Client (Frontend)
+            // Kết quả sẽ bao gồm: data (mảng danh sách), total (tổng số bản ghi), currentPage
+            res.status(200).json(result);
+
+        } catch (error) {
+            console.error("Lỗi tại Controller getTamVangList:", error);
+            res.status(500).json({
+                message: "Lỗi hệ thống khi tải danh sách tạm vắng",
+                error: error.message
+            });
+        }
+    },
+
+    //Đăng kí tạm vắng
+    addTamVang: async (data) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+
+            // BƯỚC 1: XÁC THỰC NHÂN KHẨU TRONG HỆ THỐNG
+            // Tìm người dựa trên CCCD hoặc (Họ tên + Mã Hộ Khẩu) gửi từ Form
+            const personQuery = `
+            SELECT id, cccd, sohokhau 
+            FROM nhankhau 
+            WHERE (cccd = $1 OR (hoten = $2 AND sohokhau = $3))
+            AND trangthai != 'Qua đời'
+        `;
+            const personRes = await client.query(personQuery, [
+                data.cccd,
+                data.hoTenTamVang,
+                data.maHK
+            ]);
+
+            if (personRes.rows.length === 0) {
+                throw new Error("Không tìm thấy nhân khẩu hợp lệ để đăng ký tạm vắng.");
+            }
+
+            const registrantId = personRes.rows[0].id;
+            const cccdNguoiVang = personRes.rows[0].cccd;
+            const maHK = personRes.rows[0].sohokhau;
+
+            // BƯỚC 2: CẬP NHẬT TRẠNG THÁI NHÂN KHẨU VỀ 'Tạm vắng'
+
+            await client.query(
+                'UPDATE nhankhau SET trangthai = $1 WHERE id = $2',
+                ['Tạm vắng', registrantId]
+            );
+
+            // BƯỚC 3: TẠO PHIẾU TẠM VẮNG
+            const insertTamVang = `
+            INSERT INTO tamvang (
+                nhankhau_id, 
+                cccd, 
+                sohokhau, 
+                tungay, 
+                denngay, 
+                lydo, 
+                TrangThai
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, 'Còn hạn')
+            RETURNING id
+        `;
+
+            const result = await client.query(insertTamVang, [
+                registrantId,
+                cccdNguoiVang,
+                maHK,
+                data.thoiGianTamVang.tu,
+                data.thoiGianTamVang.den,
+                data.lyDo
+            ]);
+
+            // BƯỚC 4: GHI BIẾN ĐỘNG NHÂN KHẨU
+            const logQuery = `
+            INSERT INTO biendongnhankhau (nhankhau_id, loaibiendong, ngaybiendong, ghichu)
+            VALUES ($1, 'Tạm vắng', CURRENT_DATE, $2)
+        `;
+            await client.query(logQuery, [
+                registrantId,
+                `Đăng ký tạm vắng từ ngày ${data.thoiGianTamVang.tu} đến ${data.thoiGianTamVang.den}.`
+            ]);
+
+            await client.query('COMMIT');
+            return { message: "Đăng ký tạm vắng thành công", id: result.rows[0].id };
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
+    //Kết thúc tạm vắng
+    reportPresence: async (tamVangId) => {
+        const client = await poolQuanLiHoKhau.connect();
+        try {
+            await client.query('BEGIN');
+
+            // 1. Lấy thông tin nhân khẩu từ phiếu tạm vắng
+            const findQuery = 'SELECT nhankhau_id FROM tamvang WHERE id = $1';
+            const res = await client.query(findQuery, [tamVangId]);
+
+            if (res.rows.length === 0) {
+                throw new Error("Không tìm thấy thông tin phiếu tạm vắng.");
+            }
+            const nhankhau_id = res.rows[0].nhankhau_id;
+
+            // 2. Cập nhật trạng thái phiếu tạm vắng sang "Đã về"
+            await client.query(
+                "UPDATE tamvang SET TrangThai = $1 WHERE id = $2",
+                ['Đã về', tamVangId]
+            );
+
+            // 3. Cập nhật lại trạng thái nhân khẩu về "Thường trú"
+            // (Để họ không còn nằm trong danh sách đang đi vắng)
+            await client.query(
+                "UPDATE nhankhau SET trangthai = 'Thường trú' WHERE id = $1",
+                [nhankhau_id]
+            );
+
+            // 4. Ghi log biến động nhân khẩu
+            await client.query(
+                `INSERT INTO biendongnhankhau (nhankhau_id, loaibiendong, ngaybiendong, ghichu) 
+                 VALUES ($1, 'Trở về', CURRENT_DATE, 'Công dân đã báo cáo có mặt tại nơi cư trú.')`,
+                [nhankhau_id]
+            );
+
+            await client.query('COMMIT');
+            return true;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
 
 };
 

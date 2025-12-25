@@ -49,6 +49,63 @@ const tamVangTamTruController = {
 // QUẢN LÝ CƯ TRÚ (TẠM VẮNG)
 // ==============================================
 
+    getTamVangList: async (req, res) => {
+        try {
+            const page = parseInt(req.query.page) || 1;
+            const result = await TamVangTamTruModel.getTamVangList(page);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Lỗi hệ thống khi tải danh sách tạm vắng" });
+        }
+    },
+
+    createTamVang: async (req, res) => {
+        try {
+            const { hoTenTamVang, maHK, thoiGianTamVang, lyDo } = req.body;
+
+            // Kiểm tra các trường bắt buộc theo Form Đăng ký Tạm Vắng
+            if (!hoTenTamVang || !maHK || !thoiGianTamVang?.tu || !thoiGianTamVang?.den) {
+                return res.status(400).json({
+                    message: "Thiếu thông tin bắt buộc (Họ tên, Mã HK, Thời gian tạm vắng)"
+                });
+            }
+
+            // Gọi Model xử lý: Xác thực nhân khẩu -> Cập nhật trạng thái 'Tạm vắng' -> Lưu phiếu -> Ghi biến động
+            const result = await TamVangTamTruModel.addTamVang(req.body);
+
+            res.status(201).json({
+                message: "Khai báo tạm vắng thành công",
+                data: result
+            });
+        } catch (error) {
+            console.error("Lỗi đăng ký tạm vắng:", error);
+            res.status(500).json({ message: error.message || "Lỗi hệ thống khi xử lý tạm vắng" });
+        }
+    },
+
+    handleTroVe: async (req, res) => {
+        const { id } = req.params; // ID của bản ghi tạm vắng
+        const { trangThai } = req.body; // Payload: { "trangThai": "Đã về" }
+
+        try {
+            // Kiểm tra giá trị trạng thái đúng như yêu cầu
+            if (trangThai !== "Đã về") {
+                return res.status(400).json({ message: "Trạng thái báo cáo không chính xác (phải là 'Đã về')." });
+            }
+
+            const result = await TamVangTamTruModel.reportPresence(id);
+
+            res.status(200).json({
+                success: true,
+                message: "Xác nhận công dân đã trở về địa phương thành công."
+            });
+        } catch (error) {
+            console.error("Lỗi Controller handleTroVe:", error);
+            res.status(500).json({ message: error.message || "Lỗi khi cập nhật trạng thái trở về." });
+        }
+    },
+
 };
 
 module.exports = tamVangTamTruController;
