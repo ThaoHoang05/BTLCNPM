@@ -240,7 +240,7 @@ const TamVangTamTruModel = {
                 TrangThai
             )
             VALUES ($1, $2, $3, $4, $5, $6, 'Còn hạn')
-            RETURNING id
+            RETURNING tamvangid
         `;
 
             const result = await client.query(insertTamVang, [

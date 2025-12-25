@@ -175,3 +175,30 @@ WHERE tt.chuhocccd = nk.cccd;
 ALTER TABLE nhankhau ADD COLUMN tongiao VARCHAR(50) DEFAULT 'Không';
 
 UPDATE NhanKhau SET tongiao = 'Không' WHERE tongiao IS NULL;
+
+-- cập nhật lại data
+DELETE FROM tamvang WHERE tamvangid = 1;
+
+--update lại bảng tamvang thêm cột sohokhau;
+ALTER TABLE tamvang ADD COLUMN sohokhau VARCHAR(20);
+--them lại data
+INSERT INTO tamvang (nhankhau_id, cccd, sohokhau, tungay, denngay, lydo, trangthai)
+VALUES (8, '001205000018', 'HK002', '2024-09-01', '2025-06-30', 'Học tập xa nhà', 'Còn hạn');
+
+-- sua bang bien dong nhan khau : them kieu bien dong moi la tro ve
+-- Bước 1: Xóa ràng buộc cũ đang bị thiếu giá trị
+-- Bước 2: Thêm ràng buộc mới với đầy đủ các giá trị
+ALTER TABLE biendongnhankhau 
+DROP CONSTRAINT biendongnhankhau_loaibiendong_check;
+ALTER TABLE biendongnhankhau
+ADD CONSTRAINT biendongnhankhau_loaibiendong_check
+CHECK (loaibiendong IN (
+    'Tạm trú', 
+    'Chuyển đi', 
+    'Qua đời', 
+    'Tạm vắng',   -- Thêm cái này
+    'Trở về',      -- Thêm cái này cho chức năng "Đã về"
+    'Chuyển đến',   -- (Có thể có hoặc không tùy dữ liệu cũ của bạn)
+	'Thay đổi thông tin',
+	'Thêm mới'
+));
