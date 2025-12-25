@@ -204,15 +204,18 @@
                     <div class="form-grid-3">
                         <div class="form-group"> <label>Mã hộ khẩu</label> <input type="text" class="form-control readonly-input" name="sohokhau" readonly> </div>
                         <div class="form-group"> <label>Quan hệ với chủ hộ <span class="required">*</span></label> <input type="text" class="form-control" name="quanhevoichuho" required> </div>
-                        <div class="form-group"> <label>Trạng thái</label> <select class="form-control" name="trangthai">
-                            <option value="ThuongTru">Thường trú</option>
-                            <option value = "TamTru">Tạm trú</option>
-                        </select> </div>
+                        <div class="form-group"> 
+                            <label>Trạng thái</label> 
+                            <select class="form-control" name="trangthai">
+                                <option value="Thường trú">Thường trú</option>
+                                <option value="Tạm trú">Tạm trú</option>
+                            </select> 
+                        </div>
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn-secondary" onclick="closeModal('addMemberModal')">Hủy</button>
-                        <button type="submit" class="btn-primary">Lưu Mới & Thêm</button>
+                        <button type="button" class="btn-primary" onclick="submitNewMember(event)">Lưu Mới & Thêm</button>
                     </div>
                 </form>
             </div>
