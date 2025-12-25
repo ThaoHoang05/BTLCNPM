@@ -640,7 +640,7 @@ async function loadTamTruData(page = 1) {
 
             // 2. Render nút phân trang
             if(paginationContainer) {
-                renderPagination(paginationContainer, result.total, page);
+                renderPagination(paginationContainer, result.total, page, loadTamTruData);
             }
         }
     } catch (err) {
@@ -842,35 +842,33 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // --- HÀM VẼ NÚT PHÂN TRANG ---
-function renderPagination(container, totalRecords, currentPage) {
+// --- HÀM VẼ NÚT PHÂN TRANG (GENERIC - DÙNG CHUNG) ---
+// loadDataCallback: Là hàm sẽ được gọi khi bấm nút (VD: loadTamTruData hoặc loadTamVangData)
+function renderPagination(container, totalRecords, currentPage, loadDataCallback) {
     container.innerHTML = '';
     
     // Tính tổng số trang
     const totalPages = Math.ceil(totalRecords / ITEMS_PER_PAGE);
     
-    // Nếu chỉ có 1 trang thì ẩn luôn cho gọn
     if (totalPages <= 1) return;
 
-    // --- 1. NÚT PREV (<<) ---
+    // --- NÚT PREV (<<) ---
     const prevBtn = document.createElement('button');
-    prevBtn.className = 'btn btn-sm'; // Class mặc định
-    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>'; // Dùng icon cho đẹp
+    prevBtn.className = 'btn btn-sm';
+    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
     prevBtn.disabled = currentPage === 1;
-    prevBtn.onclick = () => loadTamTruData(currentPage - 1);
+    prevBtn.onclick = () => loadDataCallback(currentPage - 1); // Gọi callback
     container.appendChild(prevBtn);
 
-    // --- 2. LOGIC TẠO SỐ TRANG (1 ... 4 5 6 ... 20) ---
-    
-    // Hàm phụ để tạo nút số
+    // --- LOGIC SỐ TRANG ---
     const createPageBtn = (i) => {
         const btn = document.createElement('button');
         btn.className = `btn btn-sm ${i === currentPage ? 'active' : ''}`;
         btn.innerText = i;
-        btn.onclick = () => loadTamTruData(i);
+        btn.onclick = () => loadDataCallback(i); // Gọi callback
         container.appendChild(btn);
     };
 
-    // Hàm phụ để tạo dấu ...
     const createDots = () => {
         const span = document.createElement('span');
         span.className = 'btn btn-sm pagination-dots';
@@ -878,83 +876,94 @@ function renderPagination(container, totalRecords, currentPage) {
         container.appendChild(span);
     };
 
-    // THUẬT TOÁN HIỂN THỊ
     if (totalPages <= 7) {
-        // Trường hợp ít trang (<= 7): Hiện hết (1 2 3 4 5 6 7)
         for (let i = 1; i <= totalPages; i++) createPageBtn(i);
     } else {
-        // Trường hợp nhiều trang (> 7): Cần tính toán
-        // Luôn hiện trang 1
         createPageBtn(1);
+        if (currentPage > 3) createDots();
 
-        // Xử lý đoạn đầu (Nếu đang ở trang > 3 thì hiện dấu ...)
-        if (currentPage > 3) {
-            createDots();
-        }
-
-        // Hiện các trang xung quanh trang hiện tại (Trừ trang 1 và trang Cuối ra)
-        // Lấy khoảng [Current-1, Current+1]
         let start = Math.max(2, currentPage - 1);
         let end = Math.min(totalPages - 1, currentPage + 1);
 
-        // Điều chỉnh đặc biệt: Nếu đang ở gần đầu hoặc gần cuối để không bị hụt
-        if (currentPage <= 3) { end = 4; }
-        if (currentPage >= totalPages - 2) { start = totalPages - 3; }
-        for (let i = start; i <= end; i++) {
-            createPageBtn(i);
-        }
-        // Xử lý đoạn cuối (Nếu còn cách xa trang cuối thì hiện ...)
-        if (currentPage < totalPages - 2) {
-            createDots();
-        }
-        // Luôn hiện trang cuối
+        if (currentPage <= 3) end = 4;
+        if (currentPage >= totalPages - 2) start = totalPages - 3;
+
+        for (let i = start; i <= end; i++) createPageBtn(i);
+
+        if (currentPage < totalPages - 2) createDots();
         createPageBtn(totalPages);
     }
 
-    // --- 3. NÚT NEXT (>>) ---
+    // --- NÚT NEXT (>>) ---
     const nextBtn = document.createElement('button');
     nextBtn.className = 'btn btn-sm';
     nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
     nextBtn.disabled = currentPage === totalPages;
-    nextBtn.onclick = () => loadTamTruData(currentPage + 1);
+    nextBtn.onclick = () => loadDataCallback(currentPage + 1); // Gọi callback
     container.appendChild(nextBtn);
 }
 
 // --- HÀM 2: TẢI DANH SÁCH TẠM VẮNG ---
-async function loadTamVangData() {
+let currentTamVangPage = 1; // Biến theo dõi trang hiện tại của Tạm vắng
+
+async function loadTamVangData(page = 1) {
+    currentTamVangPage = page;
     const tbodyTamVang = document.getElementById('listTamVang');
+    
+    // Lưu ý: Bạn cần thêm thẻ div có id="tamVangPagination" vào HTML (dưới bảng tạm vắng)
+    const paginationContainer = document.getElementById('tamVangPagination'); 
+
     if(tbodyTamVang) tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
 
     try {
-        // API này bạn sẽ cần xây dựng tương tự như /api/tamtru
-        const response = await fetch('/api/tamvang'); 
-        const listTamVang = await response.json();
+        // Gọi API có tham số page
+        const response = await fetch(`/api/tamvang?page=${page}`); 
+        const result = await response.json(); 
+        
+        // Giả sử API trả về: { data: [Array], total: TotalRecords }
+        // Nếu API chỉ trả về Array (không có wrapper), bạn cần sửa lại logic đếm total ở đây.
 
         if(tbodyTamVang) {
             tbodyTamVang.innerHTML = '';
-            if (listTamVang.length === 0) {
+            
+            // Kiểm tra nếu không có dữ liệu
+            if (!result.data || result.data.length === 0) {
                 tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu tạm vắng</td></tr>';
-            } else {
-                listTamVang.forEach(item => {
-                    const row = document.createElement('tr');
-                    // Sử dụng định dạng ngày Việt Nam
-                    const tuNgay = new Date(item.tuNgay).toLocaleDateString('vi-VN');
-                    const denNgay = new Date(item.denNgay).toLocaleDateString('vi-VN');
+                if(paginationContainer) paginationContainer.innerHTML = '';
+                return;
+            }
 
-                    row.innerHTML = `
-                        <td>${item.hoTen}</td>
-                        <td>${item.noiDen}</td>
-                        <td>${tuNgay} <br> <small>đến ${denNgay}</small></td>
-                        <td>${item.lyDo}</td>
-                        <td><span class="badge-status warning">${item.trangThai || 'Đang tạm vắng'}</span></td>
-                        <td class="text-center">
-                            <button class="icon-btn success" onclick="confirmReturnEarly('${item.id}')" title="Đã về trước hạn">
-                                <i class="fas fa-undo-alt"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbodyTamVang.appendChild(row);
-                });
+            // Render dữ liệu
+            result.data.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Xử lý ngày tháng an toàn (vì item.thoiHan là object)
+                const tuNgay = item.thoiHan && item.thoiHan.Tu 
+                    ? new Date(item.thoiHan.Tu).toLocaleDateString('vi-VN') 
+                    : '---';
+                const denNgay = item.thoiHan && item.thoiHan.Den 
+                    ? new Date(item.thoiHan.Den).toLocaleDateString('vi-VN') 
+                    : '---';
+
+                row.innerHTML = `
+                    <td>${item.hoTen || ''}</td>
+                    <td>${item.noiDen || ''}</td> <td>${tuNgay} <br> <small>đến ${denNgay}</small></td>
+                    <td>${item.lyDo || ''}</td>
+                    <td>
+                        <span class="badge-status warning">${item.trangThai || 'Đang tạm vắng'}</span>
+                    </td>
+                    <td class="text-center">
+                        <button class="icon-btn success" onclick="confirmReturnEarly('${item.id}')" title="Đã về trước hạn">
+                            <i class="fas fa-undo-alt"></i>
+                        </button>
+                    </td>
+                `;
+                tbodyTamVang.appendChild(row);
+            });
+
+            // Gọi hàm phân trang chung, truyền vào callback là loadTamVangData
+            if(paginationContainer) {
+                renderPagination(paginationContainer, result.total, page, loadTamVangData);
             }
         }
     } catch (err) {
