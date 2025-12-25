@@ -653,98 +653,85 @@ async function loadTamTruData(page = 1) {
  * Hàm xử lý form Đăng ký Tạm vắng
  * Tìm form trong modal #tempAbsenceModal và gắn sự kiện submit
  */
-function handleKhaiBaoTamVang() {
-    // 1. Tìm form cụ thể nằm trong Modal Tạm Vắng
-    const modal = document.getElementById('tempAbsenceModal');
-    if (!modal) return; // Nếu không thấy modal thì thoát luôn
+// --- Sửa trong file household.js ---
 
-    const form = modal.querySelector('form');
-    if (!form) return; // Nếu không thấy form thì thoát
+async function submitRegisterTamVang(event) {
+    event.preventDefault(); // Chặn reload trang
+    
+    // 1. Lấy form và nút submit để xử lý UX
+    const form = document.getElementById('formTamVang');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerText;
 
-    // 2. Gắn sự kiện Submit
-    form.addEventListener("submit", async function(event) {
-        event.preventDefault(); // Chặn reload trang
+    // 2. Lấy dữ liệu từ các Input (Đảm bảo ID trong HTML khớp với code này)
+    const hoTen = document.getElementById("tvFullName").value.trim();
+    const cccd = document.getElementById("tvCCCD").value.trim();
+    const tuNgay = document.getElementById("tvDateFrom").value;
+    const denNgay = document.getElementById("tvDateTo").value;
+    const maHK = document.getElementById("tvMaHK").value.trim();
+    const lyDo = document.getElementById("tvReason").value.trim();
 
-        // Lấy các element input theo đúng ID bạn yêu cầu
-        const elmHoTen = document.getElementById("tvFullName");
-        const elmCCCD = document.getElementById("tvCCCD");
-        const elmTuNgay = document.getElementById("tvDateFrom");
-        const elmDenNgay = document.getElementById("tvDateTo");
-        const elmMaHK = document.getElementById("tvMaHK");
-        const elmLyDo = document.getElementById("tvReason");
+    // 3. Validate cơ bản
+    if (!hoTen || !maHK || !tuNgay || !denNgay) {
+        alert("Vui lòng điền đầy đủ các trường bắt buộc!");
+        return;
+    }
 
-        // Lấy giá trị
-        const hoTen = elmHoTen.value.trim();
-        const cccd = elmCCCD.value.trim();
-        const tuNgay = elmTuNgay.value;
-        const denNgay = elmDenNgay.value;
-        const maHK = elmMaHK.value.trim();
-        const lyDo = elmLyDo.value.trim();
+    if (new Date(tuNgay) > new Date(denNgay)) {
+        alert("Lỗi: Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+        return;
+    }
 
-        // Validate ngày tháng
-        if (new Date(tuNgay) > new Date(denNgay)) {
-            alert("Lỗi: Thời gian 'Từ ngày' không được lớn hơn 'Đến ngày'.");
-            return;
-        }
+    // 4. Tạo Payload
+    const payload = {
+        "hoTenTamVang": hoTen,
+        "cccd": cccd,
+        "maHK": maHK,
+        "thoiGianTamVang": {
+            "tu": tuNgay,
+            "den": denNgay
+        },
+        "lyDo": lyDo
+    };
 
-        // 3. Tạo Payload theo cấu trúc API
-        const payload = {
-            "hoTenTamVang": hoTen,
-            "cccd": cccd,
-            "maHK": maHK,
-            "thoiGianTamVang": {
-                "tu": tuNgay,
-                "den": denNgay
+    // 5. Hiệu ứng đang xử lý
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Đang xử lý...";
+
+    try {
+        // LƯU Ý: Thêm /api/ vào trước đường dẫn nếu backend quy định
+        const response = await fetch('/api/tamvang/new', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            "lyDo": lyDo
-        };
+            body: JSON.stringify(payload)
+        });
 
-        // 4. Xử lý nút bấm (UX)
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerText;
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Đang xử lý...";
-
-        try {
-            // 5. Gọi API
-            const response = await fetch('/tamvang/new', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                    // 'Authorization': 'Bearer ' + token // Bỏ comment nếu cần token
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                // Thành công
-                const data = await response.json();
-                alert("Đăng ký tạm vắng thành công!");
-                
-                // Reset form
-                form.reset();
-                
-                // Đóng modal (Gọi hàm có sẵn của bạn hoặc ẩn tay)
-                if (typeof closeModal === 'function') {
-                    closeModal('tempAbsenceModal');
-                } else {
-                    modal.style.display = 'none';
-                }
-            } else {
-                // Thất bại từ phía Server
-                const errorData = await response.json();
-                alert("Lỗi: " + (errorData.message || "Không thể lưu dữ liệu."));
+        if (response.ok) {
+            const data = await response.json();
+            alert("Đăng ký tạm vắng thành công!");
+            
+            // Reset form và đóng modal
+            form.reset();
+            closeModal('tempAbsenceModal');
+            
+            // Tải lại danh sách tạm vắng để thấy dữ liệu mới
+            if (typeof loadTamVangData === 'function') {
+                loadTamVangData(1);
             }
-        } catch (error) {
-            // Lỗi mạng/code
-            console.error("Lỗi gửi form tạm vắng:", error);
-            alert("Đã xảy ra lỗi kết nối.");
-        } finally {
-            // Mở lại nút bấm
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalText;
+        } else {
+            const errorData = await response.json();
+            alert("Lỗi: " + (errorData.message || "Không thể lưu dữ liệu."));
         }
-    });
+    } catch (error) {
+        console.error("Lỗi gửi form tạm vắng:", error);
+        alert("Đã xảy ra lỗi kết nối đến máy chủ.");
+    } finally {
+        // Mở lại nút bấm
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+    }
 }
 
 // ==============================================
@@ -904,29 +891,28 @@ function renderPagination(container, totalRecords, currentPage, loadDataCallback
 }
 
 // --- HÀM 2: TẢI DANH SÁCH TẠM VẮNG ---
-let currentTamVangPage = 1; // Biến theo dõi trang hiện tại của Tạm vắng
+let currentTamVangPage = 1;
 
 async function loadTamVangData(page = 1) {
     currentTamVangPage = page;
     const tbodyTamVang = document.getElementById('listTamVang');
-    
-    // Lưu ý: Bạn cần thêm thẻ div có id="tamVangPagination" vào HTML (dưới bảng tạm vắng)
     const paginationContainer = document.getElementById('tamVangPagination'); 
 
+    // Hiển thị loading khi đang chờ API
     if(tbodyTamVang) tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải...</td></tr>';
 
     try {
-        // Gọi API có tham số page
+        // Gọi API
         const response = await fetch(`/api/tamvang?page=${page}`); 
         const result = await response.json(); 
         
-        // Giả sử API trả về: { data: [Array], total: TotalRecords }
-        // Nếu API chỉ trả về Array (không có wrapper), bạn cần sửa lại logic đếm total ở đây.
+        // Log dữ liệu ra console để kiểm tra nếu cần
+        console.log("Dữ liệu Tạm vắng nhận được:", result);
 
         if(tbodyTamVang) {
             tbodyTamVang.innerHTML = '';
             
-            // Kiểm tra nếu không có dữ liệu
+            // Kiểm tra mảng data
             if (!result.data || result.data.length === 0) {
                 tbodyTamVang.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu tạm vắng</td></tr>';
                 if(paginationContainer) paginationContainer.innerHTML = '';
@@ -937,23 +923,25 @@ async function loadTamVangData(page = 1) {
             result.data.forEach(item => {
                 const row = document.createElement('tr');
                 
-                // Xử lý ngày tháng an toàn (vì item.thoiHan là object)
-                const tuNgay = item.thoiHan && item.thoiHan.Tu 
-                    ? new Date(item.thoiHan.Tu).toLocaleDateString('vi-VN') 
+                // 1. XỬ LÝ NGÀY THÁNG (Theo đúng key: Tu, Den)
+                const tuNgay = item.Tu 
+                    ? new Date(item.Tu).toLocaleDateString('vi-VN') 
                     : '---';
-                const denNgay = item.thoiHan && item.thoiHan.Den 
-                    ? new Date(item.thoiHan.Den).toLocaleDateString('vi-VN') 
+                const denNgay = item.Den 
+                    ? new Date(item.Den).toLocaleDateString('vi-VN') 
                     : '---';
 
+                // 2. XỬ LÝ CÁC TRƯỜNG KHÁC
+
                 row.innerHTML = `
-                    <td>${item.hoTen || ''}</td>
-                    <td>${item.noiDen || ''}</td> <td>${tuNgay} <br> <small>đến ${denNgay}</small></td>
-                    <td>${item.lyDo || ''}</td>
+                    <td>${item.HoTen || 'Không tên'}</td>
+                    <td>${tuNgay} <br> <small>đến ${denNgay}</small></td>
+                    <td>${item.LyDo || ''}</td>
                     <td>
-                        <span class="badge-status warning">${item.trangThai || 'Đang tạm vắng'}</span>
+                        <span class="badge-status success">${item.TrangThai || 'Còn hạn'}</span>
                     </td>
                     <td class="text-center">
-                        <button class="icon-btn success" onclick="confirmReturnEarly('${item.id}')" title="Đã về trước hạn">
+                        <button class="icon-btn success" onclick="confirmReturnEarly('${item.ID}')" title="Đã về trước hạn">
                             <i class="fas fa-undo-alt"></i>
                         </button>
                     </td>
@@ -961,7 +949,8 @@ async function loadTamVangData(page = 1) {
                 tbodyTamVang.appendChild(row);
             });
 
-            // Gọi hàm phân trang chung, truyền vào callback là loadTamVangData
+            // 3. GỌI PHÂN TRANG
+            // result.total lấy từ JSON (số 1 ở ngoài cùng)
             if(paginationContainer) {
                 renderPagination(paginationContainer, result.total, page, loadTamVangData);
             }
