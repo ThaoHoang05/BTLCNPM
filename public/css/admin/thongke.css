@@ -135,3 +135,10 @@
 @media (max-width: 768px) {
     .report-layout { grid-template-columns: 1fr; } /* Mobile thì xếp chồng */
 }
+
+/* Chỉ chỉnh sửa nhỏ trong file css */
+#dynamicTimeInput label {
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 600;
+}
