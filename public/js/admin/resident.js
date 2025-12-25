@@ -1,5 +1,3 @@
-/* citizen.js - Quản lý Nhân Khẩu (Khớp với resident.html) */
-
 // ==============================================
 // 1. CÁC HÀM CƠ BẢN (MODAL)
 // ==============================================
@@ -87,38 +85,30 @@ async function loadCitizenList() {
 // Gọi hàm load ngay khi trang tải xong
 document.addEventListener('DOMContentLoaded', loadCitizenList);
 
-// ==============================================
-// 3. XỬ LÝ THÊM MỚI (Form ID: memberForm)
-// ==============================================
-
-// ==============================================
-// 3. XỬ LÝ THÊM MỚI (Đã sửa lỗi ID)
-// ==============================================
-
-async function createNewCitizen(event) {
-    event.preventDefault(); // Chặn reload trang
-    console.log("Bắt đầu thêm nhân khẩu...");
+async function createNewCitizen() {
+    // 1. Kiểm tra xem hàm có được gọi không
+    console.log("Nút bấm đã hoạt động! Đang xử lý...");
 
     const form = document.getElementById('memberForm');
-    
     if (!form) {
-        alert("Lỗi: Không tìm thấy form nhập liệu!");
+        alert("Lỗi: Không tìm thấy Form nhập liệu (ID: memberForm)");
         return;
     }
 
+    // 2. Validate dữ liệu cơ bản (HTML required không chạy với type="button" nên cần check tay)
     const formData = new FormData(form);
     const v = Object.fromEntries(formData.entries());
 
-    // Validate cơ bản: Kiểm tra trạng thái
-    if (v.trangThai === 'default') {
-        alert("Vui lòng chọn Trạng thái cư trú hợp lệ!");
+    // Kiểm tra các trường bắt buộc
+    if (!v.hoten || !v.ngaysinh || !v.trangthai) {
+        alert("Vui lòng nhập đầy đủ: Họ tên, Ngày sinh và Trạng thái!");
         return;
     }
 
-    // Payload gửi đi
+    // 3. Chuẩn bị dữ liệu gửi đi (Mapping)
     const payload = {
         "hoTen": v.hoten,
-        "biDanh": v.bidanh,
+        "bietDanh": v.bidanh, 
         "ngaySinh": v.ngaysinh,
         "gioiTinh": v.gioitinh,
         "danToc": v.dantoc,
@@ -126,17 +116,17 @@ async function createNewCitizen(event) {
         "nguyenQuan": v.nguyenquan,
         "noiSinh": v.noisinh,
         "cccd": v.cccd,
-        "ngayCapCCCD": v.ngaycapcccd,
-        "noiCapCCCD": v.noicapcccd,
+        "ngayCap": v.ngaycapcccd,
+        "noiCap": v.noicapcccd,
         "ngheNghiep": v.nghenghiep,
         "noiLamViec": v.noilamviec,
-        "maHoKhau": v.sohokhau,      
-        "quanHeVoiChuHo": v.quanhevoichuho,
+        "maHK": v.sohokhau,
+        "quanheChuHo": v.quanhevoichuho,
         "trangThai": v.trangthai
     };
 
     try {
-        // LƯU Ý: Đổi đường dẫn API thành '/new' nếu backend quy định thế
+        // --- QUAN TRỌNG: Kiểm tra lại đường dẫn API ---
         const response = await fetch('/api/nhankhau/new', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -144,23 +134,20 @@ async function createNewCitizen(event) {
         });
 
         if (response.ok) {
-            alert('Thêm nhân khẩu mới thành công!');
-            
-            // SỬA QUAN TRỌNG: Đóng đúng ID Modal trong file resident.html
-            closeModal('addCitizenModal'); 
-            
-            form.reset(); // Xóa dữ liệu cũ trên form
-            loadCitizenList(); // Tải lại bảng danh sách
+            alert('Thêm thành công!');
+            closeModal('addCitizenModal');
+            form.reset();
+            loadCitizenList();
         } else {
             const err = await response.json();
-            alert('Lỗi: ' + (err.message || 'Thêm thất bại'));
+            alert('Lỗi Server: ' + (err.message || 'Không thể lưu'));
+            console.error(err);
         }
     } catch (error) {
-        console.error(error);
-        alert('Lỗi kết nối server');
+        console.error("Lỗi mạng:", error);
+        alert('Không thể kết nối tới Server (Kiểm tra lại console)');
     }
 }
-
 // Đảm bảo sự kiện được gắn đúng
 document.addEventListener('DOMContentLoaded', function() {
     loadCitizenList(); // Tải danh sách

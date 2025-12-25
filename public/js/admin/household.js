@@ -28,7 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const memberForm = document.getElementById('memberForm');
     if (memberForm) {
-        memberForm.addEventListener('submit', submitNewMember);
+        // Dùng onsubmit để tránh gán nhiều lần (duplicate event listener)
+        memberForm.onsubmit = function(event) {
+            submitNewMember(event);
+        };
     }
 });
 
@@ -489,28 +492,35 @@ function switchTab(tabId) {
 
 // Hàm mở Modal Thêm Thành Viên (Được gọi từ nút trong Modal Chi tiết)
 function openAddMemberModal(hkCode) {
-    // Đóng modal chi tiết để tránh bị che khuất
-    closeModal('detailModal'); 
+    // Đóng modal chi tiết tạm thời (hoặc giữ nguyên tùy UI của bạn)
+    // closeModal('detailModal'); 
     
-    // Reset về Tab tìm kiếm
-    switchTab('tabSearch');
+    // Reset form trước khi mở
+    const form = document.getElementById('memberForm');
+    if(form) form.reset();
+
+    // Mặc định chuyển về tab Nhập mới (Tab 2) nếu bạn muốn ưu tiên nhập mới
+    switchTab('tabNew'); 
     
-    // Ẩn kết quả tìm kiếm cũ
+    // Ẩn kết quả tìm kiếm cũ của tab tìm kiếm
     const resArea = document.getElementById('searchResultArea');
     if(resArea) resArea.style.display = 'none';
-    
-    const searchInput = document.getElementById('searchCCCDInput');
-    if(searchInput) searchInput.value = '';
 
-    // Điền Mã hộ vào các form con để tiện nhập liệu
+    // ĐIỀN MÃ HỘ KHẨU VÀO CÁC Ô INPUT (QUAN TRỌNG)
     if(hkCode) {
-        // Form tìm kiếm
-        const hkInputSearch = document.querySelector('input[name="sohokhau_search"]');
-        if(hkInputSearch) hkInputSearch.value = hkCode;
-
-        // Form nhập mới
+        // 1. Điền vào Form nhập mới (Tab nhập mới)
         const hkInputNew = document.querySelector('#memberForm input[name="sohokhau"]');
-        if(hkInputNew) hkInputNew.value = hkCode;
+        if(hkInputNew) {
+            hkInputNew.value = hkCode;
+            // Đảm bảo ô này không sửa được
+            hkInputNew.setAttribute('readonly', true);
+        }
+
+        // 2. Điền vào Form tìm kiếm (Tab tìm có sẵn)
+        const hkInputSearch = document.querySelector('input[name="sohokhau_search"]');
+        if(hkInputSearch) {
+            hkInputSearch.value = hkCode;
+        }
     }
     
     openModal('addMemberModal');
@@ -745,21 +755,30 @@ async function submitNewMember(event) {
     event.preventDefault(); // Ngăn reload trang
     
     const form = document.getElementById('memberForm');
-    const formData = new FormData(form);
-    const v = Object.fromEntries(formData.entries());
-
-    // 1. Kiểm tra dữ liệu đầu vào cơ bản (nếu cần thiết ngoài HTML validation)
-    if (!v.sohokhau) {
-        alert("Lỗi: Không xác định được mã hộ khẩu để thêm vào!");
+    if (!form) {
+        alert("Lỗi: Không tìm thấy form nhập liệu.");
         return;
     }
 
-    // 2. Chuẩn bị Payload gửi lên Server
-    // Mapping tên trường từ name="" trong HTML sang key JSON mà API (Nhân Khẩu) mong đợi
+    const formData = new FormData(form);
+    const v = Object.fromEntries(formData.entries());
+
+    // 1. Kiểm tra dữ liệu bắt buộc
+    if (!v.sohokhau) {
+        alert("Lỗi: Không xác định được Mã hộ khẩu. Vui lòng mở lại từ danh sách hộ.");
+        return;
+    }
+    if (!v.hoten || !v.ngaysinh) {
+        alert("Vui lòng nhập Họ tên và Ngày sinh!");
+        return;
+    }
+
+    // 2. Chuẩn bị Payload (Khớp với NhanKhauModel backend)
+    // Lưu ý: Xử lý ngày tháng: nếu rỗng "" thì chuyển thành null
     const payload = {
         "hoTen": v.hoten,
-        "biDanh": v.bidanh,
-        "ngaySinh": v.ngaysinh,
+        "bietDanh": v.bidanh,           // Backend thường dùng bietDanh hoặc biDanh
+        "ngaySinh": v.ngaysinh || null,
         "gioiTinh": v.gioitinh,
         "danToc": v.dantoc,
         "tonGiao": v.tongiao,
@@ -768,25 +787,23 @@ async function submitNewMember(event) {
         
         // Định danh
         "cccd": v.cccd,
-        "ngayCap": v.ngaycapcccd, // Lưu ý: Backend có thể tên là ngayCapCCCD
+        "ngayCap": v.ngaycapcccd || null, // Chuyển rỗng thành null
         "noiCap": v.noicapcccd,
         
         // Nghề nghiệp
         "ngheNghiep": v.nghenghiep,
         "noiLamViec": v.noilamviec,
 
-        // Thông tin hộ khẩu (QUAN TRỌNG)
-        "maHoKhau": v.sohokhau,
-        "quanHeVoiChuHo": v.quanhevoichuho,
-        "trangThai": v.trangthai // Thường trú / Tạm trú
+        // Thông tin hộ khẩu
+        "maHK": v.sohokhau,               // Backend dùng maHK hoặc maHoKhau
+        "quanheChuHo": v.quanhevoichuho,  // Backend dùng quanheChuHo
+        "trangThai": v.trangthai          // Thường trú / Tạm trú
     };
 
-    try {
-        // Log kiểm tra trước khi gửi
-        console.log("Đang thêm nhân khẩu mới:", payload);
+    console.log("Đang gửi payload thêm thành viên:", payload);
 
-        // 3. Gọi API
-        // Giả định endpoint là POST /api/nhankhau/new (Tạo nhân khẩu mới và link vào hộ)
+    try {
+        // Gọi API thêm nhân khẩu mới
         const response = await fetch('/api/nhankhau/new', {
             method: 'POST',
             headers: {
@@ -798,18 +815,19 @@ async function submitNewMember(event) {
         if (response.ok) {
             alert('Thêm thành viên mới thành công!');
             
-            // 4. Xử lý sau khi thành công
-            closeModal('addMemberModal'); // Đóng modal thêm
-            form.reset(); // Xóa trắng form
+            // Đóng modal thêm
+            closeModal('addMemberModal'); 
+            form.reset(); 
 
-            // Tải lại modal chi tiết hộ khẩu để hiển thị người vừa thêm
-            // v.sohokhau lấy từ input readonly trong form
-            if (typeof openDetailModal === 'function') {
+            // QUAN TRỌNG: Tải lại modal chi tiết hộ khẩu để thấy ngay thành viên vừa thêm
+            // v.sohokhau chính là mã hộ (VD: HK001)
+            if (v.sohokhau && typeof openDetailModal === 'function') {
                 openDetailModal(v.sohokhau);
             }
         } else {
             const errorData = await response.json();
             alert('Thêm thất bại: ' + (errorData.message || 'Lỗi từ server'));
+            console.error(errorData);
         }
 
     } catch (err) {
@@ -817,7 +835,6 @@ async function submitNewMember(event) {
         alert('Lỗi kết nối đến máy chủ.');
     }
 }
-
 // --- CÁCH SỬ DỤNG ---
 // Gọi hàm này khi trang web tải xong
 document.addEventListener("DOMContentLoaded", function() {
