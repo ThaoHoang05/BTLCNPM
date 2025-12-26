@@ -13,5 +13,6 @@ router.patch('/:id/general', hoKhauController.updateGeneralInfo);
 router.delete('/:id', hoKhauController.deleteHousehold);
 router.get('/:id', hoKhauController.getHouseholdInfo);
 router.delete('/:idHK/:idNK', hoKhauController.removeMember);
+router.get('/find-by-cccd/:cccd', hoKhauController.getByCCCD);
 
 module.exports = router;

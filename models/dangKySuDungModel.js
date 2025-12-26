@@ -2,19 +2,38 @@ const { poolQuanLiNhaVanHoa } = require('../config/db');
 
 const dangKySuDungModel = {
     guiDangKy: (d) => {
-        return poolQuanLiNhaVanHoa.query(`
-            INSERT INTO DangKySuDung
-            (HoTenNguoiDangKy, DienThoai, Email, LoaiHinhThue, LyDo, ThoiGianBatDau, ThoiGianKetThuc)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `, [
-            d.hoten,   // $1
-            d.phone,   // $2
-            d.email,   // $3
-            d.loai,    // $4
-            d.lydo,    // $5
-            d.batdau,  // $6
-            d.ketthuc  // $7
-        ]);
+        // Câu lệnh SQL Insert cập nhật đầy đủ cột
+        const query = `
+            INSERT INTO dangkysudung (
+                hotennguoidangky, 
+                cccd, 
+                dienthoai, 
+                email, 
+                loaihinhthue, 
+                tensukien, 
+                diadiem, 
+                lydo, 
+                thoigianbatdau, 
+                thoigianketthuc,
+                trangthai
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Chờ duyệt')
+        `;
+        
+        const values = [
+            d.hoten,        // $1
+            d.cccd,         // $2
+            d.phone,        // $3
+            d.email,        // $4
+            d.loai,         // $5 (personal/organization)
+            d.tenSuKien,    // $6
+            d.diaDiem,      // $7 (main-hall, meeting-room-1...)
+            d.lydo,         // $8
+            d.batdau,       // $9
+            d.ketthuc       // $10
+        ];
+
+        return poolQuanLiNhaVanHoa.query(query, values);
     },
 
     // 1. Lấy danh sách đơn chờ duyệt

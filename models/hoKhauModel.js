@@ -437,7 +437,21 @@ const HoKhauModel = {
             client.release();
         }
     },
+    // ... (Các code cũ giữ nguyên)
 
+    // --- THÊM HÀM NÀY VÀO CUỐI OBJECT HoKhauModel ---
+    findHoKhauByCCCD: async (cccd) => {
+        try {
+            const query = `SELECT sohokhau FROM nhankhau WHERE cccd = $1`;
+            const { rows } = await poolQuanLiHoKhau.query(query, [cccd]);
+            
+            // Nếu tìm thấy thì trả về object { sohokhau: 'HK...' }, ngược lại trả về undefined
+            return rows[0]; 
+        } catch (error) {
+            console.error("Lỗi Model findHoKhauByCCCD:", error);
+            throw error;
+        }
+    },
 };
 
 module.exports = HoKhauModel;

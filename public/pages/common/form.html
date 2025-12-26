@@ -21,6 +21,8 @@
                 <form id ="reqForm">
                     <label for="fullname">Họ và tên: </label>
                     <input type="text" id="fullname" required /><br />
+                    <label for="cccd">CCCD:</label>
+                    <input type="text" id="cccd" required /><br />
                     <label for="numberphone">Số điện thoại:</label>
                     <input type="tel" id="numberphone" required /><br />
                     <label for="email">Email:</label>
@@ -28,8 +30,17 @@
                     <label for="type">Loại hình thuê: </label>
                     <select id="type">
                         <option value="default">Chọn kiểu thuê</option>
-                        <option value="personal">Cá nhân</option>
-                        <option value="organization">Tổ chức</option>
+                        <option value="CaNhan">Cá nhân</option>
+                        <option value="ToChuc">Tổ chức</option>
+                    </select><br />
+                    <label for="event">Sự kiện:</label>
+                    <input type="text" id="event" required /><br />
+                    <label for="place">Địa điểm:</label>
+                    <select id ="place">
+                        <option value="main-hall">Hội trường chính</option>
+                        <option value="meeting-room-1">Phòng họp 1</option>
+                        <option value="meeting-room-2">Phòng họp 2</option>
+                        <option value="outdoor-area">Khu vực ngoài trời</option>
                     </select><br />
                     <label for="reason">Lý do:</label>
                     <textarea id="reason" rows="5" placeholder="Nhập lý do..."></textarea>

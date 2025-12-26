@@ -194,3 +194,79 @@
     font-weight: bold;
 }
 .btn-submit:hover { background: #00796b; }
+
+/* Style cho Tabs trong Modal */
+.modal-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+    padding: 0 20px;
+    background-color: #f8f9fa; /* Màu nền nhẹ cho thanh tab */
+}
+
+.tab-link {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 20px;
+    transition: 0.3s;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-link:hover {
+    color: #333;
+    background-color: #e9ecef;
+}
+
+/* Tab đang được chọn */
+.tab-link.active {
+    color: #007bff; /* Màu xanh chủ đạo */
+    border-bottom: 3px solid #007bff;
+    font-weight: bold;
+}
+
+/* Nội dung tab */
+.tab-content {
+    display: none; /* Mặc định ẩn */
+    animation: fadeEffect 0.5s; /* Hiệu ứng hiện dần */
+}
+
+/* Hiệu ứng mờ dần */
+@keyframes fadeEffect {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+/* Điều chỉnh lại padding cho modal body để khớp với tab */
+.modal-body {
+    padding-top: 10px; 
+}
+/* Layout cho hàng gồm 2 cột input */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px; /* Khoảng cách giữa 2 ô input */
+    margin-bottom: 15px;
+}
+
+.col-half {
+    flex: 1; /* Mỗi cột chiếm 50% chiều rộng */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Đảm bảo label và input trong cột hiển thị đúng */
+.col-half label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.col-half input {
+    width: 100%; /* Đảm bảo input full chiều rộng cột cha */
+    box-sizing: border-box; /* Tính padding vào width để không bị vỡ layout */
+}

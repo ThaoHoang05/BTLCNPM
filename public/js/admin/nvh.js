@@ -165,7 +165,7 @@ function renderRequestTable(data) {
         if (currentTab === 'pending') {
             actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-eye"></i> Duyệt/Xem</button>`;
         } else {
-            actionBtn = `<button class="btn-sm btn-secondary" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-history"></i> Chi tiết</button>`;
+            actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-history"></i> Chi tiết</button>`;
         }
 
         row.innerHTML = `

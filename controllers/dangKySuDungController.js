@@ -2,18 +2,28 @@ const model = require('../models/dangKySuDungModel');
 
 const dangKySuDungController = {
     guiDangKy: async (req, res) => {
-        const d = req.body;
-        await model.guiDangKy({
-            hoten: d.hoten,
-            phone: d.phone,
-            email: d.email,
-            loai: d.loai === 'personal' ? 'CaNhan' : 'ToChuc',
-            lydo: d.lydo,
-            batdau: d.batdau,
-            ketthuc: d.ketthuc
-        });
+        try {
+            const d = req.body;
+            
+            // Gọi model để lưu vào DB
+            await model.guiDangKy({
+                hoten: d.hoten,
+                cccd: d.cccd,          // Mới
+                phone: d.phone,
+                email: d.email,
+                loai: d.loai,          // Giữ nguyên giá trị từ form (personal/organization) hoặc map lại tùy logic
+                tenSuKien: d.tenSuKien,// Mới
+                diaDiem: d.diaDiem,    // Mới
+                lydo: d.lydo,
+                batdau: d.batdau,
+                ketthuc: d.ketthuc
+            });
 
-        res.json({ message: 'Đã gửi yêu cầu sử dụng nhà văn hóa' });
+            res.status(200).json({ message: 'Đã gửi yêu cầu sử dụng nhà văn hóa thành công' });
+        } catch (error) {
+            console.error("Lỗi controller guiDangKy:", error);
+            res.status(500).json({ message: "Lỗi hệ thống khi gửi đăng ký" });
+        }
     },
 
     // Lấy danh sách đơn chờ duyệt

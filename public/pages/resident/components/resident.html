@@ -2,21 +2,26 @@
     
     <div class="hokhau-header-card">
         <div class="card-title">
-            <i class="fas fa-house-user"></i> Sổ Hộ Khẩu: <span class="highlight">HK005</span>
+            <i class="fas fa-house-user"></i> Sổ Hộ Khẩu: <span class="highlight" id="soHoKhauID"></span>
         </div>
         <div class="card-body">
             <div class="info-row">
                 <span class="label">Chủ hộ:</span>
-                <span class="value">Hoàng Văn E</span>
+                <span class="value" id="valHoTen"></span>
             </div>
             <div class="info-row">
-                <span class="label">Địa chỉ thường trú:</span>
-                <span class="value">C15, Quang Trung, P. La Khê, Q. Hà Đông, Hà Nội</span>
+                <span class="label">Địa chỉ:</span>
+                <span class="value" id="valDiaChi"></span>
             </div>
             <div class="info-row">
-                <span class="label">Ngày lập sổ:</span>
-                <span class="value">10/03/2018</span>
+                <span class="label">Ngày lập:</span>
+                <span class="value" id="valNgayLap"></span>
             </div>
+            <div class="info-row">
+                <span class="label">Ghi chú:</span>
+                <span class="value" id="valGhiChu"></span>
+            </div>
+
             <button class="btn-request" onclick="openRequestModal()">
                 <i class="fas fa-edit"></i> Yêu cầu đính chính / Thay đổi
             </button>
@@ -24,75 +29,141 @@
     </div>
 
     <div class="members-section">
-        <h3><i class="fas fa-users"></i> Danh sách thành viên trong hộ</h3>
-        <table class="member-table">
+        <h3><i class="fas fa-users"></i> Danh sách thành viên</h3>
+        <table class="member-table" id="tableThanhVien">
             <thead>
                 <tr>
-                    <th>Họ và tên</th>
-                    <th>Ngày sinh</th>
-                    <th>Quan hệ với chủ hộ</th>
-                    <th>Nghề nghiệp</th>
-                    <th>CCCD/CMND</th>
-                </tr>
+                    <th>Họ và tên</th>     <th>Ngày sinh</th>     <th>Quan hệ</th>       <th>CCCD/CMND</th>     <th>Trạng thái</th>    </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="history-section" style="margin-top: 30px;">
+        
+        <h3><i class="fas fa-history"></i> Lịch sử thay đổi Hộ khẩu</h3>
+        <table class="history-table table-bordered" id="tableLichSuHoKhau">
+            <thead>
+                <tr>
+                    <th style="width: 150px;">Ngày thay đổi</th> <th>Nội dung thay đổi</th>                   </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>Hoàng Văn E</strong></td>
-                    <td>03/03/1988</td>
-                    <td><span class="badge-role role-head">Chủ hộ</span></td>
-                    <td>Lập trình viên</td>
-                    <td>001188000005</td>
+                    <td>15/01/2020</td>
+                    <td>Thay đổi địa chỉ từ Tổ 1 sang C15 Quang Trung</td>
                 </tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top: 20px;"><i class="fas fa-user-clock"></i> Lịch sử biến động Nhân khẩu</h3>
+        <table class="history-table table-bordered" id="tableLichSuNhanKhau">
+            <thead>
                 <tr>
-                    <td>Lê Thị Z</td>
-                    <td>20/04/1990</td>
-                    <td><span class="badge-role">Vợ</span></td>
-                    <td>Nội trợ</td>
-                    <td>001190000024</td>
-                </tr>
+                    <th>Họ tên</th>          <th>Loại biến động</th>  <th>Ngày biến động</th>  <th>Nơi đến/đi</th>      <th>Ghi chú</th>         </tr>
+            </thead>
+            <tbody>
                 <tr>
                     <td>Hoàng Văn A1</td>
-                    <td>11/11/2010</td>
-                    <td><span class="badge-role">Con</span></td>
-                    <td>Học sinh</td>
-                    <td>-</td>
+                    <td><span class="badge-move">Tạm vắng</span></td>
+                    <td>01/09/2023</td>
+                    <td>Ký túc xá ĐH Bách Khoa</td>
+                    <td>Đi học đại học</td>
                 </tr>
             </tbody>
         </table>
     </div>
-</div>
 
-<div id="requestModal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Gửi yêu cầu thay đổi thông tin</h3>
-            <span class="close-btn" onclick="closeRequestModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="requestForm">
-                <div class="form-group">
-                    <label>Loại yêu cầu:</label>
-                    <select class="form-control">
-                        <option value="dinh_chinh">Đính chính thông tin sai lệch</option>
-                        <option value="nhap_khau">Đăng ký nhập khẩu (Thêm thành viên)</option>
-                        <option value="tach_ho">Yêu cầu tách hộ</option>
-                        <option value="khac">Khác</option>
-                    </select>
+</div>
+    <div id="requestModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Gửi yêu cầu thay đổi thông tin</h3>
+                <span class="close-btn" onclick="closeRequestModal()">&times;</span>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="tab-link active" onclick="openTab(event, 'tabHoKhau')">Đính chính Hộ Khẩu</button>
+                <button class="tab-link" onclick="openTab(event, 'tabNhanKhau')">Đính chính Nhân Khẩu</button>
+            </div>
+    
+            <div class="modal-body">
+                <div id="tabHoKhau" class="tab-content" style="display: block;">
+                    <form id="formHoKhau">
+                        <div class="form-group">
+                            <label>Nội dung cần sửa (Hộ khẩu):</label>
+                            <select class="form-control">
+                                <option value="dia_chi">Địa chỉ thường trú</option>
+                                <option value="chu_ho">Thay đổi chủ hộ</option>
+                                <option value="so_ho_khau">Số sổ hộ khẩu</option>
+                                <option value="khac">Khác</option>
+                            </select>
+                        </div>
+            
+                        <div class="form-row">
+                            <div class="col-half">
+                                <label>Thông tin hiện tại (Cũ):</label>
+                                <input type="text" class="form-control" placeholder="VD: Số nhà C15...">
+                            </div>
+                            <div class="col-half">
+                                <label>Thông tin đề xuất (Mới):</label>
+                                <input type="text" class="form-control" placeholder="VD: Số nhà C20...">
+                            </div>
+                        </div>
+            
+                        <div class="form-group">
+                            <label>Ghi chú / Lý do thay đổi:</label>
+                            <textarea class="form-control" rows="3" placeholder="Ghi rõ lý do thay đổi..."></textarea>
+                        </div>
+            
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeRequestModal()">Hủy</button>
+                            <button type="submit" class="btn-submit">Gửi yêu cầu Hộ Khẩu</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>Nội dung chi tiết:</label>
-                    <textarea class="form-control" rows="4" placeholder="Ví dụ: Sai ngày sinh của con trai Hoàng Văn A1, đúng là 12/11/2010..."></textarea>
+            
+                <div id="tabNhanKhau" class="tab-content" style="display: none;">
+                    <form id="formNhanKhau">
+                        <div class="form-group">
+                            <label>Chọn thành viên:</label>
+                            <select class="form-control">
+                                <option value="id_E">Hoàng Văn E (Chủ hộ)</option>
+                                <option value="id_Z">Lê Thị Z (Vợ)</option>
+                                <option value="id_A1">Hoàng Văn A1 (Con)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Loại thông tin:</label>
+                            <select class="form-control">
+                                <option value="ngay_sinh">Ngày sinh</option>
+                                <option value="nghe_nghiep">Nghề nghiệp</option>
+                                <option value="cmnd">CCCD/CMND</option>
+                                <option value="ho_ten">Họ và tên</option>
+                            </select>
+                        </div>
+            
+                        <div class="form-row">
+                            <div class="col-half">
+                                <label>Thông tin hiện tại (Cũ):</label>
+                                <input type="text" class="form-control" placeholder="VD: 11/11/2010">
+                            </div>
+                            <div class="col-half">
+                                <label>Thông tin đề xuất (Mới):</label>
+                                <input type="text" class="form-control" placeholder="VD: 12/11/2010">
+                            </div>
+                        </div>
+            
+                        <div class="form-group">
+                            <label>Ghi chú / Lý do thay đổi:</label>
+                            <textarea class="form-control" rows="3" placeholder="Ghi rõ lý do..."></textarea>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" onclick="closeRequestModal()">Hủy</button>
+                            <button type="submit" class="btn-submit">Gửi yêu cầu Nhân Khẩu</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>Tải lên minh chứng (nếu có):</label>
-                    <input type="file" class="form-control file-input">
-                    <small>Ví dụ: Giấy khai sinh, Giấy đăng ký kết hôn...</small>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" onclick="closeRequestModal()">Hủy</button>
-                    <button type="submit" class="btn-submit">Gửi yêu cầu</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
