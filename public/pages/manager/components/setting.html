@@ -1,12 +1,12 @@
 <div class = "setting">
     <h2>Setting</h2>
-    <form>
+    <form id="settingForm" onsubmit="handleChangePassword(event)">
         <label for="old-password">Old Password:</label>
         <input type="password" id="old-password" required /><br />
         <label for="new-password">New Password:</label>
         <input type="password" id="new-password" required /><br />
         <label for="confirm-password">Confirm New Password:</label>
         <input type="password" id="confirm-password" required /><br />
-        <input type="submit" value="Change Password" onclick = "changePassword()"/>
+        <input type="submit" value="Change Password"/>
     </form>
 </div>
