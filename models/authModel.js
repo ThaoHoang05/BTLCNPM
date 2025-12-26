@@ -21,6 +21,17 @@ const AuthModel = {
         const result = await poolDangNhapPhanQuyen.query(query, [username]);
         return result.rows[0];
     },
+
+    // Đổi mật khẩu
+    changePassword: async (username, newPassword) => {
+        const query = `
+            UPDATE nguoidung 
+            SET matkhauhash = $1 
+            WHERE tendangnhap = $2
+        `;
+        const result = await poolDangNhapPhanQuyen.query(query, [newPassword, username]);
+        return result.rowCount;
+    },
 };
 
 module.exports = AuthModel;
