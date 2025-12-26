@@ -13,7 +13,7 @@ const dangKySuDungController = {
                 email: d.email,
                 loai: d.loai,          // Giữ nguyên giá trị từ form (personal/organization) hoặc map lại tùy logic
                 tenSuKien: d.tenSuKien,// Mới
-                diaDiem: d.diaDiem,    // Mới
+                phongId: d.phongId,    // Mới
                 lydo: d.lydo,
                 batdau: d.batdau,
                 ketthuc: d.ketthuc
@@ -68,31 +68,43 @@ const dangKySuDungController = {
             res.status(500).json({ message: "Lỗi lấy lịch sử duyệt" });
         }
     },
-
     // Xem chi tiết đơn đã duyệt
     getHistoryDetail: async (req, res) => {
         try {
             const { id } = req.params;
             const item = await model.getHistoryDetail(id);
+            
             if (!item) {
                 return res.status(404).json({ message: "Không tìm thấy đơn đăng ký này" });
             }
+
             const responseData = {
                 hoTen: item.hoTen,
+                cccd: item.cccd || "Không có",              // Mới thêm
                 sdt: item.sdt || "Không có",
                 email: item.email || "Không có",
-                loaiHinh: item.loaiHinh === 'CaNhan' ? 'Cá nhân' : 'Tổ chức',
+                
+                // Xử lý hiển thị loại hình (bao gồm cả trường hợp fallback)
+                loaiHinh: item.loaiHinh === 'CaNhan' ? 'Cá nhân' : (item.loaiHinh === 'ToChuc' ? 'Tổ chức' : item.loaiHinh),
+                
+                tenHD: item.tenHD,
+                diaDiemMongMuon: item.diaDiemMongMuon || "Chưa chọn", // Tên phòng lấy từ JOIN p_req
+                lyDo: item.lyDo || "Không có",              // Mới thêm
+                
                 thoigian: {
                     tu: item.tu,
                     den: item.den
                 },
-                phi: item.phi ? parseInt(item.phi) : 0, // Chuyển về số
-                phong: item.phong || "Chưa xếp phòng / Đã từ chối",
-                tenHD: item.tenHD
+                
+                // Format tiền tệ sang VNĐ cho đẹp
+                phi: item.phi ? parseInt(item.phi).toLocaleString('vi-VN') + ' VNĐ' : "Chưa thu phí", 
+                phong: item.phongDuocDuyet || "Chưa xếp phòng",       // Tên phòng lấy từ JOIN p_alloc
+                trangThai: item.trangThai // Mới thêm (để frontend biết ẩn hiện nút duyệt)
             };
+
             res.status(200).json(responseData);
         } catch (error) {
-            console.error(error);
+            console.error("Lỗi Controller getHistoryDetail:", error);
             res.status(500).json({ message: "Lỗi khi lấy chi tiết đơn" });
         }
     },

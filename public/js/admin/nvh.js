@@ -206,79 +206,97 @@ window.onclick = function(event) {
 }
 
 // Xử lý khi click vào nút Xem chi tiết
+// Xử lý khi click vào nút Xem chi tiết / Duyệt
 async function openNVHDetailModal(id) {
     currentSelectedId = id;
-    let detailData = null;
 
-    // Trường hợp 1: Đang ở tab Lịch sử -> Gọi API chi tiết
-    if (currentTab === 'history') {
-        const apiData = await fetchHistoryDetail(id);
-        if (!apiData) return;
-        
-        // Map dữ liệu từ API history detail
-        detailData = {
-            id: id,
-            name: apiData.hoTen,
-            phone: apiData.sdt,
-            email: apiData.email,
-            type: apiData.loaiHinh,
-            from: apiData.thoigian.tu,
-            to: apiData.thoigian.den,
-            reason: apiData.tenHD, // Hoặc apiData.tenHD
-            status: 'history'
-        };
-    } 
-    // Trường hợp 2: Đang ở tab Pending
-    // Vì không có API lấy chi tiết pending, ta lấy tạm dữ liệu từ danh sách đã load
-    // Lưu ý: List Pending không có sdt, email -> sẽ hiển thị trống hoặc N/A
-    else {
-        const item = currentList.find(r => r.id === id);
-        if (!item) return;
-        
-        detailData = {
-            id: item.id,
-            name: item.name,
-            phone: "---", // API Pending list không trả về SĐT
-            email: "---", // API Pending list không trả về Email
-            type: item.type,
-            from: item.from,
-            to: item.to,
-            reason: item.reason,
-            status: 'pending'
-        };
+    // 1. Luôn gọi API lấy chi tiết để có đầy đủ dữ liệu (CCCD, Email, Địa điểm...)
+    // Endpoint này dùng model getHistoryDetail nên trả về được cả đơn chờ duyệt.
+    const data = await fetchHistoryDetail(id);
+
+    if (!data) {
+        alert("Không thể tải chi tiết đơn.");
+        return;
     }
 
-    // Binding dữ liệu lên Modal
-    document.getElementById('detailId').innerText = detailData.id;
-    document.getElementById('detailName').innerText = detailData.name;
-    document.getElementById('detailPhone').innerText = detailData.phone;
-    document.getElementById('detailEmail').innerText = detailData.email;
-    document.getElementById('detailType').innerText = detailData.type;
-    document.getElementById('detailReason').innerText = detailData.reason;
+    // 2. Binding dữ liệu chung vào các thẻ HTML
+    document.getElementById('detailId').innerText = id;
+    document.getElementById('detailName').innerText = data.hoTen;
+    document.getElementById('detailCCCD').innerText = data.cccd || "---"; // Trường mới
+    document.getElementById('detailPhone').innerText = data.sdt || "---";
+    document.getElementById('detailEmail').innerText = data.email || "---";
+    document.getElementById('detailCode').innerText = data.tenHD;     // Tên sự kiện
+    document.getElementById('detailType').innerText = data.loaiHinh;  // Loại hình
+    document.getElementById('detailReason').innerText = data.lyDo || "---"; // Nội dung/Lý do
 
-    // Hàm format ngày giờ
+    // Format thời gian hiển thị (dd/mm/yyyy hh:mm)
     const formatDateTime = (dateString) => {
         if (!dateString) return '---';
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return dateString; // Nếu lỗi format thì trả về chuỗi gốc
-
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Tháng bắt đầu từ 0
-        const year = date.getFullYear();
-
-        return `${hours}:${minutes} ${day}/${month}/${year}`;
+        return date.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
     };
+    document.getElementById('detailFrom').innerText = formatDateTime(data.thoigian.tu);
+    document.getElementById('detailTo').innerText = formatDateTime(data.thoigian.den);
 
-    // Áp dụng format mới
-    document.getElementById('detailFrom').innerText = formatDateTime(detailData.from);
-    document.getElementById('detailTo').innerText = formatDateTime(detailData.to);
+    // 3. Xử lý Ẩn/Hiện thông tin theo Trạng thái đơn (Logic quan trọng)
+    
+    // Kiểm tra: Nếu đơn đang ở tab Chờ duyệt
+    if (currentTab === 'pending') {
+        // --- TRƯỜNG HỢP: CHỜ DUYỆT ---
+        
+        // Hiện "Địa điểm mong muốn"
+        const rowReq = document.getElementById('rowRequestedPlace');
+        if(rowReq) {
+            rowReq.style.display = 'flex';
+            document.getElementById('detailRequestedPlace').innerText = data.diaDiemMongMuon || "---";
+        }
 
-    // Ẩn/Hiện nút Duyệt/Hủy
-    const actionDiv = document.getElementById('detailActions');
-    actionDiv.style.display = (currentTab === 'pending') ? 'flex' : 'none';
+        // Ẩn "Phòng được duyệt" và "Phí" (vì chưa có)
+        if(document.getElementById('rowAssignedRoom')) document.getElementById('rowAssignedRoom').style.display = 'none';
+        if(document.getElementById('rowFee')) document.getElementById('rowFee').style.display = 'none';
 
+        // Hiện nút hành động (Duyệt/Từ chối)
+        if(document.getElementById('detailActions')) document.getElementById('detailActions').style.display = 'flex';
+    
+    } else {
+        // --- TRƯỜNG HỢP: LỊCH SỬ (Đã duyệt hoặc Từ chối) ---
+        
+        // Kiểm tra xem đơn này là Đã duyệt (có phòng) hay Từ chối
+        const isApproved = data.phong && !data.phong.includes("Chưa xếp phòng") && !data.phong.includes("Từ chối");
+
+        if (isApproved) {
+            // ĐÃ DUYỆT:
+            // Ẩn "Địa điểm mong muốn" (để gọn, hoặc hiện tùy ý)
+            if(document.getElementById('rowRequestedPlace')) document.getElementById('rowRequestedPlace').style.display = 'none';
+            
+            // Hiện "Phòng được duyệt"
+            if(document.getElementById('rowAssignedRoom')) {
+                document.getElementById('rowAssignedRoom').style.display = 'flex';
+                document.getElementById('detailAssignedRoom').innerText = data.phong;
+            }
+
+            // Hiện "Phí"
+            if(document.getElementById('rowFee')) {
+                document.getElementById('rowFee').style.display = 'flex';
+                document.getElementById('detailFee').innerText = data.phi;
+            }
+        } else {
+            // TỪ CHỐI:
+            // Hiện lại địa điểm mong muốn ban đầu
+            if(document.getElementById('rowRequestedPlace')) {
+                document.getElementById('rowRequestedPlace').style.display = 'flex';
+                document.getElementById('detailRequestedPlace').innerText = data.diaDiemMongMuon || "---";
+            }
+            // Ẩn các trường kết quả
+            if(document.getElementById('rowAssignedRoom')) document.getElementById('rowAssignedRoom').style.display = 'none';
+            if(document.getElementById('rowFee')) document.getElementById('rowFee').style.display = 'none';
+        }
+
+        // Ẩn nút hành động (chỉ xem lịch sử)
+        if(document.getElementById('detailActions')) document.getElementById('detailActions').style.display = 'none';
+    }
+
+    // Cuối cùng: Mở Modal
     openModal('detailModal');
 }
 

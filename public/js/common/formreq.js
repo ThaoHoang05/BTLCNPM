@@ -6,7 +6,7 @@ function postForm() {
     const email = document.getElementById('email').value;
     const type = document.getElementById('type').value;
     const eventName = document.getElementById('event').value;     // Mới thêm (Sự kiện)
-    const place = document.getElementById('place').value;         // Mới thêm (Địa điểm)
+    const place = document.getElementById('place').value;
     const reason = document.getElementById('reason').value;
     const from = document.getElementById('from').value;
     const to = document.getElementById('to').value;
@@ -33,7 +33,7 @@ function postForm() {
         email: email,
         loai: type,
         tenSuKien: eventName,   // Mới
-        diaDiem: place,         // Mới
+        phongId: parseInt(place),         // Mới
         lydo: reason,
         batdau: from,
         ketthuc: to

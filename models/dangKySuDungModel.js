@@ -4,34 +4,34 @@ const dangKySuDungModel = {
     guiDangKy: (d) => {
         // Câu lệnh SQL Insert cập nhật đầy đủ cột
         const query = `
-            INSERT INTO dangkysudung (
-                hotennguoidangky, 
-                cccd, 
-                dienthoai, 
-                email, 
-                loaihinhthue, 
-                tensukien, 
-                diadiem, 
-                lydo, 
-                thoigianbatdau, 
-                thoigianketthuc,
-                trangthai
-            )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Chờ duyệt')
-        `;
+                INSERT INTO dangkysudung (
+                    hotennguoidangky, 
+                    cccd, 
+                    dienthoai, 
+                    email, 
+                    loaihinhthue, 
+                    tensukien, 
+                    phongid,        -- Đổi từ diadiem thành phongid
+                    lydo, 
+                    thoigianbatdau, 
+                    thoigianketthuc,
+                    trangthai
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Chờ duyệt')
+            `;
         
-        const values = [
-            d.hoten,        // $1
-            d.cccd,         // $2
-            d.phone,        // $3
-            d.email,        // $4
-            d.loai,         // $5 (personal/organization)
-            d.tenSuKien,    // $6
-            d.diaDiem,      // $7 (main-hall, meeting-room-1...)
-            d.lydo,         // $8
-            d.batdau,       // $9
-            d.ketthuc       // $10
-        ];
+            const values = [
+                d.hoten,
+                d.cccd,
+                d.phone,
+                d.email,
+                d.loai,
+                d.tenSuKien,
+                d.phongId,      // Truyền ID phòng (số nguyên)
+                d.lydo,
+                d.batdau,
+                d.ketthuc
+            ];
 
         return poolQuanLiNhaVanHoa.query(query, values);
     },
@@ -84,22 +84,38 @@ const dangKySuDungModel = {
     },
 
     // Lấy chi tiết lịch sử đơn (kèm tên phòng nếu đã duyệt)
+    // Lấy chi tiết lịch sử đơn (kèm tên phòng nếu đã duyệt)
     getHistoryDetail: async (id) => {
         try {
             const query = `
                 SELECT 
                     dk.hotennguoidangky AS "hoTen",
+                    dk.cccd AS "cccd",
                     dk.dienthoai AS "sdt",
                     dk.email AS "email",
                     dk.loaihinhthue AS "loaiHinh",
+                    
+                    -- Lấy tên phòng mong muốn từ bảng phong (dựa trên phongid người dân chọn)
+                    p_req.tenphong AS "diaDiemMongMuon", 
+                    
+                    dk.tensukien AS "tenHD",
+                    dk.lydo AS "lyDo",
                     dk.thoigianbatdau AS "tu",
                     dk.thoigianketthuc AS "den",
                     dk.phisudung AS "phi",
-                    dk.tensukien AS "tenHD",
-                    p.tenphong AS "phong"
+                    dk.trangthai AS "trangThai",
+                    
+                    -- Lấy tên phòng thực tế được duyệt (nếu có trong lịch sử sử dụng)
+                    p_alloc.tenphong AS "phongDuocDuyet"
+                    
                 FROM dangkysudung dk
+                -- Join lần 1: Lấy tên phòng NGƯỜI DÂN chọn lúc đăng ký
+                LEFT JOIN phong p_req ON dk.phongid = p_req.phongid
+                
+                -- Join lần 2: Lấy tên phòng CÁN BỘ duyệt (nếu đã duyệt và xếp lịch)
                 LEFT JOIN lichsudungphong l ON dk.dangkyid = l.dangkyid
-                LEFT JOIN phong p ON l.phongid = p.phongid
+                LEFT JOIN phong p_alloc ON l.phongid = p_alloc.phongid
+                
                 WHERE dk.dangkyid = $1
             `;
             const { rows } = await poolQuanLiNhaVanHoa.query(query, [id]);
