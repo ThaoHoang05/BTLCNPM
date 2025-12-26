@@ -92,6 +92,10 @@
                     <span id="detailName" class="value-text"></span>
                 </div>
                 <div class="detail-item">
+                    <label>CCCD:</label>
+                    <span id="detailCCCD" class="value-text"></span>
+                </div>
+                <div class="detail-item">
                     <label>Số điện thoại:</label>
                     <span id="detailPhone" class="value-text"></span>
                 </div>
@@ -100,8 +104,22 @@
                     <span id="detailEmail" class="value-text link-text"></span>
                 </div>
                 <div class="detail-item">
+                    <label>Tên sự kiện:</label>
+                    <span id="detailCode" class="value-text" style="font-weight:bold; color:#007bff;"></span>
+                </div>
+                <div class="detail-item">
                     <label>Loại hình:</label>
                     <span id="detailType" class="value-text"></span>
+                </div>
+
+                <div class="detail-item" id="rowRequestedPlace">
+                    <label>Địa điểm mong muốn:</label>
+                    <span id="detailRequestedPlace" class="value-text"></span>
+                </div>
+
+                <div class="detail-item" id="rowAssignedRoom" style="display: none;">
+                    <label>Phòng tổ chức:</label>
+                    <span id="detailAssignedRoom" class="value-text" style="color: green; font-weight: bold;"></span>
                 </div>
             </div>
 
@@ -112,16 +130,21 @@
                 </div>
             </div>
 
+            <div class="detail-full-row" id="rowFee" style="display: none;">
+                <label>Phí sử dụng:</label>
+                <span id="detailFee" class="value-text" style="font-size: 1.1em; color: #d9534f; font-weight: bold;"></span>
+            </div>
+
             <div class="detail-full-row">
-                <label>Lý do / Mục đích sử dụng:</label>
+                <label>Lý do / Nội dung chi tiết:</label>
                 <div id="detailReason" class="reason-box"></div>
             </div>
 
             <div class="modal-footer-actions" id="detailActions">
-                <button class="btn-reject" onclick="triggerRejectFromDetail()">
+                <button id="btnReject" class="btn-reject" onclick="triggerRejectFromDetail()">
                     <i class="fas fa-times"></i> Từ chối
                 </button>
-                <button class="btn-approve" onclick="triggerApproveFromDetail()">
+                <button id="btnApprove" class="btn-approve" onclick="triggerApproveFromDetail()">
                     <i class="fas fa-check"></i> Duyệt đơn
                 </button>
             </div>
