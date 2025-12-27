@@ -68,6 +68,7 @@ const dangKySuDungController = {
             res.status(500).json({ message: "Lỗi lấy lịch sử duyệt" });
         }
     },
+    
     // Xem chi tiết đơn đã duyệt
     getHistoryDetail: async (req, res) => {
         try {
@@ -106,6 +107,49 @@ const dangKySuDungController = {
         } catch (error) {
             console.error("Lỗi Controller getHistoryDetail:", error);
             res.status(500).json({ message: "Lỗi khi lấy chi tiết đơn" });
+        }
+    },
+
+    // API: Duyệt đơn (POST /nvh/pending/accept)
+    approveRequest: async (req, res) => {
+        try {
+            // Payload nhận được: { id, phi, trangthai, canbo, phong }
+            const { id, phi, canbo, phong } = req.body;
+
+            if (!id || !phong) {
+                return res.status(400).json({ message: "Thiếu thông tin ID hoặc Phòng." });
+            }
+
+            // Gọi model
+            await model.approve(id, {
+                phi: phi || 0,
+                canbo: canbo || 1, // Mặc định cán bộ ID 1 nếu thiếu
+                phong: phong       // ID phòng
+            });
+
+            res.status(200).json({ message: "Duyệt đơn thành công." });
+        } catch (error) {
+            console.error("Lỗi approve:", error);
+            res.status(500).json({ message: "Lỗi hệ thống khi duyệt đơn." });
+        }
+    },
+
+    // API: Từ chối đơn (POST /nvh/pending/reject)
+    rejectRequest: async (req, res) => {
+        try {
+            // Payload nhận được: { id, trangthai, lyDo }
+            const { id, lyDo } = req.body;
+
+            if (!id || !lyDo) {
+                return res.status(400).json({ message: "Thiếu ID hoặc Lý do từ chối." });
+            }
+
+            await model.reject(id, lyDo);
+
+            res.status(200).json({ message: "Đã từ chối đơn đăng ký." });
+        } catch (error) {
+            console.error("Lỗi reject:", error);
+            res.status(500).json({ message: "Lỗi hệ thống khi từ chối đơn." });
         }
     },
 

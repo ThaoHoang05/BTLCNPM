@@ -14,7 +14,10 @@ const AuthModel = {
     // Hàm tìm user và lấy tên vai trò (role)
     findUserForLogin: async (username) => {
         const query = `
-            SELECT u.tendangnhap, u.matkhauhash, v.tenvaitro as role 
+            SELECT u.tendangnhap, 
+            u.matkhauhash, 
+            u.canboid,
+            v.tenvaitro as role 
             FROM nguoidung u 
             JOIN vaitro v ON u.vaitroid = v.vaitroid 
             WHERE u.tendangnhap = $1`;

@@ -126,6 +126,53 @@ const dangKySuDungModel = {
         }
     },
 
+    // Duyệt đơn (Approve)
+    approve: async (id, data) => {
+        const client = await poolQuanLiNhaVanHoa.connect();
+        try {
+            await client.query('BEGIN');
+            const query = `
+                UPDATE dangkysudung 
+                SET 
+                    phisudung = $1, 
+                    trangthai = 'Đã duyệt', 
+                    canbopheduyet = $2, 
+                    phongid = $3
+                WHERE dangkyid = $4
+            `;
+            await client.query(query, [data.phi, data.canbo, data.phong, id]);
+            const insertLich = `
+                INSERT INTO lichsudungphong (phongid, dangkyid, thoigianbatdau, thoigianketthuc, loaihoatdong)
+                SELECT $1, dangkyid, thoigianbatdau, thoigianketthuc, 'Rieng'
+                FROM dangkysudung WHERE dangkyid = $2
+            `;
+            await client.query(insertLich, [data.phong, id]);
+            await client.query('COMMIT');
+            return { message: "Duyệt thành công" };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
+    // Từ chối đơn (Reject)
+    reject: async (id, lyDo) => {
+        try {
+            const query = `
+                UPDATE dangkysudung 
+                SET trangthai = 'Từ chối', lydo = $1
+                WHERE dangkyid = $2
+            `;
+            await poolQuanLiNhaVanHoa.query(query, [lyDo, id]);
+            return { message: "Đã từ chối đơn" };
+        } catch (error) {
+            console.error("Lỗi Model reject:", error);
+            throw error;
+        }
+    },
+
 };
 
 module.exports = dangKySuDungModel;

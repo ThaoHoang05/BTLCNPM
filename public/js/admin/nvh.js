@@ -87,7 +87,7 @@ async function fetchHistoryDetail(id) {
 
 // API: Duyệt đơn
 async function postApprove(payload) {
-    const response = await fetch(`${API_BASE_URL}/nvh/pending/accept`, {
+    const response = await fetch(`/api/nvh/pending/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -97,7 +97,7 @@ async function postApprove(payload) {
 
 // API: Từ chối đơn
 async function postReject(payload) {
-    const response = await fetch(`${API_BASE_URL}/nvh/pending/reject`, {
+    const response = await fetch(`/api/nvh/pending/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -327,19 +327,25 @@ function triggerApproveFromDetail() {
 async function confirmApprove() {
     const fee = document.getElementById('feeInput').value;
     const roomSelect = document.getElementById('roomSelect');
-    const roomName = roomSelect.options[roomSelect.selectedIndex].text;
+    const roomId = roomSelect.value;
 
-    if (roomSelect.value === "") {
+    if (roomId === "") {
         alert("Vui lòng chọn phòng phân công!");
         return;
     }
 
+    const currentUserStr = localStorage.getItem('currentUser');
+    const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+    
+    // Lấy ID cán bộ từ localStorage, nếu không có thì fallback về 1
+    const approverId = (currentUser && currentUser.canboId) ? currentUser.canboId : 1;
+
     const payload = {
-        id: currentSelectedId, // Thêm ID vào payload để backend biết duyệt đơn nào
+        id: currentSelectedId,
         phi: parseInt(fee),
         trangthai: "approved",
-        canbo: "admin_01", // ID cán bộ (Hardcode hoặc lấy từ session đăng nhập)
-        phong: roomName
+        canbo: approverId, // ID cán bộ 
+        phong: parseInt(roomId)
     };
 
     const btn = document.querySelector('#approveModal .btn-primary');
@@ -358,6 +364,7 @@ async function confirmApprove() {
             alert("Lỗi: " + (err.message || "Không thể duyệt đơn"));
         }
     } catch (e) {
+        console.error(e);
         alert("Lỗi kết nối server");
     } finally {
         btn.innerText = oldText;
