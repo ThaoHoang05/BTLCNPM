@@ -11,7 +11,7 @@ const dangKySuDungModel = {
                     email, 
                     loaihinhthue, 
                     tensukien, 
-                    phongid,        -- Đổi từ diadiem thành phongid
+                    phongid,
                     lydo, 
                     thoigianbatdau, 
                     thoigianketthuc,
@@ -27,7 +27,7 @@ const dangKySuDungModel = {
                 d.email,
                 d.loai,
                 d.tenSuKien,
-                d.phongId,      // Truyền ID phòng (số nguyên)
+                d.phongId,
                 d.lydo,
                 d.batdau,
                 d.ketthuc
@@ -37,9 +37,9 @@ const dangKySuDungModel = {
     },
 
     // 1. Lấy danh sách đơn chờ duyệt
-    getPendingList: async () => {
+    getPendingList: async (from, to) => {
         try {
-            const query = `
+            let query = `
                 SELECT 
                     dangkyid as "id",
                     hotennguoidangky as "hoTen",
@@ -49,9 +49,17 @@ const dangKySuDungModel = {
                     loaihinhthue as "loaiHinh"
                 FROM dangkysudung
                 WHERE trangthai = 'Chờ duyệt'
-                ORDER BY id ASC
             `;
-            const { rows } = await poolQuanLiNhaVanHoa.query(query);
+            const params = [];
+
+            // lọc ngày
+            if (from && to) {
+                query += ` AND DATE(thoigianbatdau) >= $1 AND DATE(thoigianbatdau) <= $2`;
+                params.push(from, to);
+            }
+
+            query += ` ORDER BY thoigianbatdau ASC`; // Sắp xếp theo ngày tăng dần cho dễ nhìn
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, params);
             return rows;
         } catch (error) {
             console.error("Lỗi Model getPendingList:", error);
@@ -60,9 +68,9 @@ const dangKySuDungModel = {
     },
 
     // 2. Lấy ds đơn đã duyệt
-    getHistoryList: async () => {
+    getHistoryList: async (from, to) => {
         try {
-            const query = `
+            let query = `
                 SELECT 
                     dangkyid as "id",
                     hotennguoidangky as "hoTen",
@@ -73,9 +81,15 @@ const dangKySuDungModel = {
                     trangthai as "trangThai" 
                 FROM dangkysudung
                 WHERE trangthai = 'Đã duyệt'
-                ORDER BY id DESC
             `;
-            const { rows } = await poolQuanLiNhaVanHoa.query(query);
+            const params = [];
+        // lọc ngày
+        if (from && to) {
+            query += ` AND DATE(thoigianbatdau) >= $1 AND DATE(thoigianbatdau) <= $2`;
+            params.push(from, to);
+        }
+        query += ` ORDER BY thoigianbatdau DESC`;
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, params);
             return rows;
         } catch (error) {
             console.error("Lỗi Model getHistoryList:", error);
@@ -83,7 +97,6 @@ const dangKySuDungModel = {
         }
     },
 
-    // Lấy chi tiết lịch sử đơn (kèm tên phòng nếu đã duyệt)
     // Lấy chi tiết lịch sử đơn (kèm tên phòng nếu đã duyệt)
     getHistoryDetail: async (id) => {
         try {
@@ -151,6 +164,81 @@ const dangKySuDungModel = {
             throw error;
         }
     },
+
+    // Duyệt đơn (Approve)
+    approve: async (id, data) => {
+        const client = await poolQuanLiNhaVanHoa.connect();
+        try {
+            await client.query('BEGIN');
+
+            // Lấy thời gian của đơn đăng ký đang xét duyệt
+            const timeQuery = `SELECT thoigianbatdau, thoigianketthuc FROM dangkysudung WHERE dangkyid = $1`;
+            const timeResult = await client.query(timeQuery, [id]);
+            
+            if (timeResult.rows.length === 0) {
+                throw new Error("Không tìm thấy đơn đăng ký.");
+            }
+            
+            const { thoigianbatdau, thoigianketthuc } = timeResult.rows[0];
+
+            // Kiểm tra trùng lịch trong bảng lichsudungphong
+            const conflictQuery = `
+                SELECT lichid 
+                FROM lichsudungphong 
+                WHERE phongid = $1 
+                AND (thoigianbatdau < $2 AND thoigianketthuc > $3)
+            `;
+
+            const conflictCheck = await client.query(conflictQuery, [
+                data.phong, 
+                thoigianketthuc, 
+                thoigianbatdau
+            ]);
+
+            if (conflictCheck.rows.length > 0) {
+                // Nếu tìm thấy dòng nào trùng -> Hủy bỏ
+                throw new Error("Phòng này đã có lịch đặt trong khoảng thời gian trên!");
+            }
+
+            // Nếu không trùng, tiến hành Update trạng thái
+            const updateQuery = `
+                UPDATE dangkysudung 
+                SET 
+                    phisudung = $1, 
+                    trangthai = 'Đã duyệt', 
+                    canbopheduyet = $2, 
+                    phongid = $3
+                WHERE dangkyid = $4
+            `;
+            await client.query(updateQuery, [data.phi, data.canbo, data.phong, id]);
+
+            await client.query('COMMIT');
+            return { message: "Duyệt thành công" };
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    },
+
+    // Từ chối đơn (Reject)
+    reject: async (id, lyDo) => {
+        try {
+            const query = `
+                UPDATE dangkysudung 
+                SET trangthai = 'Từ chối', lydo = $1
+                WHERE dangkyid = $2
+            `;
+            await poolQuanLiNhaVanHoa.query(query, [lyDo, id]);
+            return { message: "Đã từ chối đơn" };
+        } catch (error) {
+            console.error("Lỗi Model reject:", error);
+            throw error;
+        }
+    },
+
 };
 
 module.exports = dangKySuDungModel;

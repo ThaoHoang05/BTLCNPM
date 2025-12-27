@@ -202,3 +202,38 @@ CHECK (loaibiendong IN (
 	'Thay đổi thông tin',
 	'Thêm mới'
 ));
+
+-- Sửa cho phù hợp trigger
+-- Xóa dữ liệu cũ để làm mới hoàn toàn mốc thời gian
+DELETE FROM BienDongNhanKhau;
+
+-- A. NHÓM ĐÃ CÓ MẶT TỪ ĐẦU NĂM (Tháng 01/2025)
+-- Áp dụng cho các Chủ hộ và những người đang Thường trú/Tạm trú/Tạm vắng
+INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, GhiChu)
+SELECT id, CCCD, 'Thêm mới', '2025-01-01', 'Đã có mặt từ đầu kỳ thống kê'
+FROM NhanKhau
+WHERE TrangThai IN ('Thường trú', 'Tạm vắng', 'Tạm trú')
+  AND HoTen NOT IN ('Lương Văn Y1', 'Vũ Văn E1', 'Nguyễn Văn Con1'); -- Loại trừ vài người để cho vào tháng sau
+
+-- B. NHÓM PHÁT SINH TRONG NĂM (Để biểu đồ đi lên)
+-- 1. Trẻ em mới sinh hoặc khai báo muộn (Tháng 03/2025)
+INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, GhiChu)
+SELECT id, CCCD, 'Thêm mới', '2025-03-15', 'Khai sinh mới'
+FROM NhanKhau WHERE HoTen = 'Lương Văn Y1';
+
+-- 2. Đăng ký thường trú mới (Tháng 06/2025)
+INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, GhiChu)
+SELECT id, CCCD, 'Thêm mới', '2025-06-20', 'Mới chuyển đến/Nhập khẩu'
+FROM NhanKhau WHERE HoTen IN ('Vũ Văn E1', 'Nguyễn Văn Con1');
+
+-- C. NHÓM RỜI ĐI (Để biểu đồ đi xuống)
+-- 1. Người đã qua đời (Tháng 04/2025)
+INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, GhiChu)
+SELECT id, CCCD, 'Qua đời', '2025-04-10', 'Hồ sơ tử tuất'
+FROM NhanKhau WHERE TrangThai = 'Qua đời';
+
+-- 2. Chuyển đi nơi khác (Giả định tháng 09/2025)
+-- Tôi chọn ngẫu nhiên 1 người thường trú để làm ví dụ chuyển đi
+INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, GhiChu)
+SELECT id, CCCD, 'Chuyển đi', '2025-09-01', 'Chuyển hộ khẩu sang phường khác'
+FROM NhanKhau WHERE HoTen = 'Lê Văn U1';

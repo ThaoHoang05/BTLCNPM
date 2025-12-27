@@ -31,7 +31,8 @@ const authController = {
                 token: 'mock_token_for_localStorage',
                 user: {
                     username: user.tendangnhap,
-                    role: user.role
+                    role: user.role,
+                    canboId: user.canboid 
                 }
             });
 

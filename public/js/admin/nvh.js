@@ -18,12 +18,13 @@ async function fetchPendingList() {
         const fromDate = document.getElementById('fromDate').value;
         const toDate = document.getElementById('toDate').value;
         
+        let url = `/api/nvh/pending`;
         // Nếu có chọn ngày thì thêm params
         if (fromDate && toDate) {
             url += `?from=${fromDate}&to=${toDate}`;
         }
 
-        const response = await fetch(`/api/nvh/pending`);
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Lỗi khi tải danh sách chờ');
         
         const data = await response.json();
@@ -48,7 +49,13 @@ async function fetchPendingList() {
 // API: Lấy danh sách lịch sử
 async function fetchHistoryList() {
     try {
-        const response = await fetch(`/api/nvh/history`);
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+        let url = `/api/nvh/history`;
+        if (fromDate && toDate) {
+            url += `?from=${fromDate}&to=${toDate}`;
+        }
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Lỗi khi tải lịch sử');
         
         const data = await response.json();
@@ -87,7 +94,7 @@ async function fetchHistoryDetail(id) {
 
 // API: Duyệt đơn
 async function postApprove(payload) {
-    const response = await fetch(`${API_BASE_URL}/nvh/pending/accept`, {
+    const response = await fetch(`/api/nvh/pending/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -97,7 +104,7 @@ async function postApprove(payload) {
 
 // API: Từ chối đơn
 async function postReject(payload) {
-    const response = await fetch(`${API_BASE_URL}/nvh/pending/reject`, {
+    const response = await fetch(`/api/nvh/pending/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -131,10 +138,20 @@ function filterRequests(tabType) {
 
 // Nút lọc dữ liệu (cho tab Pending)
 function filterByRange() {
+    // Kiểm tra đầu vào cơ bản
+    const from = document.getElementById('fromDate').value;
+    const to = document.getElementById('toDate').value;
+    
+    if ((from && !to) || (!from && to)) {
+        alert("Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!");
+        return;
+    }
+
+    // Tự động gọi hàm fetch tương ứng với Tab đang mở
     if (currentTab === 'pending') {
         fetchPendingList();
     } else {
-        alert("Chức năng lọc ngày hiện chỉ áp dụng cho danh sách chờ duyệt.");
+        fetchHistoryList();
     }
 }
 
@@ -327,19 +344,25 @@ function triggerApproveFromDetail() {
 async function confirmApprove() {
     const fee = document.getElementById('feeInput').value;
     const roomSelect = document.getElementById('roomSelect');
-    const roomName = roomSelect.options[roomSelect.selectedIndex].text;
+    const roomId = roomSelect.value;
 
-    if (roomSelect.value === "") {
+    if (roomId === "") {
         alert("Vui lòng chọn phòng phân công!");
         return;
     }
 
+    const currentUserStr = localStorage.getItem('currentUser');
+    const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+    
+    // Lấy ID cán bộ từ localStorage, nếu không có thì fallback về 1
+    const approverId = (currentUser && currentUser.canboId) ? currentUser.canboId : 1;
+
     const payload = {
-        id: currentSelectedId, // Thêm ID vào payload để backend biết duyệt đơn nào
+        id: currentSelectedId,
         phi: parseInt(fee),
         trangthai: "approved",
-        canbo: "admin_01", // ID cán bộ (Hardcode hoặc lấy từ session đăng nhập)
-        phong: roomName
+        canbo: approverId, // ID cán bộ 
+        phong: parseInt(roomId)
     };
 
     const btn = document.querySelector('#approveModal .btn-primary');
@@ -358,6 +381,7 @@ async function confirmApprove() {
             alert("Lỗi: " + (err.message || "Không thể duyệt đơn"));
         }
     } catch (e) {
+        console.error(e);
         alert("Lỗi kết nối server");
     } finally {
         btn.innerText = oldText;
