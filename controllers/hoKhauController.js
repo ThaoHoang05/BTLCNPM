@@ -129,7 +129,7 @@ const hoKhauController = {
             }
 
             // Trả về mã hộ khẩu
-            return res.status(200).json({ success: true, sohokhau: result.sohokhau });
+            return res.status(200).json({ success: true, sohokhau: result.sohokhau, hoten: result.hoten });
         } catch (error) {
             console.error("Lỗi Controller getByCCCD:", error);
             return res.status(500).json({ message: "Lỗi hệ thống" });
