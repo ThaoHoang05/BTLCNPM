@@ -27,7 +27,7 @@ const dangKySuDungModel = {
                 d.email,
                 d.loai,
                 d.tenSuKien,
-                d.phongId,      // Truyền ID phòng (số nguyên)
+                d.phongId,
                 d.lydo,
                 d.batdau,
                 d.ketthuc
@@ -83,7 +83,6 @@ const dangKySuDungModel = {
         }
     },
 
-    // Lấy chi tiết lịch sử đơn (kèm tên phòng nếu đã duyệt)
     // Lấy chi tiết lịch sử đơn (kèm tên phòng nếu đã duyệt)
     getHistoryDetail: async (id) => {
         try {
@@ -141,12 +140,17 @@ const dangKySuDungModel = {
                 WHERE dangkyid = $4
             `;
             await client.query(query, [data.phi, data.canbo, data.phong, id]);
+
+            // Có thể xem xét dùng nếu ae mình bỏ trigger 
+            /*
             const insertLich = `
                 INSERT INTO lichsudungphong (phongid, dangkyid, thoigianbatdau, thoigianketthuc, loaihoatdong)
                 SELECT $1, dangkyid, thoigianbatdau, thoigianketthuc, 'Rieng'
                 FROM dangkysudung WHERE dangkyid = $2
             `;
             await client.query(insertLich, [data.phong, id]);
+            */
+
             await client.query('COMMIT');
             return { message: "Duyệt thành công" };
         } catch (error) {
