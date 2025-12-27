@@ -1,6 +1,6 @@
-const { poolQuanLiNhaVanHoa } = require('../config/db');
+const NhaVanHoaModel = require('../models/nhaVanHoaModel');
 
-const NhaVanHoaModel = {
+const nhaVanHoaController = {
 // ==============================================
 // QUẢN LÝ TÀI SẢN
 // ==============================================
@@ -16,4 +16,4 @@ const NhaVanHoaModel = {
 
 };
 
-module.exports = NhaVanHoaModel;
+module.exports = nhaVanHoaController;
