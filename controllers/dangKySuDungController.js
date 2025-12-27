@@ -29,7 +29,8 @@ const dangKySuDungController = {
     // Lấy danh sách đơn chờ duyệt
     getPendingList: async (req, res) => {
         try {
-            const rawData = await model.getPendingList();
+            const { from, to } = req.query;
+            const rawData = await model.getPendingList(from, to);
             const responseData = rawData.map(item => ({
                 id: item.id,
                 hoTen: item.hoTen,
@@ -50,7 +51,8 @@ const dangKySuDungController = {
     // Lấy danh sách đơn đã duyệt
     getHistoryList: async (req, res) => {
         try {
-            const rawData = await model.getHistoryList();
+            const { from, to } = req.query;
+            const rawData = await model.getHistoryList(from, to);
             const responseData = rawData.map(item => ({
                 id: item.id,
                 hoTen: item.hoTen,

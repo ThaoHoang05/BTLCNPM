@@ -11,7 +11,7 @@ const dangKySuDungModel = {
                     email, 
                     loaihinhthue, 
                     tensukien, 
-                    phongid,        -- Đổi từ diadiem thành phongid
+                    phongid,
                     lydo, 
                     thoigianbatdau, 
                     thoigianketthuc,
@@ -37,9 +37,9 @@ const dangKySuDungModel = {
     },
 
     // 1. Lấy danh sách đơn chờ duyệt
-    getPendingList: async () => {
+    getPendingList: async (from, to) => {
         try {
-            const query = `
+            let query = `
                 SELECT 
                     dangkyid as "id",
                     hotennguoidangky as "hoTen",
@@ -49,9 +49,17 @@ const dangKySuDungModel = {
                     loaihinhthue as "loaiHinh"
                 FROM dangkysudung
                 WHERE trangthai = 'Chờ duyệt'
-                ORDER BY id ASC
             `;
-            const { rows } = await poolQuanLiNhaVanHoa.query(query);
+            const params = [];
+
+            // lọc ngày
+            if (from && to) {
+                query += ` AND DATE(thoigianbatdau) >= $1 AND DATE(thoigianbatdau) <= $2`;
+                params.push(from, to);
+            }
+
+            query += ` ORDER BY thoigianbatdau ASC`; // Sắp xếp theo ngày tăng dần cho dễ nhìn
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, params);
             return rows;
         } catch (error) {
             console.error("Lỗi Model getPendingList:", error);
@@ -60,9 +68,9 @@ const dangKySuDungModel = {
     },
 
     // 2. Lấy ds đơn đã duyệt
-    getHistoryList: async () => {
+    getHistoryList: async (from, to) => {
         try {
-            const query = `
+            let query = `
                 SELECT 
                     dangkyid as "id",
                     hotennguoidangky as "hoTen",
@@ -73,9 +81,15 @@ const dangKySuDungModel = {
                     trangthai as "trangThai" 
                 FROM dangkysudung
                 WHERE trangthai = 'Đã duyệt'
-                ORDER BY id DESC
             `;
-            const { rows } = await poolQuanLiNhaVanHoa.query(query);
+            const params = [];
+        // lọc ngày
+        if (from && to) {
+            query += ` AND DATE(thoigianbatdau) >= $1 AND DATE(thoigianbatdau) <= $2`;
+            params.push(from, to);
+        }
+        query += ` ORDER BY thoigianbatdau DESC`;
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, params);
             return rows;
         } catch (error) {
             console.error("Lỗi Model getHistoryList:", error);

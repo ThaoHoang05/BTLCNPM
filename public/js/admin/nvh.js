@@ -18,12 +18,13 @@ async function fetchPendingList() {
         const fromDate = document.getElementById('fromDate').value;
         const toDate = document.getElementById('toDate').value;
         
+        let url = `/api/nvh/pending`;
         // Nếu có chọn ngày thì thêm params
         if (fromDate && toDate) {
             url += `?from=${fromDate}&to=${toDate}`;
         }
 
-        const response = await fetch(`/api/nvh/pending`);
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Lỗi khi tải danh sách chờ');
         
         const data = await response.json();
@@ -48,7 +49,13 @@ async function fetchPendingList() {
 // API: Lấy danh sách lịch sử
 async function fetchHistoryList() {
     try {
-        const response = await fetch(`/api/nvh/history`);
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+        let url = `/api/nvh/history`;
+        if (fromDate && toDate) {
+            url += `?from=${fromDate}&to=${toDate}`;
+        }
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Lỗi khi tải lịch sử');
         
         const data = await response.json();
@@ -131,10 +138,20 @@ function filterRequests(tabType) {
 
 // Nút lọc dữ liệu (cho tab Pending)
 function filterByRange() {
+    // Kiểm tra đầu vào cơ bản
+    const from = document.getElementById('fromDate').value;
+    const to = document.getElementById('toDate').value;
+    
+    if ((from && !to) || (!from && to)) {
+        alert("Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!");
+        return;
+    }
+
+    // Tự động gọi hàm fetch tương ứng với Tab đang mở
     if (currentTab === 'pending') {
         fetchPendingList();
     } else {
-        alert("Chức năng lọc ngày hiện chỉ áp dụng cho danh sách chờ duyệt.");
+        fetchHistoryList();
     }
 }
 
