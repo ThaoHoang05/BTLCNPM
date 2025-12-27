@@ -442,7 +442,7 @@ const HoKhauModel = {
     // --- THÊM HÀM NÀY VÀO CUỐI OBJECT HoKhauModel ---
     findHoKhauByCCCD: async (cccd) => {
         try {
-            const query = `SELECT sohokhau FROM nhankhau WHERE cccd = $1`;
+            const query = `SELECT hoten, sohokhau FROM nhankhau WHERE cccd = $1`;
             const { rows } = await poolQuanLiHoKhau.query(query, [cccd]);
             
             // Nếu tìm thấy thì trả về object { sohokhau: 'HK...' }, ngược lại trả về undefined

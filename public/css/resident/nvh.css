@@ -187,3 +187,29 @@
 .status-pending { background-color: #fff8e1; color: #f57f17; border: 1px solid #ffe0b2; }
 .status-approved { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
 .status-rejected { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
+/* Style cho các ô input bị khóa (Readonly) */
+.form-control[readonly] {
+    background-color: #e9ecef; /* Màu xám nhẹ */
+    color: #495057;
+    cursor: not-allowed; /* Hiện con trỏ cấm khi rê chuột vào */
+    border-color: #ced4da;
+}
+
+.required {
+    color: #dc3545; /* Màu đỏ báo hiệu bắt buộc */
+    margin-left: 3px;
+}
+
+/* TÌM class này trong file cũ và SỬA LẠI dòng width */
+.modal-content {
+    background: white;
+    
+    /* SỬA DÒNG NÀY: Thay vì width: 600px cố định */
+    width: 90%;          /* Chiếm 90% màn hình trên mobile */
+    max-width: 600px;    /* Nhưng không quá 600px trên máy tính */
+    
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: zoomIn 0.3s ease;
+}
