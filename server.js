@@ -18,6 +18,7 @@ const hoKhauRoutes = require('./routes/hoKhauRoutes');
 const nhanKhauRoutes = require('./routes/nhanKhauRoutes');
 const nhaVanHoaRoutes = require('./routes/nhaVanHoaRoutes');
 const tamVangTamTruRoutes = require('./routes/tamVangTamTruRoutes');
+const thongKeRoutes = require('./routes/thongKeRoutes');
 
 //api
 app.use('/api', authRoutes); 
@@ -26,6 +27,7 @@ app.use('/api/hokhau', hoKhauRoutes);
 app.use('/api/nhankhau', nhanKhauRoutes);
 app.use('/api/nvh', nhaVanHoaRoutes);
 app.use('/api/nvh', dangKySuDungRoutes);
+app.use('/api/reports', thongKeRoutes);
 
 // Route mặc định (Server check)
 app.get('/', (_req, res) => {
