@@ -2,22 +2,23 @@ let myChartInstance = null;
 
 // Khởi tạo mặc định khi load trang
 document.addEventListener('DOMContentLoaded', () => {
-    handlePeriodTypeChange(); // Render input thời gian ban đầu
-    // Tự động load thống kê mặc định (VD: Năm hiện tại)
+    handlePeriodTypeChange(); 
     fetchAndRenderStats();
 });
 
-// 1. Xử lý UI: Thay đổi input nhập liệu dựa trên Tháng/Quý/Năm
+// 1. Xử lý UI: Thay đổi input nhập liệu
 function handlePeriodTypeChange() {
     const type = document.getElementById('periodType').value;
     const container = document.getElementById('dynamicTimeInput');
     let html = '<label>Chọn giá trị:</label>';
 
     if (type === 'Tháng') {
-        // Input dạng tháng (YYYY-MM)
-        html += `<input type="month" id="timeValue" class="form-control" value="${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}">`;
+        // Mặc định lấy tháng hiện tại
+        const now = new Date();
+        const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        html += `<input type="month" id="timeValue" class="form-control" value="${monthStr}">`;
     } else if (type === 'Quý') {
-        // Dropdown Quý và Input Năm
+        const curYear = new Date().getFullYear();
         html += `
             <div style="display:flex; gap:5px;">
                 <select id="timeQuarter" class="form-control">
@@ -26,36 +27,35 @@ function handlePeriodTypeChange() {
                     <option value="Q3">Quý 3</option>
                     <option value="Q4">Quý 4</option>
                 </select>
-                <input type="number" id="timeYear" class="form-control" value="${new Date().getFullYear()}" placeholder="Năm">
+                <input type="number" id="timeYear" class="form-control" value="${curYear}" placeholder="Năm">
             </div>`;
     } else {
-        // Input Năm
         html += `<input type="number" id="timeValue" class="form-control" value="${new Date().getFullYear()}">`;
     }
     container.innerHTML = html;
 }
 
-// 2. Logic lấy giá trị thời gian chuẩn hóa để gửi xuống DB
+// 2. Logic lấy chuỗi thời gian để gửi lên API
 function getTimeString() {
     const type = document.getElementById('periodType').value;
     if (type === 'Tháng') {
-        const val = document.getElementById('timeValue').value; // "2025-12"
+        const val = document.getElementById('timeValue').value; // YYYY-MM
         if(!val) return '';
         const [y, m] = val.split('-');
-        return `${m}/${y}`; // Định dạng lưu trong DB: "12/2025"
+        return `${m}/${y}`; // Backend mong đợi MM/YYYY (hoặc YYYY-MM tùy bạn xử lý ở server)
     } else if (type === 'Quý') {
         const q = document.getElementById('timeQuarter').value;
         const y = document.getElementById('timeYear').value;
-        return `${q}/${y}`; // "Q4/2025"
+        return `${q}/${y}`; 
     } else {
-        return document.getElementById('timeValue').value; // "2025"
+        return document.getElementById('timeValue').value; 
     }
 }
 
-// 3. Hàm chính: Gọi API và vẽ lại giao diện
-function fetchAndRenderStats() {
-    const reportType = document.getElementById('reportType').value;
-    const periodType = document.getElementById('periodType').value;
+// 3. HÀM CHÍNH: GỌI API VÀ RENDER (Đã sửa để dùng fetch)
+async function fetchAndRenderStats() {
+    const reportType = document.getElementById('reportType').value; // gioitinh, dotuoi...
+    const periodType = document.getElementById('periodType').value; // Tháng, Quý, Năm
     const timeString = getTimeString();
 
     if (!timeString) {
@@ -63,33 +63,66 @@ function fetchAndRenderStats() {
         return;
     }
 
-    console.log(`Đang lấy báo cáo: ${reportType} - ${periodType} - ${timeString}`);
+    console.log(`Đang gọi API: Type=${reportType}, Period=${periodType}, Time=${timeString}`);
 
-    // MOCK DATA: Giả lập dữ liệu trả về từ Database tương ứng với SQL đã cung cấp
-    const mockData = getMockDataFromDB(reportType, periodType, timeString);
+    try {
+        // Tạo URL query string
+        const queryParams = new URLSearchParams({
+            type: reportType,
+            period: periodType,
+            time: timeString
+        }).toString();
 
-    // Cập nhật Cards
-    updateCards(reportType, mockData.summary);
+        // --- GỌI API 1: LẤY SỐ LIỆU TỔNG HỢP (SUMMARY) ---
+        const resSum = await fetch(`/api/reports/summary?${queryParams}`);
+        const jsonSum = await resSum.json();
 
-    // Vẽ biểu đồ
-    renderChart(reportType, mockData.summary);
+        if (!jsonSum.success) {
+            alert("Lỗi tải báo cáo tổng hợp: " + jsonSum.message);
+            return;
+        }
 
-    // Vẽ bảng chi tiết
-    renderTable(reportType, mockData.details);
+        // --- GỌI API 2: LẤY CHI TIẾT (DETAILS) ---
+        const resDet = await fetch(`/api/reports/details?${queryParams}`);
+        const jsonDet = await resDet.json();
+
+        if (!jsonDet.success) {
+            console.warn("Không tải được chi tiết:", jsonDet.message);
+        }
+
+        // --- CẬP NHẬT GIAO DIỆN ---
+        // 1. Cập nhật Card số liệu (Dùng data từ API Summary)
+        updateCards(reportType, jsonSum.data);
+
+        // 2. Vẽ biểu đồ (Dùng data từ API Summary)
+        renderChart(reportType, jsonSum.data);
+
+        // 3. Vẽ bảng (Dùng list từ API Details)
+        // Lưu ý: Controller trả về { data: { list: [...] } }
+        const listData = jsonDet.data ? jsonDet.data.list : [];
+        renderTable(reportType, listData);
+
+    } catch (error) {
+        console.error("Lỗi kết nối API:", error);
+        alert("Không thể kết nối đến máy chủ.");
+    }
 }
 
-// 4. Cập nhật thẻ Card thống kê
+// 4. Cập nhật thẻ Card
 function updateCards(type, data) {
+    // Lưu ý: Tên trường (data.xxx) phải khớp với Model trả về
     if (type === 'gioi_tinh') {
-        setCardData('Tổng nhân khẩu', data.tong_so, 'Nam', data.so_nam, 'Nữ', data.so_nu);
+        setCardData('Tổng nhân khẩu', data.tong_so || 0, 'Nam', data.so_nam || 0, 'Nữ', data.so_nu || 0);
     } else if (type === 'do_tuoi') {
-        // Cộng dồn một số nhóm tiêu biểu
-        const treEm = data.mam_non_mau_giao + data.cap_1 + data.cap_2 + data.cap_3;
-        setCardData('Độ tuổi lao động', data.do_tuoi_lao_dong, 'Trẻ em/Học sinh', treEm, 'Nghỉ hưu', data.nghi_huu);
+        const laoDong = data.do_tuoi_lao_dong || 0;
+        const nghiHuu = data.nghi_huu || 0;
+        // Tổng trẻ em = Tổng - Lao động - Nghỉ hưu (hoặc cộng các trường con nếu API trả về đủ)
+        const treEm = (data.mam_non_mau_giao || 0) + (data.cap_1 || 0) + (data.cap_2 || 0) + (data.cap_3 || 0);
+        setCardData('Độ tuổi lao động', laoDong, 'Học sinh/Trẻ em', treEm, 'Nghỉ hưu', nghiHuu);
     } else if (type === 'cu_tru') {
-        setCardData('Tạm trú', data.dang_tam_tru, 'Tạm vắng', data.dang_tam_vang, 'Thường trú', 'N/A'); 
+        setCardData('Tạm trú', data.dang_tam_tru || 0, 'Tạm vắng', data.dang_tam_vang || 0, 'Thường trú', data.thuong_tru || 'N/A'); 
     } else if (type === 'bien_dong') {
-        setCardData('Mới nhập khẩu', data.so_them_moi, 'Chuyển đi', data.so_chuyen_di, 'Qua đời', data.so_qua_doi);
+        setCardData('Mới nhập khẩu', data.so_them_moi || 0, 'Chuyển đi', data.so_chuyen_di || 0, 'Qua đời', data.so_qua_doi || 0);
     }
 }
 
@@ -118,20 +151,31 @@ function renderChart(type, data) {
     } else if (type === 'do_tuoi') {
         chartType = 'bar';
         labels = ['Mầm non', 'Cấp 1', 'Cấp 2', 'Cấp 3', 'Lao động', 'Nghỉ hưu'];
-        // Khớp với các cột trong bảng Thong_ke_do_tuoi
-        values = [data.mam_non_mau_giao, data.cap_1, data.cap_2, data.cap_3, data.do_tuoi_lao_dong, data.nghi_huu];
+        values = [
+            data.mam_non_mau_giao || 0, 
+            data.cap_1 || 0, 
+            data.cap_2 || 0, 
+            data.cap_3 || 0, 
+            data.do_tuoi_lao_dong || 0, 
+            data.nghi_huu || 0
+        ];
         colors = '#4e73df';
         labelName = 'Số lượng người';
     } else if (type === 'cu_tru') {
         chartType = 'doughnut';
         labels = ['Tạm trú', 'Tạm vắng'];
-        values = [data.dang_tam_tru, data.dang_tam_vang];
+        values = [data.dang_tam_tru || 0, data.dang_tam_vang || 0];
         colors = ['#f6c23e', '#858796'];
         labelName = 'Hồ sơ';
     } else if (type === 'bien_dong') {
         chartType = 'bar';
         labels = ['Thêm mới', 'Chuyển đi', 'Qua đời', 'Thay đổi TT'];
-        values = [data.so_them_moi, data.so_chuyen_di, data.so_qua_doi, data.so_thay_doi_thong_tin];
+        values = [
+            data.so_them_moi || 0, 
+            data.so_chuyen_di || 0, 
+            data.so_qua_doi || 0, 
+            data.so_thay_doi_thong_tin || 0
+        ];
         colors = ['#1cc88a', '#e74a3b', '#5a5c69', '#f6c23e'];
         labelName = 'Số lượng hồ sơ';
     }
@@ -161,12 +205,13 @@ function renderTable(type, list) {
     thead.innerHTML = '';
     tbody.innerHTML = '';
 
-    // Định nghĩa cột cho bảng dựa trên loại báo cáo
+    // Định nghĩa cột hiển thị (HEADER)
     let columns = [];
+    // Lưu ý: Thứ tự này chỉ là tiêu đề, dữ liệu thực tế phụ thuộc vào API trả về
     if (type === 'gioi_tinh') columns = ['Họ Tên', 'Ngày Sinh', 'Giới Tính', 'Địa Chỉ'];
-    else if (type === 'do_tuoi') columns = ['Họ Tên', 'Ngày Sinh', 'Nhóm Tuổi', 'Địa Chỉ'];
+    else if (type === 'do_tuoi') columns = ['Họ Tên', 'Ngày Sinh', 'Tuổi', 'Địa Chỉ'];
     else if (type === 'cu_tru') columns = ['Họ Tên', 'Loại hình', 'Từ ngày', 'Đến ngày'];
-    else columns = ['Họ Tên', 'Loại Biến Động', 'Ngày Biến Động', 'Ghi Chú'];
+    else columns = ['Họ Tên', 'Loại Biến Động', 'Ngày thực hiện', 'Ghi Chú'];
 
     // Render Header
     columns.forEach(col => {
@@ -179,50 +224,18 @@ function renderTable(type, list) {
     if (list && list.length > 0) {
         list.forEach(item => {
             const tr = document.createElement('tr');
-            // Biến đổi object thành array value theo thứ tự
+            
+            // Cách đơn giản: Lấy tất cả giá trị trong object item (trừ id nếu cần)
+            // Cách tốt hơn: Gọi đích danh từng trường để đảm bảo thứ tự
+            // Ví dụ này render dynamic dựa trên object trả về
             Object.values(item).forEach(val => {
                 const td = document.createElement('td');
-                td.innerText = val;
+                td.innerText = val !== null ? val : '';
                 tr.appendChild(td);
             });
             tbody.appendChild(tr);
         });
     } else {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Không có dữ liệu chi tiết</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="${columns.length}" style="text-align:center">Không có dữ liệu chi tiết</td></tr>`;
     }
-}
-
-// --- MOCK DATA (Thay thế phần này bằng gọi API Backend) ---
-// Dữ liệu giả lập khớp với cấu trúc bảng SQL bạn cung cấp
-function getMockDataFromDB(reportType, period, timeVal) {
-    // 1. Giả lập dữ liệu tổng hợp (Từ các bảng Thong_ke_...)
-    let summaryData = {};
-    if (reportType === 'gioi_tinh') {
-        // Khớp cột bảng Thong_ke_gioi_tinh
-        summaryData = { so_nam: 450, so_nu: 500, tong_so: 950 };
-    } else if (reportType === 'do_tuoi') {
-        // Khớp cột bảng Thong_ke_do_tuoi
-        summaryData = { mam_non_mau_giao: 50, cap_1: 120, cap_2: 100, cap_3: 90, do_tuoi_lao_dong: 500, nghi_huu: 90 };
-    } else if (reportType === 'cu_tru') {
-        // Khớp cột bảng Thong_ke_cu_tru
-        summaryData = { dang_tam_tru: 25, dang_tam_vang: 10 };
-    } else if (reportType === 'bien_dong') {
-        // Khớp cột bảng Thong_ke_bien_dong
-        summaryData = { so_them_moi: 5, so_chuyen_di: 2, so_qua_doi: 1, so_thay_doi_thong_tin: 10 };
-    }
-
-    // 2. Giả lập danh sách chi tiết (Thường query từ bảng NhanKhau/BienDong)
-    // Thực tế bạn cần query bảng NhanKhau với WHERE theo tiêu chí
-    let listData = [
-        { c1: 'Nguyễn Văn A', c2: '1990-01-01', c3: 'Nam', c4: 'Hà Nội' },
-        { c1: 'Trần Thị B', c2: '1995-05-20', c3: 'Nữ', c4: 'Hồ Chí Minh' }
-    ];
-
-    if(reportType === 'cu_tru') {
-        listData = [
-            { c1: 'Lê Văn C', c2: 'Tạm trú', c3: '2025-01-01', c4: '2025-06-01' }
-        ]
-    }
-
-    return { summary: summaryData, details: listData };
 }
