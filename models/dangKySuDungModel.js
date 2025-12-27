@@ -144,7 +144,38 @@ const dangKySuDungModel = {
         const client = await poolQuanLiNhaVanHoa.connect();
         try {
             await client.query('BEGIN');
-            const query = `
+
+            // Lấy thời gian của đơn đăng ký đang xét duyệt
+            const timeQuery = `SELECT thoigianbatdau, thoigianketthuc FROM dangkysudung WHERE dangkyid = $1`;
+            const timeResult = await client.query(timeQuery, [id]);
+            
+            if (timeResult.rows.length === 0) {
+                throw new Error("Không tìm thấy đơn đăng ký.");
+            }
+            
+            const { thoigianbatdau, thoigianketthuc } = timeResult.rows[0];
+
+            // Kiểm tra trùng lịch trong bảng lichsudungphong
+            const conflictQuery = `
+                SELECT lichid 
+                FROM lichsudungphong 
+                WHERE phongid = $1 
+                AND (thoigianbatdau < $2 AND thoigianketthuc > $3)
+            `;
+
+            const conflictCheck = await client.query(conflictQuery, [
+                data.phong, 
+                thoigianketthuc, 
+                thoigianbatdau
+            ]);
+
+            if (conflictCheck.rows.length > 0) {
+                // Nếu tìm thấy dòng nào trùng -> Hủy bỏ
+                throw new Error("Phòng này đã có lịch đặt trong khoảng thời gian trên!");
+            }
+
+            // Nếu không trùng, tiến hành Update trạng thái
+            const updateQuery = `
                 UPDATE dangkysudung 
                 SET 
                     phisudung = $1, 
@@ -153,10 +184,11 @@ const dangKySuDungModel = {
                     phongid = $3
                 WHERE dangkyid = $4
             `;
-            await client.query(query, [data.phi, data.canbo, data.phong, id]);
+            await client.query(updateQuery, [data.phi, data.canbo, data.phong, id]);
 
             await client.query('COMMIT');
             return { message: "Duyệt thành công" };
+
         } catch (error) {
             await client.query('ROLLBACK');
             throw error;
