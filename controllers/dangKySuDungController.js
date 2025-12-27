@@ -111,7 +111,50 @@ const dangKySuDungController = {
             res.status(500).json({ message: "Lỗi khi lấy chi tiết đơn" });
         }
     },
+    // File: dangKySuDungController.js
 
+    getRequestsByCCCD: async (req, res) => {
+        try {
+            const { cccd } = req.params;
+            const rawList = await model.getRequestsByCCCD(cccd);
+
+            const formattedData = rawList.map(item => {
+                
+                // Logic xử lý Ghi chú (giữ nguyên)
+                let ghiChuText = "";
+                if (item.TrangThai === 'Đã duyệt') {
+                    const phi = item.phisudung ? parseInt(item.phisudung).toLocaleString('vi-VN') : '0';
+                    ghiChuText = `Phí sử dụng: ${phi} VNĐ`;
+                } else if (item.TrangThai === 'Chờ duyệt') {
+                    ghiChuText = 'Đang chờ tổ trưởng xác nhận';
+                } else if (item.TrangThai === 'Từ chối') {
+                    ghiChuText = 'Yêu cầu không phù hợp hoặc bị trùng lịch.';
+                }
+
+                // --- SỬA ĐOẠN NÀY ---
+                return {
+                    "TenHD": item.TenHD,
+                    "Diadiem": item.Diadiem,
+                    "Thoigian": {
+                        // Gọi đúng tên cột trong SQL (chữ thường)
+                        "tu": item.thoigianbatdau, 
+                        "den": item.thoigianketthuc
+                    },
+                    "TrangThai": item.TrangThai,
+                    "GhiChu": ghiChuText
+                };
+            });
+
+            res.status(200).json({
+                "status": "success",
+                "data": formattedData
+            });
+
+        } catch (error) {
+            console.error("Lỗi Controller:", error);
+            res.status(500).json({ status: "error", message: "Lỗi hệ thống" });
+        }
+    },
     // API: Duyệt đơn (POST /nvh/pending/accept)
     approveRequest: async (req, res) => {
         try {

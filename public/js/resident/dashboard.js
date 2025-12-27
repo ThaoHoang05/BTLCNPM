@@ -68,10 +68,19 @@ function renderNVHManagement() {
     })
     .then(html =>{
         mainContent.innerHTML = html;
+        
+        // --- THÊM ĐOẠN NÀY ---
+        // Gọi hàm khởi tạo từ nvh.js để tải dữ liệu ngay
+        if (typeof window.initNVHPage === 'function') {
+            window.initNVHPage(); 
+        } else {
+            console.error("Chưa tìm thấy hàm initNVHPage. Kiểm tra lại nvh.js");
+        }
+        // ---------------------
     })
     .catch(error =>{
         console.error('Lỗi tải trang:', error);
-        mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file resident.html</h3>`;
+        mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file nvh.html</h3>`;
     });
 }
 

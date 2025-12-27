@@ -138,6 +138,32 @@ const dangKySuDungModel = {
             throw error;
         }
     },
+    // File: dangKySuDungModel.js
+    getRequestsByCCCD: async (cccd) => {
+        try {
+            const query = `
+                SELECT 
+                    dk.tensukien AS "TenHD",
+                    COALESCE(p.tenphong, 'Chưa chọn phòng') AS "Diadiem",
+                    
+                    -- QUAN TRỌNG: Giữ nguyên tên cột, KHÔNG dùng AS "tu" để tránh nhầm lẫn
+                    dk.thoigianbatdau, 
+                    dk.thoigianketthuc,
+                    
+                    dk.trangthai AS "TrangThai",
+                    dk.phisudung
+                FROM dangkysudung dk
+                LEFT JOIN phong p ON dk.phongid = p.phongid
+                WHERE dk.cccd = $1
+                ORDER BY dk.dangkyid DESC
+            `;
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, [cccd]);
+            return rows;
+        } catch (error) {
+            console.error("Lỗi Model getRequestsByCCCD:", error);
+            throw error;
+        }
+    },
 
     // Duyệt đơn (Approve)
     approve: async (id, data) => {

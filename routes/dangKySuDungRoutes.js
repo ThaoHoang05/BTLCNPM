@@ -10,5 +10,6 @@ router.post('/pending/accept', dangKySuDungController.approveRequest);
 router.post('/pending/reject', dangKySuDungController.rejectRequest);
 
 router.get('/history/:id', dangKySuDungController.getHistoryDetail);
+router.get('/request/:cccd', dangKySuDungController.getRequestsByCCCD);
 
 module.exports = router;
