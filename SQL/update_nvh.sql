@@ -67,7 +67,7 @@ DROP TRIGGER IF EXISTS trg_tao_lich_hd_chung ON hoatdongchung;
 DROP FUNCTION IF EXISTS fn_tao_lich_hd_chung;
 
 
--- Update bảng tài sản (6pm 28/12)
+-- Update bang tài sản (6pm 28/12)
 ALTER TABLE TaiSan ADD COLUMN PhongID INT;
 ALTER TABLE TaiSan ADD CONSTRAINT fk_taisan_phong FOREIGN KEY (PhongID) REFERENCES Phong(PhongID);
 
@@ -121,4 +121,17 @@ INSERT INTO TaiSan (TaiSanID, TenTaiSan, SoLuong, TinhTrang, NhaID, PhongID) VAL
 (132, 'Đèn bàn học', 10, 'Tốt', 1, 6),
 (133, 'Máy in HP đa năng', 1, 'Hết mực', 1, 6);
 
+-- Update bang quan li tai san
+-- 1. Cho phép TaiSanID trong bảng kiểm tra được phép NULL
+ALTER TABLE KiemTraTaiSan ALTER COLUMN TaiSanID DROP NOT NULL;
 
+-- 2. Thay đổi ràng buộc khóa ngoại
+ALTER TABLE KiemTraTaiSan DROP CONSTRAINT IF EXISTS kiemtrataisan_taisanid_fkey;
+
+ALTER TABLE KiemTraTaiSan
+    ADD CONSTRAINT kiemtrataisan_taisanid_fkey
+        FOREIGN KEY (TaiSanID) REFERENCES TaiSan(TaiSanID)
+            ON DELETE SET NULL;
+
+
+ALTER TABLE Phong ADD CONSTRAINT uq_tenphong UNIQUE (TenPhong);
