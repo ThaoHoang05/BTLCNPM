@@ -3,6 +3,8 @@ const router = express.Router();
 
 const nhaVanHoaController = require('../controllers/nhaVanHoaController');
 
+router.get('/asset', nhaVanHoaController.getAssets);
+router.patch('/asset/:id', nhaVanHoaController.updateAsset);
 router.get('/HDchung', nhaVanHoaController.getUpcomingActivities);
 router.post('/HDchung/new', nhaVanHoaController.addCommonActivity);
 
