@@ -80,7 +80,7 @@ const dangKySuDungModel = {
                     loaihinhthue as "loaiHinh",
                     trangthai as "trangThai" 
                 FROM dangkysudung
-                WHERE trangthai = 'Đã duyệt'
+                WHERE trangthai IN ('Đã duyệt', 'Từ chối')
             `;
             const params = [];
         // lọc ngày

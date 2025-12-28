@@ -155,6 +155,7 @@ const dangKySuDungController = {
             res.status(500).json({ status: "error", message: "Lỗi hệ thống" });
         }
     },
+
     // API: Duyệt đơn (POST /nvh/pending/accept)
     approveRequest: async (req, res) => {
         try {
@@ -175,7 +176,7 @@ const dangKySuDungController = {
             res.status(200).json({ message: "Duyệt đơn thành công." });
         } catch (error) {
             console.error("Lỗi approve:", error);
-            res.status(500).json({ message: "Lỗi hệ thống khi duyệt đơn." });
+            res.status(500).json({ message: "Không thể duyệt do phòng này đã có hoạt động khác chiếm chỗ." });
         }
     },
 
