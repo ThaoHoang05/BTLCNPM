@@ -45,6 +45,37 @@ const NhaVanHoaModel = {
         }
     },
 
+    // Xóa tài sản
+    deleteAsset: async (id) => {
+        // Lệnh DELETE này sẽ kích hoạt ON DELETE SET NULL trong DB
+        const query = 'DELETE FROM taisan WHERE taisanid = $1 RETURNING *';
+        try {
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, [id]);
+            return rows[0];
+        } catch (error) {
+            console.error("Lỗi Model deleteAsset:", error.message);
+            throw error;
+        }
+    },
+
+    // Tìm ID phòng dựa trên tên phòng (Hỗ trợ cho việc Thêm/Sửa bằng tên)
+    getPhongIdByName: async (tenPhong) => {
+        const query = 'SELECT phongid FROM phong WHERE tenphong = $1 LIMIT 1';
+        const { rows } = await poolQuanLiNhaVanHoa.query(query, [tenPhong]);
+        return rows.length > 0 ? rows[0].phongid : null;
+    },
+
+    // Thêm mới tài sản
+    addAsset: async (data) => {
+        const query = `
+            INSERT INTO TaiSan (TenTaiSan, SoLuong, TinhTrang, NhaID, PhongID)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *`;
+        const values = [data.tenTS, data.SL, data.TinhTrang, 1, data.phongId];
+        const { rows } = await poolQuanLiNhaVanHoa.query(query, values);
+        return rows[0];
+    },
+
 // ==============================================
 // QUẢN LÝ LỊCH CHUNG
 // ==============================================

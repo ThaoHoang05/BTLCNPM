@@ -46,6 +46,45 @@ const nhaVanHoaController = {
         }
     },
 
+    deleteAsset: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const deletedAsset = await NhaVanHoaModel.deleteAsset(id);
+
+            if (!deletedAsset) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "Không tìm thấy tài sản để xóa"
+                });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: `Xóa thành công tài sản: ${deletedAsset.tentaisan}. Các bản ghi kiểm tra đã được lưu trữ dưới dạng lịch sử (ID ẩn).`,
+                data: deletedAsset
+            });
+        } catch (error) {
+            res.status(500).json({
+                status: "error",
+                message: "Lỗi khi xóa tài sản: " + error.message
+            });
+        }
+    },
+
+    addAsset: async (req, res) => {
+        try {
+            const { tenTS, SL, TinhTrang, viTri } = req.body;
+            const phongId = await NhaVanHoaModel.getPhongIdByName(viTri);
+
+            if (!phongId) return res.status(400).json({ message: "Tên phòng không tồn tại" });
+
+            const newAsset = await NhaVanHoaModel.addAsset({ tenTS, SL, TinhTrang, phongId });
+            res.status(201).json({ status: "success", data: newAsset });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
 // ==============================================
 // QUẢN LÝ LỊCH CHUNG
 // ==============================================
@@ -54,7 +93,7 @@ const nhaVanHoaController = {
     getUpcomingActivities: async (req, res) => {
         try {
             const data = await NhaVanHoaModel.getUpcomingActivities();
-            
+
             // Format dữ liệu trả về theo payload yêu cầu
             const response = data.map(item => ({
                 tenHD: item.tenHD,
@@ -64,7 +103,7 @@ const nhaVanHoaController = {
                     den: item.den
                 }
             }));
-            
+
             res.status(200).json(response);
         } catch (error) {
             res.status(500).json({ message: "Lỗi tải lịch hoạt động" });
