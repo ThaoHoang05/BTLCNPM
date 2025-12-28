@@ -46,7 +46,8 @@ const dangKySuDungModel = {
                     tensukien as "tenHD",
                     thoigianbatdau as "tu",
                     thoigianketthuc as "den",
-                    loaihinhthue as "loaiHinh"
+                    loaihinhthue as "loaiHinh",
+                    trangthai as "trangThai"
                 FROM dangkysudung
                 WHERE trangthai = 'Chờ duyệt'
             `;
