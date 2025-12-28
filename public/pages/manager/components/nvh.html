@@ -28,33 +28,70 @@
 
 <div id="assets" class="tab-content">
     <div class="content-box">
+        <h3 class="section-title">Tổng quan Tài sản & Thiết bị</h3>
         
-        <div class="flex-header">
-            <h3 class="section-title" style="margin:0; border:none;">Kho Tài sản & Thiết bị</h3>
-            
-            <div style="display: flex; gap: 10px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div class="stat-card" style="background:#e3f2fd; border-left: 5px solid #007bff;">
+                <span>Tổng tài sản</span>
+                <b style="color:#007bff; font-size: 24px;" id="summary_total">Loading...</b>
+            </div>
+            <div class="stat-card" style="background:#d4edda; border-left: 5px solid #28a745;">
+                <span>Hoạt động tốt</span>
+                <b style="color:#28a745; font-size: 24px;" id="summary_good">Loading...</b>
+            </div>
+            <div class="stat-card" style="background:#f8d7da; border-left: 5px solid #dc3545;">
+                <span>Cần xử lý</span>
+                <b style="color:#dc3545; font-size: 24px;" id="summary_bad">Loading...</b>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 40px; border: 2px dashed #ccc; border-radius: 10px;">
+            <p style="color: #666; margin-bottom: 15px;">Truy cập kho dữ liệu để Thêm mới, Kiểm kê, hoặc Sửa đổi tài sản</p>
+            <button class="btn-primary" onclick="openAssetManagerModal()" style="padding: 12px 25px; font-size: 16px;">
+                <i class="fas fa-warehouse"></i> Mở Quản Lý Kho Tài Sản
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalAssetManager" class="modal-overlay">
+    <div class="modal-box" style="width: 95%; max-width: 1200px; height: 90vh; display: flex; flex-direction: column; padding: 0;">
+        
+        <div class="modal-header" style="padding: 15px 20px; border-bottom: 1px solid #eee;">
+            <h3 style="margin: 0;"><i class="fas fa-boxes"></i> Danh Sách Tài Sản Chi Tiết</h3>
+            <span class="close-btn" onclick="closeAssetManagerModal()">&times;</span>
+        </div>
+        
+        <div style="padding: 15px 20px; background: #f8f9fa; border-bottom: 1px solid #ddd;">
+            <div class="flex-header" style="flex-wrap: wrap; margin: 0;">
                 <input type="text" 
                        id="assetSearchInput" 
                        class="form-input" 
-                       placeholder="Tìm theo Mã hoặc Tên..." 
+                       placeholder="Nhập tên hoặc mã tài sản để tìm..." 
                        onkeyup="searchAssets()"
-                       style="width: 250px;">
+                       style="width: 300px; margin: 0;">
                 
-                <button class="btn-primary" onclick="openAddModal()">
-                    <i class="fas fa-plus"></i> Thêm mới
-                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-primary" style="background-color: #17a2b8;" onclick="openReportModal()">
+                        <i class="fas fa-chart-bar"></i> Thống kê
+                    </button>
+                    <button class="btn-primary" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i> Thêm mới
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="custom-table">
-                <thead>
+
+        <div style="flex: 1; overflow-y: auto; padding: 0;">
+            <table class="custom-table" style="width: 100%; border-collapse: collapse;">
+                <thead style="position: sticky; top: 0; z-index: 10;">
                     <tr>
-                        <th>Mã TS</th>
-                        <th>Tên tài sản</th>
-                        <th>Số lượng</th>
-                        <th>Tình trạng</th>
-                        <th>Vị trí</th>
-                        <th>Hành động</th>
+                        <th style="background: #f1f3f5; color: #333;">Mã TS</th>
+                        <th style="background: #f1f3f5; color: #333;">Tên tài sản</th>
+                        <th style="background: #f1f3f5; color: #333;">Số lượng</th>
+                        <th style="background: #f1f3f5; color: #333;">Tình trạng</th>
+                        <th style="background: #f1f3f5; color: #333;">Vị trí</th>
+                        <th style="background: #f1f3f5; color: #333; text-align: right;">Hành động</th>
                     </tr>
                 </thead>
                 <tbody id="assetTableBody">
@@ -161,4 +198,103 @@
         <button class="btn-primary" onclick="saveAsset()">Lưu dữ liệu</button>
     </div>
 </div>
+</div>
+
+<div id="modalReport" class="modal-overlay">
+    <div class="modal-box" style="max-width: 800px;"> <div class="modal-header">
+            <h3><i class="fas fa-file-alt"></i> Báo cáo Quản lý Cơ sở vật chất</h3>
+            <span class="close-btn" onclick="closeReportModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <label style="font-weight: bold;">Chọn thời gian báo cáo:</label>
+                <input type="month" id="reportDateInput" class="form-input" style="width: 200px; margin:0;" onchange="loadReportData()">
+                <button class="btn-primary" onclick="loadReportData()">Xem báo cáo</button>
+            </div>
+
+            <h4 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">1. Hiện trạng tài sản (Toàn bộ)</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px; margin-top: 10px;">
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #007bff;" id="rp_total">0</div>
+                    <div style="font-size: 13px; color: #555;">Tổng số tài sản</div>
+                </div>
+                <div style="background: #d4edda; padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #28a745;" id="rp_good">0</div>
+                    <div style="font-size: 13px; color: #555;">Hoạt động tốt</div>
+                </div>
+                <div style="background: #f8d7da; padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #dc3545;" id="rp_bad">0</div>
+                    <div style="font-size: 13px; color: #555;">Hư hỏng / Cần thanh lý</div>
+                </div>
+            </div>
+
+            <h4 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">2. Nhật ký kiểm tra trong tháng</h4>
+            <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Ngày KT</th>
+                            <th>Tài sản</th>
+                            <th>SL Thực tế</th>
+                            <th>Kết quả</th>
+                            <th>Cán bộ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportHistoryBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeReportModal()">Đóng</button>
+            <button class="btn-primary" onclick="printReport()"><i class="fas fa-print"></i> In báo cáo</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalInspect" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-clipboard-check"></i> Phiếu Kiểm Kê</h3>
+            <span class="close-btn" onclick="closeInspectModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="insp_asset_id">
+            
+            <div class="form-group">
+                <label>Tài sản đang kiểm tra:</label>
+                <input type="text" id="insp_asset_name" class="form-input" disabled style="background: #e9ecef; font-weight:bold;">
+            </div>
+
+            <div class="form-row-dual">
+                <div class="form-group">
+                    <label>Số lượng thực tế:</label>
+                    <input type="number" id="insp_qty" class="form-input" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Đánh giá tình trạng:</label>
+                    <select id="insp_status" class="form-input">
+                        <option value="Tốt">Tốt</option>
+                        <option value="Cũ">Cũ / Xuống cấp</option>
+                        <option value="Hỏng nhẹ">Hỏng nhẹ (Sửa được)</option>
+                        <option value="Hỏng nặng">Hỏng nặng (Cần thay thế)</option>
+                        <option value="Mất mát">Thất lạc / Mất</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Ghi chú / Đề xuất:</label>
+                <textarea id="insp_note" class="form-input" rows="3" placeholder="Ví dụ: Gãy chân ghế, cần hàn lại..."></textarea>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeInspectModal()">Hủy</button>
+            <button class="btn-primary" onclick="saveInspection()">Lưu kết quả</button>
+        </div>
+    </div>
 </div>

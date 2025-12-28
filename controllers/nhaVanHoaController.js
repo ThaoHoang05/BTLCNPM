@@ -145,6 +145,71 @@ const nhaVanHoaController = {
         }
     },
 
+    getReport: async (req, res) => {
+        try {
+            // Lấy tháng/năm từ URL (VD: ?month=12&year=2025)
+            const { month, year } = req.query;
+
+            // Validate dữ liệu đầu vào
+            if (!month || !year) {
+                return res.status(400).json({ 
+                    status: "error", 
+                    message: "Vui lòng cung cấp tháng và năm (month, year)" 
+                });
+            }
+
+            // Gọi Model lấy dữ liệu
+            const data = await NhaVanHoaModel.getReportStats(month, year);
+
+            // Trả về kết quả
+            res.status(200).json({
+                status: "success",
+                data: data
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ 
+                status: "error", 
+                message: "Lỗi server khi lấy báo cáo thống kê" 
+            });
+        }
+    },
+    createInspection: async (req, res) => {
+        try {
+            // Lấy dữ liệu từ body (do Frontend gửi lên)
+            const { id, sl, tinhTrang, ghiChu } = req.body;
+            
+            // Kiểm tra dữ liệu đầu vào
+            if (!id || sl === undefined || !tinhTrang) {
+                return res.status(400).json({ 
+                    status: "error", 
+                    message: "Thiếu thông tin bắt buộc (Mã TS, Số lượng, Tình trạng)" 
+                });
+            }
+
+            // Gọi Model để lưu
+            await NhaVanHoaModel.addInspection({ 
+                id, 
+                sl: parseInt(sl), // Đảm bảo số lượng là số nguyên
+                tinhTrang, 
+                ghiChu: ghiChu || '' 
+            });
+            
+            res.status(200).json({ 
+                status: "success", 
+                message: "Đã lưu kết quả kiểm kê thành công" 
+            });
+
+        } catch (error) {
+            // Nếu lỗi do trùng lặp (đã bắt ở Model) thì trả về 400 để Frontend hiện thông báo
+            const statusCode = error.message.includes("đã được kiểm kê") ? 400 : 500;
+            
+            res.status(statusCode).json({ 
+                status: "error", 
+                message: error.message 
+            });
+        }
+    },
 };
 
 module.exports = nhaVanHoaController;
