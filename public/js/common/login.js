@@ -37,6 +37,8 @@ async function getUser(event) {
                 window.location.href = '/pages/admin/dashboard.html';
                 break;
             case 'ToPho':
+                window.location.href = '/pages/viceAdmin/dashboard.html';
+                break;
             case 'CanBo':
                 window.location.href = '/pages/manager/dashboard.html';
                 break;
