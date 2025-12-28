@@ -57,3 +57,11 @@ CREATE TRIGGER trg_tu_dong_them_lich
 AFTER UPDATE OF trangthai ON dangkysudung
 FOR EACH ROW
 EXECUTE FUNCTION fn_tu_dong_them_lich();
+
+
+--update 6pm 28/12/2025 xóa trigger sai
+-- Xóa Trigger tự động tạo lịch khi thêm hoạt động chung
+DROP TRIGGER IF EXISTS trg_tao_lich_hd_chung ON hoatdongchung;
+
+-- Xóa Function đi kèm 
+DROP FUNCTION IF EXISTS fn_tao_lich_hd_chung;

@@ -11,9 +11,6 @@ const db = {
         { id: 'TS02', name: 'Ghế nhựa', qty: 150, status: 'Cũ', place:'Hội trường tầng 1' },
         { id: 'TS03', name: 'Loa đài', qty: 1, status: 'Đang hỏng' , place: 'Phòng CLB Tầng 2'}
     ],
-    events: [
-        { title: 'Họp Tổ dân phố', time: '25/12 19:00', loc: 'Hội trường T1' }
-    ]
 };
 
 // --- HÀM KHỞI TẠO CHUNG ---
@@ -162,49 +159,130 @@ window.onclick = function(event) {
 
 // --- CÁC HÀM KHÁC (Lịch hoạt động...) ---
 
-function loadEventList() {
+async function loadEventList() {
     const list = document.getElementById('upcomingList');
-    if (db.events.length === 0) {
-        list.innerHTML = '<li class="empty-state">Chưa có lịch nào</li>';
-        return;
+    list.innerHTML = '<li class="loading">Đang tải...</li>';
+
+    try {
+        const response = await fetch('/api/nvh/HDchung');
+        if (!response.ok) throw new Error('Lỗi tải lịch');
+
+        const events = await response.json();
+
+        if (events.length === 0) {
+            list.innerHTML = '<li class="empty-state">Chưa có lịch hoạt động sắp tới</li>';
+            return;
+        }
+
+        // Hàm format ngày giờ
+        const formatTime = (isoStr) => {
+            const d = new Date(isoStr);
+            return `${d.getDate()}/${d.getMonth() + 1} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+        };
+
+        list.innerHTML = events.map(e => `
+            <li class="event-item">
+                <span class="event-time"><i class="far fa-clock"></i> ${formatTime(e.thoiGian.tu)}</span>
+                <span class="event-title">${e.tenHD}</span>
+                <span class="event-loc"><i class="fas fa-map-marker-alt"></i> ${e.phong}</span>
+            </li>
+        `).join('');
+
+    } catch (error) {
+        console.error(error);
+        list.innerHTML = '<li class="error-state">Không thể tải dữ liệu</li>';
     }
-    
-    list.innerHTML = db.events.map(e => `
-        <li class="event-item">
-            <span class="event-time"><i class="far fa-clock"></i> ${e.time}</span>
-            <span class="event-title">${e.title}</span>
-            <span class="event-loc"><i class="fas fa-map-marker-alt"></i> ${e.loc}</span>
-        </li>
-    `).join('');
 }
 
-function populateRoomSelect() {
+async function populateRoomSelect() {
     const select = document.getElementById('evtRoom');
-    select.innerHTML = db.rooms.map(r => `<option>${r.name}</option>`).join('');
+    
+    try {
+        // Gọi API lấy phòng thật từ DB
+        const response = await fetch('/api/nvh/rooms');
+        if (!response.ok) throw new Error('Lỗi tải phòng');
+        
+        const rooms = await response.json();
+        
+        // Render thẻ option có value là ID (phongid)
+        select.innerHTML = rooms.map(r => 
+            `<option value="${r.phongid}">${r.tenphong}</option>`
+        ).join('');
+        
+    } catch (error) {
+        console.error(error);
+        // Fallback nếu lỗi: dùng tạm hardcode khớp với DB của bạn
+        select.innerHTML = `
+            <option value="1">Hội Trường Lớn</option>
+            <option value="2">Phòng Sinh Hoạt Cộng Đồng</option>
+            <option value="3">Phòng Đa Năng</option>
+            <option value="4">Phòng Thiết Bị</option>
+            <option value="5">Phòng Sinh hoạt Thanh niên</option>
+            <option value="6">Phòng Nghiên cứu & Tài liệu</option>
+        `;
+    }
 }
 
-function saveActivity() {
+async function saveActivity() {
     const name = document.getElementById('evtName').value;
     const start = document.getElementById('evtStart').value;
     const end = document.getElementById('evtEnd').value;
+    const roomId = document.getElementById('evtRoom').value;
+    const note = document.getElementById('evtNote').value;
     
-    if(!name || !start || !end) {
+    // Validate cơ bản
+    if(!name || !start || !end || !roomId) {
         alert('Vui lòng nhập đầy đủ thông tin!');
         return;
     }
 
-    const formatTime = (isoStr) => {
-        const d = new Date(isoStr);
-        return `${d.getDate()}/${d.getMonth()+1} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const payload = {
+        tenHD: name,
+        phong: roomId,
+        thoiGian: {
+            tu: start,
+            den: end
+        },
+        ghiChu: note || "Tạo bởi Admin"
+    };
+
+    const btn = document.querySelector('.form-actions .btn-primary'); 
+    if (!btn) {
+        console.error("Không tìm thấy nút lưu trong HTML!");
+        return;
     }
+    const oldText = btn.innerText;
+    btn.innerText = "Đang lưu...";
+    btn.disabled = true;
 
-    db.events.push({
-        title: name,
-        time: `${formatTime(start)} - ${formatTime(end)}`,
-        loc: document.getElementById('evtRoom').value
-    });
+    try {
+        const response = await fetch('/api/nvh/HDchung/new', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-    alert('Đã lưu lịch thành công!');
-    loadEventList();
-    document.getElementById('evtName').value = '';
+        const resData = await response.json();
+
+        if (response.ok) {
+            alert('Đã thêm lịch hoạt động thành công!');
+            // Reset form
+            document.getElementById('evtName').value = '';
+            document.getElementById('evtStart').value = '';
+            document.getElementById('evtEnd').value = '';
+            document.getElementById('evtRoom').value = '';
+            document.getElementById('evtNote').value = '';
+            
+            // Load lại danh sách
+            loadEventList();
+        } else {
+            alert('Lỗi: ' + (resData.message || 'Không thể thêm lịch'));
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Lỗi kết nối server');
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
+    }
 }
