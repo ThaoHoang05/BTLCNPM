@@ -47,33 +47,70 @@ async function fetchPendingList() {
 }
 
 // API: Lấy danh sách lịch sử
+// API: Lấy danh sách lịch sử
 async function fetchHistoryList() {
+    const tbody = document.getElementById('requestTableBody');
+    if (!tbody) return;
+
+    // Hiển thị trạng thái đang tải
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Đang tải lịch sử...</td></tr>`;
+
     try {
-        const fromDate = document.getElementById('fromDate').value;
-        const toDate = document.getElementById('toDate').value;
+        const fromDate = document.getElementById('fromDate')?.value;
+        const toDate = document.getElementById('toDate')?.value;
+        
         let url = `/api/nvh/history`;
-        if (fromDate && toDate) {
-            url += `?from=${fromDate}&to=${toDate}`;
-        }
+        if (fromDate && toDate) url += `?from=${fromDate}&to=${toDate}`;
+        
         const response = await fetch(url);
-        if (!response.ok) throw new Error('Lỗi khi tải lịch sử');
         
-        const data = await response.json();
-        
-        currentList = data.map(item => ({
-            id: item.id,
-            name: item.hoTen,
-            from: item.thoiGian.tu,
-            to: item.thoiGian.den,
-            type: item.loaiHinh,
-            reason: item.tenHD,
-            status: 'history'
-        }));
+        // Kiểm tra lỗi HTTP (404, 500...)
+        if (!response.ok) {
+            throw new Error(`Lỗi server: ${response.status}`);
+        }
+
+        const resData = await response.json();
+        console.log("Dữ liệu lịch sử trả về:", resData); // Debug xem log
+
+        // XỬ LÝ QUAN TRỌNG: Xác định mảng dữ liệu nằm ở đâu
+        // Trường hợp 1: API trả về mảng trực tiếp [item1, item2...]
+        // Trường hợp 2: API trả về object { data: [item1, item2...] }
+        let rawList = [];
+        if (Array.isArray(resData)) {
+            rawList = resData;
+        } else if (resData.data && Array.isArray(resData.data)) {
+            rawList = resData.data;
+        }
+
+        // Map dữ liệu
+        currentList = rawList.map(item => {
+            // Kiểm tra an toàn cho thời gian (đề phòng backend trả null hoặc format khác)
+            let tu = '', den = '';
+            if (item.thoiGian) {
+                tu = item.thoiGian.tu;
+                den = item.thoiGian.den;
+            } else {
+                // Fallback nếu backend trả về phẳng (không lồng trong thoiGian)
+                tu = item.tu || item.thoigianbatdau;
+                den = item.den || item.thoigianketthuc;
+            }
+
+            return {
+                id: item.id,
+                name: item.hoTen,
+                from: tu,
+                to: den,
+                type: item.loaiHinh || 'Chưa xác định',
+                reason: item.tenHD,
+                status: 'history' // Đánh dấu để render nút "Chi tiết"
+            };
+        });
 
         renderRequestTable(currentList);
+
     } catch (error) {
-        console.error(error);
-        alert("Không thể tải dữ liệu lịch sử");
+        console.error("Lỗi tải lịch sử:", error);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Không tải được dữ liệu: ${error.message}</td></tr>`;
     }
 }
 
@@ -117,22 +154,34 @@ async function postReject(payload) {
 // ============================================================
 
 // Chuyển Tab
-function filterRequests(tabType) {
-    currentTab = tabType;
+// Chuyển đổi giữa Tab "Chờ duyệt" và "Lịch sử"
+function filterRequests(type) {
+    currentTab = type;
     
-    // Update UI Tab
+    // 1. Cập nhật giao diện nút bấm (Tab)
+    // Giả sử HTML của bạn có 2 nút với class .tab-btn
     const buttons = document.querySelectorAll('.tab-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    
-    if (tabType === 'pending') {
-        buttons[0].classList.add('active');
-        fetchPendingList(); // Gọi API Pending
-        // Ẩn/Hiện nút lọc ngày (chỉ pending mới có API lọc ngày theo yêu cầu)
-        document.querySelector('.filter-toolbar').style.display = 'flex';
+    if (buttons.length >= 2) {
+        buttons.forEach(btn => btn.classList.remove('active'));
+        if (type === 'pending') {
+            buttons[0].classList.add('active'); // Nút đầu tiên là Chờ duyệt
+        } else {
+            buttons[1].classList.add('active'); // Nút thứ hai là Lịch sử
+        }
+    }
+
+    // 2. Ẩn/Hiện bộ lọc ngày (Tuỳ chọn: thường lịch sử mới cần lọc ngày kỹ)
+    const filterToolbar = document.querySelector('.filter-toolbar');
+    if (filterToolbar) {
+        // Ví dụ: Luôn hiện hoặc chỉ hiện khi cần
+        filterToolbar.style.display = 'flex'; 
+    }
+
+    // 3. Gọi API tương ứng
+    if (type === 'pending') {
+        fetchPendingList();
     } else {
-        buttons[1].classList.add('active');
-        fetchHistoryList(); // Gọi API History
-        // Ẩn thanh lọc nếu API history không hỗ trợ lọc (tùy chỉnh)
+        fetchHistoryList();
     }
 }
 

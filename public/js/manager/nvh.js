@@ -5,20 +5,22 @@ const db = {
         { name: 'Hội trường Tầng 1', desc: 'Sức chứa 300 người, có sân khấu' },
         { name: 'Phòng CLB Tầng 2', desc: 'Sinh hoạt người cao tuổi' },
         { name: 'Phòng Đọc sách', desc: 'Thư viện nhỏ cho thiếu nhi' }
-    ],
-    assets: [
-        { id: 'TS01', name: 'Bàn Hội trường', qty: 20, status: 'Tốt', place:'Hội trường tầng 1' },
-        { id: 'TS02', name: 'Ghế nhựa', qty: 150, status: 'Cũ', place:'Hội trường tầng 1' },
-        { id: 'TS03', name: 'Loa đài', qty: 1, status: 'Đang hỏng' , place: 'Phòng CLB Tầng 2'}
-    ],
+    ]
 };
 
 // --- HÀM KHỞI TẠO CHUNG ---
 function initNVH() {
     console.log("Bắt đầu khởi tạo Nhà Văn Hóa...");
+    
+    // Đảm bảo db.assets tồn tại để tránh lỗi undefined trước khi fetch xong
+    if (!db.assets) db.assets = [];
+
     if (!document.getElementById('generalInfo')) return;
+    
     loadOverview();
-    loadAssets();
+
+    fetchAssetList(); 
+    
     loadEventList();
     populateRoomSelect();
 }
@@ -34,24 +36,55 @@ function switchTab(tabId, btnElement) {
 }
 
 // --- CÁC HÀM LOAD DỮ LIỆU ---
-function loadOverview() {
-    const statsHtml = `
-        <div class="stat-card"><span>Năm sử dụng</span><b>${db.info.year}</b></div>
-        <div class="stat-card"><span>DT Khuôn viên</span><b>${db.info.area_total} m²</b></div>
-        <div class="stat-card"><span>DT Xây dựng</span><b>${db.info.area_build} m²</b></div>
-    `;
-    document.getElementById('generalInfo').innerHTML = statsHtml;
+// Hàm mới: Tải danh sách tài sản từ Server
+async function fetchAssetList() {
+    // 1. Hiển thị trạng thái đang tải
+    const tableBody = document.getElementById('assetTableBody');
+    if (tableBody) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Đang tải dữ liệu từ máy chủ...</td></tr>';
+    }
 
-    const roomsHtml = db.rooms.map(r => `
-        <div class="room-item">
-            <div style="font-weight:bold; color:#2c3e50">${r.name}</div>
-            <div style="font-size:13px; color:#666; margin-top:5px">${r.desc}</div>
-        </div>
-    `).join('');
-    document.getElementById('roomList').innerHTML = roomsHtml;
+    try {
+        // 2. Gọi API
+        const response = await fetch('/api/nvh/asset');
+        
+        if (!response.ok) {
+            throw new Error(`Lỗi HTTP: ${response.status}`);
+        }
+
+        const resData = await response.json();
+
+        // 3. Kiểm tra payload dựa trên mẫu bạn cung cấp
+        if (resData.status === 'success' && Array.isArray(resData.data)) {
+            
+            // MAP DỮ LIỆU: DB (Tiếng Việt) -> Frontend (Tiếng Anh/Biến cũ)
+            db.assets = resData.data.map(item => ({
+                id: String(item.maTS),  // QUAN TRỌNG: Ép về string để khớp với logic so sánh ID cũ
+                name: item.tenTS,       // Khớp: tenTS
+                qty: item.SL,           // Khớp: SL
+                status: item.tinhTrang, // Khớp: tinhTrang
+                place: item.viTri       // Khớp: viTri
+            }));
+
+            // 4. Render lại bảng
+            loadAssets(); 
+        } else {
+            console.error("Dữ liệu trả về không đúng định dạng:", resData);
+            if(tableBody) tableBody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Lỗi cấu trúc dữ liệu</td></tr>';
+        }
+
+    } catch (error) {
+        console.error("Không thể tải danh sách tài sản:", error);
+        if (tableBody) {
+            tableBody.innerHTML = `<tr><td colspan="6" style="color:red; text-align:center;">Lỗi kết nối: ${error.message}</td></tr>`;
+        }
+    }
 }
 
 function loadAssets() {
+    // Kiểm tra nếu chưa có dữ liệu thì thoát
+    if (!db.assets) return;
+
     const rows = db.assets.map(a => `
         <tr>
             <td>${a.id}</td>
@@ -69,7 +102,28 @@ function loadAssets() {
             </td>
         </tr>
     `).join('');
-    document.getElementById('assetTableBody').innerHTML = rows;
+    
+    const tableBody = document.getElementById('assetTableBody');
+    if (tableBody) {
+        tableBody.innerHTML = rows;
+    }
+}
+
+function loadOverview() {
+    const statsHtml = `
+        <div class="stat-card"><span>Năm sử dụng</span><b>${db.info.year}</b></div>
+        <div class="stat-card"><span>DT Khuôn viên</span><b>${db.info.area_total} m²</b></div>
+        <div class="stat-card"><span>DT Xây dựng</span><b>${db.info.area_build} m²</b></div>
+    `;
+    document.getElementById('generalInfo').innerHTML = statsHtml;
+
+    const roomsHtml = db.rooms.map(r => `
+        <div class="room-item">
+            <div style="font-weight:bold; color:#2c3e50">${r.name}</div>
+            <div style="font-size:13px; color:#666; margin-top:5px">${r.desc}</div>
+        </div>
+    `).join('');
+    document.getElementById('roomList').innerHTML = roomsHtml;
 }
 
 // --- LOGIC MODAL TÀI SẢN (THÊM & SỬA - DÙNG CHUNG) ---
@@ -141,10 +195,26 @@ function saveAsset() {
 }
 
 // 5. Hàm Xóa Tài sản
-function deleteAsset(id) {
-    if (confirm('Bạn có chắc chắn muốn xóa tài sản có mã ' + id + ' không?')) {
-        db.assets = db.assets.filter(item => item.id !== id);
-        loadAssets();
+async function deleteAsset(id) {
+    if (!confirm('Bạn có chắc chắn muốn xóa tài sản có mã ' + id + ' không?')) return;
+
+    try {
+        const response = await fetch(`/api/nvh/asset/${id}`, {
+            method: 'DELETE'
+        });
+        
+        const resData = await response.json();
+
+        if (response.ok && resData.status === 'success') {
+            alert('Xóa thành công!');
+            // Load lại danh sách mới nhất từ server
+            fetchAssetList(); 
+        } else {
+            alert('Lỗi: ' + (resData.message || 'Không thể xóa'));
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Lỗi kết nối khi xóa');
     }
 }
 
