@@ -48,72 +48,51 @@ async function fetchPendingList() {
 
 // API: Lấy danh sách lịch sử
 // API: Lấy danh sách lịch sử
+// API: Lấy danh sách lịch sử
 async function fetchHistoryList() {
     const tbody = document.getElementById('requestTableBody');
     if (!tbody) return;
 
-    // Hiển thị trạng thái đang tải
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Đang tải lịch sử...</td></tr>`;
-
     try {
         const fromDate = document.getElementById('fromDate')?.value;
         const toDate = document.getElementById('toDate')?.value;
-        
         let url = `/api/nvh/history`;
         if (fromDate && toDate) url += `?from=${fromDate}&to=${toDate}`;
         
         const response = await fetch(url);
-        
-        // Kiểm tra lỗi HTTP (404, 500...)
-        if (!response.ok) {
-            throw new Error(`Lỗi server: ${response.status}`);
-        }
-
         const resData = await response.json();
-        console.log("Dữ liệu lịch sử trả về:", resData); // Debug xem log
+        
+        // Xử lý payload (vì payload của bạn là một mảng trực tiếp)
+        let rawList = Array.isArray(resData) ? resData : (resData.data || []);
 
-        // XỬ LÝ QUAN TRỌNG: Xác định mảng dữ liệu nằm ở đâu
-        // Trường hợp 1: API trả về mảng trực tiếp [item1, item2...]
-        // Trường hợp 2: API trả về object { data: [item1, item2...] }
-        let rawList = [];
-        if (Array.isArray(resData)) {
-            rawList = resData;
-        } else if (resData.data && Array.isArray(resData.data)) {
-            rawList = resData.data;
-        }
-
-        // Map dữ liệu
         currentList = rawList.map(item => {
-            // Kiểm tra an toàn cho thời gian (đề phòng backend trả null hoặc format khác)
-            let tu = '', den = '';
-            if (item.thoiGian) {
-                tu = item.thoiGian.tu;
-                den = item.thoiGian.den;
-            } else {
-                // Fallback nếu backend trả về phẳng (không lồng trong thoiGian)
-                tu = item.tu || item.thoigianbatdau;
-                den = item.den || item.thoigianketthuc;
+            // --- LOGIC CHUẨN HÓA TRẠNG THÁI ---
+            // Mặc định là chờ duyệt
+            let mappedStatus = 'pending'; 
+            
+            // Kiểm tra chuỗi tiếng Việt từ API
+            if (item.trangThai === 'Từ chối') {
+                mappedStatus = 'reject';
+            } else if (item.trangThai === 'Đã duyệt' || item.trangThai === 'Đồng ý') {
+                mappedStatus = 'approved';
             }
 
             return {
                 id: item.id,
                 name: item.hoTen,
-                from: tu,
-                to: den,
-                type: item.loaiHinh || 'Chưa xác định',
+                from: item.thoiGian.tu, // Payload của bạn đã lồng thoiGian
+                to: item.thoiGian.den,
+                type: item.loaiHinh,
                 reason: item.tenHD,
-                status: 'history' // Đánh dấu để render nút "Chi tiết"
+                status: mappedStatus // <-- LƯU Ý QUAN TRỌNG: Dùng biến đã chuẩn hóa
             };
         });
 
         renderRequestTable(currentList);
-
     } catch (error) {
         console.error("Lỗi tải lịch sử:", error);
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Không tải được dữ liệu: ${error.message}</td></tr>`;
     }
 }
-
 // API: Lấy chi tiết đơn lịch sử
 async function fetchHistoryDetail(id) {
     try {
@@ -244,6 +223,22 @@ function renderRequestTable(data) {
             </td>
             <td><span class="badge badge-primary">${item.type || 'HĐ chung'}</span></td>
             <td>${item.reason}</td>
+            <td class="text-center">
+                ${(() => {
+                    if (item.status === 'reject') {
+                        // Dùng class .status-fail (Màu đỏ)
+                        return '<span class="my-badge status-fail">Đã từ chối</span>';
+                    } 
+                    else if (item.status === 'approved') {
+                        // Dùng class .status-ok (Màu xanh)
+                        return '<span class="my-badge status-ok">Đã duyệt</span>';
+                    } 
+                    else {
+                        // Dùng class .status-wait (Màu vàng)
+                        return '<span class="my-badge status-wait">Chờ duyệt</span>';
+                    }
+                })()}
+            </td>
             <td class="text-center">${actionBtn}</td>
         `;
         tbody.appendChild(row);

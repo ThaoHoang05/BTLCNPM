@@ -161,6 +161,74 @@ const NhaVanHoaModel = {
         }
     },
 
+    getReportStats: async (month, year) => {
+        try {
+            // QUERY 1: Thống kê tổng quan hiện tại (Snapshot toàn bộ kho)
+            // Đếm tổng số, số lượng Tốt, và số lượng Hỏng (Khác Tốt)
+            const queryStats = `
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN tinhtrang = 'Tốt' THEN 1 ELSE 0 END) as tot,
+                    SUM(CASE WHEN tinhtrang != 'Tốt' THEN 1 ELSE 0 END) as hong
+                FROM taisan
+            `;
+            
+            // QUERY 2: Lấy nhật ký kiểm tra trong tháng/năm được chọn
+            // Join 3 bảng: kiemtrataisan - taisan - canbo để lấy đủ tên
+            const queryHistory = `
+                SELECT 
+                    k.ngaykiemtra, 
+                    t.tentaisan, 
+                    k.soluongthucte, 
+                    k.tinhtrang, 
+                    k.ghichu, 
+                    COALESCE(c.hoten, 'Admin') as canbo
+                FROM kiemtrataisan k
+                LEFT JOIN taisan t ON k.taisanid = t.taisanid
+                LEFT JOIN canbo c ON k.canboid = c.canboid
+                WHERE EXTRACT(MONTH FROM k.ngaykiemtra) = $1 
+                  AND EXTRACT(YEAR FROM k.ngaykiemtra) = $2
+                ORDER BY k.ngaykiemtra DESC
+            `;
+
+            // Thực hiện cả 2 truy vấn
+            const statsRes = await poolQuanLiNhaVanHoa.query(queryStats);
+            const historyRes = await poolQuanLiNhaVanHoa.query(queryHistory, [month, year]);
+
+            // Trả về object chứa cả 2 loại dữ liệu
+            return {
+                summary: statsRes.rows[0], // { total: 100, tot: 80, hong: 20 }
+                history: historyRes.rows   // [Danh sách các lần kiểm tra...]
+            };
+        } catch (error) {
+            console.error("Lỗi Model getReportStats:", error.message);
+            throw error;
+        }
+    },
+
+    addInspection: async (data) => {
+        const query = `
+            INSERT INTO kiemtrataisan (taisanid, canboid, ngaykiemtra, soluongthucte, tinhtrang, ghichu)
+            VALUES ($1, $2, NOW(), $3, $4, $5)
+            RETURNING *
+        `;
+        
+        // Lưu ý: canboid tạm để là 1 (Admin) vì hệ thống chưa có đăng nhập
+        const values = [data.id, 1, data.sl, data.tinhTrang, data.ghiChu];
+        
+        try {
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, values);
+            return rows[0];
+        } catch (error) {
+            // Mã lỗi 23505 trong PostgreSQL nghĩa là vi phạm ràng buộc Unique
+            // (Tức là tài sản này + ngày hôm nay đã có trong bảng rồi)
+            if (error.code === '23505') {
+                throw new Error("Tài sản này đã được kiểm kê trong ngày hôm nay rồi.");
+            }
+            console.error("Lỗi Model addInspection:", error.message);
+            throw error;
+        }
+    },
 };
 
 module.exports = NhaVanHoaModel;
