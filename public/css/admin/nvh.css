@@ -366,3 +366,29 @@
 .btn-refresh:hover {
     background-color: #0056b3;
 }
+
+/* Tự định nghĩa kiểu dáng cho Badge */
+.my-badge {
+    display: inline-block;
+    padding: 6px 12px;       /* Khoảng cách lề trong */
+    border-radius: 20px;     /* Bo tròn góc */
+    font-size: 13px;         /* Cỡ chữ */
+    font-weight: bold;       /* Chữ đậm */
+    text-align: center;
+    color: white;            /* Mặc định chữ màu trắng */
+    min-width: 100px;        /* Chiều rộng tối thiểu cho đều */
+}
+
+/* Định nghĩa màu sắc cụ thể */
+.status-ok {
+    background-color: #28a745; /* Màu Xanh lá */
+}
+
+.status-fail {
+    background-color: #dc3545; /* Màu Đỏ */
+}
+
+.status-wait {
+    background-color: #ffc107; /* Màu Vàng */
+    color: #333;               /* Chữ màu đen cho dễ đọc trên nền vàng */
+}
