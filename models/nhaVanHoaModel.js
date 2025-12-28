@@ -229,6 +229,22 @@ const NhaVanHoaModel = {
             throw error;
         }
     },
+    countPendingRequestsThisMonth: async () => {
+        try {
+            const query = `
+                SELECT COUNT(*) as count 
+                FROM dangkysudung 
+                WHERE trangthai = 'Chờ duyệt'
+                AND EXTRACT(MONTH FROM thoigianbatdau) = EXTRACT(MONTH FROM CURRENT_DATE)
+                AND EXTRACT(YEAR FROM thoigianbatdau) = EXTRACT(YEAR FROM CURRENT_DATE)
+            `;
+            const { rows } = await poolQuanLiNhaVanHoa.query(query);
+            return parseInt(rows[0].count);
+        } catch (error) {
+            console.error("Lỗi Model countPendingRequestsThisMonth:", error);
+            throw error;
+        }
+    },
 };
 
 module.exports = NhaVanHoaModel;

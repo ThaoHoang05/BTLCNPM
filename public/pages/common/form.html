@@ -1,59 +1,102 @@
 <!DOCTYPE html>
-<html>
-    <header>
-        <meta charset="utf8">
-        <title>Điền form</title>
-        <link rel="stylesheet" href="../../css/base.css" />
-        <script src = "../../js/common/formreq.js"></script>
-    </header>
-    <body>
-        <div class="top-head">
-            <h1>TỔ DÂN PHỐ SỐ 7</h1>
-            <ul class="nav">
-                <li><a href="../index.html">Trang thông tin</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="login.html">Login</a></li>
-            </ul>
-        </div>
-        <div class="main-content">
-            <div id="form-use-community-center">
-                <h2>Điền form đăng kí sử dụng nhà văn hóa</h2>
-                <form id ="reqForm">
-                    <label for="fullname">Họ và tên: </label>
-                    <input type="text" id="fullname" required /><br />
-                    <label for="cccd">CCCD:</label>
-                    <input type="text" id="cccd" required /><br />
-                    <label for="numberphone">Số điện thoại:</label>
-                    <input type="tel" id="numberphone" required /><br />
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" required /><br />
-                    <label for="type">Loại hình thuê: </label>
-                    <select id="type">
-                        <option value="default">Chọn kiểu thuê</option>
-                        <option value="CaNhan">Cá nhân</option>
-                        <option value="ToChuc">Tổ chức</option>
-                    </select><br />
-                    <label for="event">Sự kiện:</label>
-                    <input type="text" id="event" required /><br />
-                    <label for="place">Địa điểm:</label>
-                    <select id ="place">
-                        <option value="default">Chọn địa điểm</option>
-                        <option value="1">Hội trường lớn</option>
-                        <option value="2">Phòng Sinh Hoạt Cộng Đồng</option>
-                        <option value="3">Phòng Đa Năng</option>
-                        <option value="5">Phòng Sinh Hoạt Thanh Niên</option>
-                        <option value="6">Phòng Nghiên cứu & Tài liệu</option>
-                    </select><br />
-                    <label for="reason">Lý do:</label>
-                    <textarea id="reason" rows="5" placeholder="Nhập lý do..."></textarea>
-                    <br />
-                    <label for="from">Thuê từ:</label>
-                    <input type="datetime-local" id="from" required /><br />
-                    <label for="to">Đến:</label>
-                    <input type="datetime-local" id="to" required /><br />
-                    <input type="button" value="Submit" onclick="postForm()"/>
-                </form>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <title>Đăng ký sử dụng</title>
+    <link rel="stylesheet" href="../../css/base.css" />
+    <link rel="stylesheet" href="../../css/form.css" />
+    <script src="../../js/common/formreq.js"></script>
+</head>
+<body>
+    <div class="top-head">
+        <h1>TỔ DÂN PHỐ SỐ 7</h1>
+        <ul class="nav">
+            <li><a href="../index.html">Trang thông tin</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+            <li><a href="login.html">Đăng nhập</a></li>
+        </ul>
+    </div>
+
+    <div class="form-page-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>ĐƠN ĐĂNG KÝ</h2>
+                <p>Sử dụng Nhà văn hóa & Thiết bị công</p>
             </div>
+
+            <form id="reqForm">
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="fullname">Họ và tên <span class="required">*</span></label>
+                        <input type="text" id="fullname" placeholder="Nguyễn Văn A" required />
+                    </div>
+                    <div class="form-group half">
+                        <label for="cccd">CCCD/CMND <span class="required">*</span></label>
+                        <input type="text" id="cccd" placeholder="001234..." required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="numberphone">Số điện thoại <span class="required">*</span></label>
+                        <input type="tel" id="numberphone" placeholder="09xxxx" required />
+                    </div>
+                    <div class="form-group half">
+                        <label for="email">Email liên hệ <span class="required">*</span></label>
+                        <input type="email" id="email" placeholder="example@gmail.com" required />
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="type">Loại hình thuê</label>
+                        <select id="type">
+                            <option value="default" disabled selected>-- Chọn loại hình --</option>
+                            <option value="CaNhan">Cá nhân (Gia đình)</option>
+                            <option value="ToChuc">Tổ chức / CLB</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label for="place">Địa điểm sử dụng</label>
+                        <select id="place">
+                            <option value="default" disabled selected>-- Chọn phòng --</option>
+                            <option value="1">Hội trường lớn (Tầng 1)</option>
+                            <option value="2">Phòng Sinh Hoạt Cộng Đồng</option>
+                            <option value="3">Phòng Đa Năng</option>
+                            <option value="5">Phòng Sinh Hoạt Thanh Niên</option>
+                            <option value="6">Phòng Nghiên cứu & Tài liệu</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="event">Tên sự kiện / Hoạt động <span class="required">*</span></label>
+                    <input type="text" id="event" placeholder="VD: Đám cưới, Họp tổ dân phố..." required />
+                </div>
+
+                <div class="form-group">
+                    <label for="reason">Nội dung chi tiết / Ghi chú</label>
+                    <textarea id="reason" rows="3" placeholder="Mô tả thêm về yêu cầu hỗ trợ (nếu có)..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="from">Bắt đầu từ <span class="required">*</span></label>
+                        <input type="datetime-local" id="from" required />
+                    </div>
+                    <div class="form-group half">
+                        <label for="to">Kết thúc lúc <span class="required">*</span></label>
+                        <input type="datetime-local" id="to" required />
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <input type="button" value="Gửi Đăng Ký" onclick="postForm()" />
+                </div>
+            </form>
         </div>
-    </body>
+    </div>
+</body>
 </html>

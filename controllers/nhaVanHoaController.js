@@ -210,6 +210,20 @@ const nhaVanHoaController = {
             });
         }
     },
+    getDashboardStats: async (req, res) => {
+        try {
+            const pendingCount = await NhaVanHoaModel.countPendingRequestsThisMonth();
+            
+            res.status(200).json({
+                status: 'success',
+                data: {
+                    pendingRequests: pendingCount
+                }
+            });
+        } catch (error) {
+            res.status(500).json({ status: "error", message: "Lỗi lấy thống kê dashboard NVH" });
+        }
+    },
 };
 
 module.exports = nhaVanHoaController;

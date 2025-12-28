@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initHomeDashboard() {
     queryData(); 
+    queryNVHData()
 }
 
 function queryData() {
@@ -50,4 +51,17 @@ function animateValue(id, start, end, duration) {
         }
     };
     window.requestAnimationFrame(step);
+}
+
+function queryNVHData() {
+    // Gọi API chúng ta vừa tạo ở bước 1
+    fetch('/api/nvh/dashboard/stats')
+        .then(response => response.json())
+        .then(res => {
+            if (res.status === 'success') {
+                // Cập nhật số liệu lên thẻ HTML có id="nvhPendingCount"
+                animateValue('nvhPendingCount', 0, res.data.pendingRequests || 0, 1000);
+            }
+        })
+        .catch(error => console.error("Lỗi tải thống kê NVH:", error));
 }
