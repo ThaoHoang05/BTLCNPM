@@ -5,8 +5,45 @@ const NhaVanHoaModel = {
 // QUẢN LÝ TÀI SẢN
 // ==============================================
 
-    //Hàm bla bla...
+    // Lấy danh sách tài sản với vị trí là tên phòng
+    getAllAssets: async () => {
+        const query = `
+            SELECT t.taisanid as "maTS", t.tentaisan as "tenTS", t.soluong as "SL",
+                   t.tinhtrang as "tinhTrang", COALESCE(p.tenphong, 'Chưa xác định') as "viTri"
+            FROM taisan t
+                     LEFT JOIN phong p ON t.phongid = p.phongid
+            ORDER BY t.taisanid ASC`;
+        const { rows } = await poolQuanLiNhaVanHoa.query(query);
+        return rows;
+    },
 
+    // Cập nhật chi tiết tài sản dựa trên ID
+    updateAsset: async (id, updateData) => {
+        const fields = Object.keys(updateData);
+        if (fields.length === 0) return null;
+
+        // Tạo chuỗi SQL động: "tentaisan" = $1, "soluong" = $2...
+        const setClause = fields
+            .map((field, index) => `"${field}" = $${index + 1}`)
+            .join(', ');
+
+        const values = Object.values(updateData);
+        values.push(id); // Thêm ID vào cuối mảng giá trị cho WHERE
+
+        const query = `
+            UPDATE taisan 
+            SET ${setClause} 
+            WHERE taisanid = $${values.length}
+            RETURNING *`;
+
+        try {
+            const { rows } = await poolQuanLiNhaVanHoa.query(query, values);
+            return rows[0];
+        } catch (error) {
+            console.error("Lỗi Model updateAsset:", error.message);
+            throw error;
+        }
+    },
 
 // ==============================================
 // QUẢN LÝ LỊCH CHUNG

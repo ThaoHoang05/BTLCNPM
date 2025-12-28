@@ -5,8 +5,46 @@ const nhaVanHoaController = {
 // QUẢN LÝ TÀI SẢN
 // ==============================================
 
-    //Hàm bla bla...
+    getAssets: async (req, res) => {
+        try {
+            const assets = await NhaVanHoaModel.getAllAssets();
 
+            return res.status(200).json({
+                status: "success",
+                data: assets
+            });
+        } catch (error) {
+            return res.status(500).json({
+                status: "error",
+                message: "Lỗi khi lấy danh sách tài sản"
+            });
+        }
+    },
+
+    updateAsset: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const updateData = req.body;
+
+            if (Object.keys(updateData).length === 0) {
+                return res.status(400).json({ message: "Không có dữ liệu cập nhật" });
+            }
+
+            const result = await NhaVanHoaModel.updateAsset(id, updateData);
+
+            if (!result) {
+                return res.status(404).json({ message: "Không tìm thấy tài sau có mã này" });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: "Đã cập nhật thông tin tài sản",
+                data: result
+            });
+        } catch (error) {
+            res.status(500).json({ status: "error", message: error.message });
+        }
+    },
 
 // ==============================================
 // QUẢN LÝ LỊCH CHUNG

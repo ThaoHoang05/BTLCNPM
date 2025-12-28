@@ -65,3 +65,60 @@ DROP TRIGGER IF EXISTS trg_tao_lich_hd_chung ON hoatdongchung;
 
 -- Xóa Function đi kèm 
 DROP FUNCTION IF EXISTS fn_tao_lich_hd_chung;
+
+
+-- Update bảng tài sản (6pm 28/12)
+ALTER TABLE TaiSan ADD COLUMN PhongID INT;
+ALTER TABLE TaiSan ADD CONSTRAINT fk_taisan_phong FOREIGN KEY (PhongID) REFERENCES Phong(PhongID);
+
+TRUNCATE TABLE kiemtrataisan CASCADE;
+DELETE FROM TaiSan;
+
+-- Nạp lại toàn bộ tài sản với ID liên tục và phân bổ phòng hợp lý
+INSERT INTO TaiSan (TaiSanID, TenTaiSan, SoLuong, TinhTrang, NhaID, PhongID) VALUES
+-- Hội Trường Lớn (ID: 1)
+(101, 'Ghế nhựa cao cấp', 150, 'Tốt', 1, 1),
+(102, 'Bàn hội nghị', 20, 'Tốt', 1, 1),
+(103, 'Hệ thống âm thanh (Bộ)', 1, 'Tốt, mới bảo trì', 1, 1),
+(104, 'Máy chiếu (Bộ)', 2, 'Cần thay bóng 1 cái', 1, 1),
+(105, 'Quạt treo tường', 15, 'Tốt', 1, 1),
+(106, 'Bảng thông báo điện tử', 1, 'Mới 100%', 1, 1),
+
+-- Phòng Sinh Hoạt Cộng Đồng (ID: 2)
+(107, 'Tivi Sony 65 inch', 1, 'Tốt', 1, 2),
+(108, 'Bộ ấm chén pha trà', 10, 'Tốt', 1, 2),
+(109, 'Bình nước nóng lạnh', 2, 'Mới', 1, 2),
+(110, 'Tủ kính trưng bày bằng khen', 2, 'Tốt', 1, 2),
+(111, 'Bàn ghế sofa tiếp khách', 1, 'Tốt', 1, 2),
+
+-- Phòng Đa Năng (ID: 3)
+(112, 'Thảm tập Yoga', 30, 'Tốt', 1, 3),
+(113, 'Gương lớn áp tường (m2)', 20, 'Tốt', 1, 3),
+(114, 'Bộ dụng cụ tập thể dục', 5, 'Cũ, cần bảo dưỡng', 1, 3),
+(115, 'Máy lạnh Inverter 2HP', 4, 'Tốt', 1, 3),
+(116, 'Loa Bluetooth di động', 1, 'Tốt', 1, 3),
+
+-- Phòng Thiết Bị (ID: 4)
+(117, 'Amply & Micro không dây', 4, 'Tốt', 1, 4),
+(118, 'Bộ đàm liên lạc', 12, 'Tốt', 1, 4),
+(119, 'Cuộn dây cáp loa 50m', 3, 'Mới', 1, 4),
+(120, 'Tủ sắt đựng thiết bị', 2, 'Khóa hơi rít', 1, 4),
+(121, 'Bục phát biểu gỗ', 1, 'Tốt', 1, 4),
+
+-- Phòng Sinh hoạt Thanh niên (ID: 5)
+(122, 'Bàn làm việc nhóm lớn', 3, 'Tốt', 1, 5),
+(123, 'Bảng trắng viết bút dạ', 2, 'Tốt', 1, 5),
+(124, 'Bộ trống lân', 2, 'Cũ', 1, 5),
+(125, 'Bộ cờ vua, cờ tướng', 15, 'Tốt', 1, 5),
+(126, 'Đàn Guitar Acoustic', 3, 'Tốt', 1, 5),
+(127, 'Cờ Đoàn, cờ Đội (Bộ)', 5, 'Mới', 1, 5),
+
+-- Phòng Nghiên cứu & Tài liệu (ID: 6)
+(128, 'Kệ sách gỗ lớn', 8, 'Mới', 1, 6),
+(129, 'Máy tính để bàn', 5, 'Hoạt động bình thường', 1, 6),
+(130, 'Máy scan tài liệu', 1, 'Tốt', 1, 6),
+(131, 'Bàn đọc sách cá nhân', 10, 'Tốt', 1, 6),
+(132, 'Đèn bàn học', 10, 'Tốt', 1, 6),
+(133, 'Máy in HP đa năng', 1, 'Hết mực', 1, 6);
+
+
