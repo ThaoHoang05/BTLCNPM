@@ -3,6 +3,7 @@ const router = express.Router();
 
 const nhaVanHoaController = require('../controllers/nhaVanHoaController');
 
+router.get('/dashboard/stats', nhaVanHoaController.getDashboardStats);
 router.get('/asset', nhaVanHoaController.getAssets);
 router.post('/asset/new', nhaVanHoaController.addAsset);
 router.patch('/asset/:id', nhaVanHoaController.updateAsset);

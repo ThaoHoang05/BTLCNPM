@@ -1,38 +1,48 @@
 <!DOCTYPE html>
-<html>
-    <header>
-        <meta charset = "utf8">
-        <title>Đăng nhập hệ thống</title>
-        <link rel = "stylesheet" href = "../../css/base.css"/>
-        <script src = "../../js/common/login.js"></script>
-    </header>
-    
-    <body class="login-body">
-        
-        <div class="page">
-            <div class="top-head">
-                <h1>TỔ DÂN PHỐ SỐ 7</h1>
-                <ul class="nav">
-                    <li><a href="../index.html">Trang thông tin</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="form.html">Điền form</a></li>
-                </ul>
-            </div>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <title>Đăng nhập hệ thống</title>
+    <link rel="stylesheet" href="../../css/base.css"/>
+    <link rel="stylesheet" href="../../css/login.css"/>
+    <script src="../../js/common/login.js"></script>
+</head>
 
-            <div class="main-content">
-                <div id="login">
-                    <h2>Đăng nhập</h2>
-                    <form id="loginform">
-                        <label for="username">Tên đăng nhập:</label>
-                        <input type="text" id="username" required/>
-                        
-                        <label for="password">Mật khẩu:</label>
-                        <input type="password" id="password" required/>
-                        
-                        <input type="submit" value="Đăng nhập" onclick = "getUser(event)"/>
-                    </form>
+<body>
+    <div class="top-head">
+        <h1>TỔ DÂN PHỐ SỐ 7</h1>
+        <ul class="nav">
+            <li><a href="../index.html">Trang thông tin</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+            <li><a href="form.html">Điền form</a></li>
+        </ul>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>ĐĂNG NHẬP</h2>
+                <p>Hệ thống quản lý</p>
+            </div>
+            
+            <form id="loginform">
+                <div class="input-group">
+                    <label for="username">Tài khoản</label>
+                    <input type="text" id="username" placeholder="Nhập tên đăng nhập" required/>
                 </div>
+                
+                <div class="input-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu" required/>
+                </div>
+                
+                <input type="submit" value="Đăng nhập" onclick="getUser(event)"/>
+            </form>
+            
+            <div class="login-footer">
+                <a href="#">Quên mật khẩu?</a>
             </div>
         </div>
-    </body>
+    </div>
+</body>
 </html>

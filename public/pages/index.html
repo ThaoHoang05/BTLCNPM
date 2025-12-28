@@ -1,37 +1,104 @@
 <!DOCTYPE html>
-<html>
-    <header>
-        <meta charset="utf8">
-        <link rel="stylesheet" href="../css/base.css">
-        <title>Phần mềm quản lý</title>
-    </header>
-    <body>
-        <div class="top-head">
-            <h1>TỔ DÂN PHỐ SỐ 7</h1>
-            <ul class="nav">
-                <li><a href="../pages/common/contact.html">Contact</a></li>
-                <li><a href="../pages/common/form.html">Điền form</a></li>
-                <li><a href="../pages/common/login.html">Login</a></li>
-            </ul>
-        </div>
-        <div class="page">
-            <div class="content">
-                <div class="main-content">
-                    <div id="info">
-                        <h2>Bảng tin chung</h2>
-                        <!-- Nội dung bảng tin -->
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng thông tin Tổ Dân Phố Số 7</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <link rel="stylesheet" href="../css/base.css"> <link rel="stylesheet" href="../css/index.css"> </head>
+<body>
+
+    <div class="top-head">
+        <h1><i class="fas fa-landmark"></i> TỔ DÂN PHỐ SỐ 7</h1>
+        <ul class="nav">
+            <li><a href="../pages/common/contact.html">Liên hệ</a></li>
+            <li><a href="../pages/common/form.html">Biểu mẫu</a></li>
+            <li><a href="../pages/common/login.html">Đăng nhập</a></li>
+        </ul>
+    </div>
+
+    <div class="page home-layout">
+        <div class="content">
+            <h2 class="section-heading">
+                <i class="fas fa-newspaper"></i> Tin tức nổi bật
+            </h2>
+            
+            <div id="news-slider">
+                <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1577563908411-5077b6dc7624?q=80&w=1000&auto=format&fit=crop');">
+                    <div class="slide-overlay">
+                        <span class="slide-tag">Thông báo</span>
+                        <h2>Lịch tổng vệ sinh khu phố Chủ Nhật tuần này</h2>
+                        <p>Kính mời toàn thể bà con tham gia dọn dẹp vệ sinh đường làng ngõ xóm vào lúc 7h00 sáng Chủ Nhật...</p>
+                        <a href="#" class="btn-read-more">Xem chi tiết</a>
                     </div>
-                    <div id="About-us">
-                        <h2>Chúng tôi là</h2>
-                        <p>Quản</p>
+                </div>
+                <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=1000&auto=format&fit=crop');">
+                    <div class="slide-overlay">
+                        <span class="slide-tag">Sự kiện</span>
+                        <h2>Hội nghị tiếp xúc cử tri phường La Khê</h2>
+                        <p>Buổi họp quan trọng nhằm lắng nghe ý kiến đóng góp của nhân dân về các vấn đề an sinh xã hội...</p>
+                        <a href="#" class="btn-read-more">Xem chi tiết</a>
+                    </div>
+                </div>
+                <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1000&auto=format&fit=crop');">
+                    <div class="slide-overlay">
+                        <span class="slide-tag">Văn hóa</span>
+                        <h2>Giải bóng đá thanh niên mở rộng 2025</h2>
+                        <p>Đăng ký tham gia đội bóng tổ dân phố trước ngày 15/01. Giải thưởng hấp dẫn...</p>
+                        <a href="#" class="btn-read-more">Xem chi tiết</a>
+                    </div>
+                </div>
+                <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1000&auto=format&fit=crop');">
+                    <div class="slide-overlay">
+                        <span class="slide-tag">Y tế</span>
+                        <h2>Lịch tiêm chủng mở rộng cho trẻ em tháng 12</h2>
+                        <p>Trạm y tế phường thông báo lịch tiêm chủng định kỳ. Các bậc phụ huynh lưu ý...</p>
+                        <a href="#" class="btn-read-more">Xem chi tiết</a>
+                    </div>
+                </div>
+                <div class="slide" style="background-image: url('https://plus.unsplash.com/premium_photo-1661777196224-bda14917a86c?q=80&w=1000&auto=format&fit=crop');">
+                    <div class="slide-overlay">
+                        <span class="slide-tag">An ninh</span>
+                        <h2>Cảnh báo thủ đoạn lừa đảo qua mạng mới</h2>
+                        <p>Công an phường cảnh báo người dân về các hình thức lừa đảo công nghệ cao mới xuất hiện...</p>
+                        <a href="#" class="btn-read-more">Xem chi tiết</a>
                     </div>
                 </div>
             </div>
-            <div id="calendar">
-                <h2>Lịch nhà văn hóa</h2>
-                <p>Các thông tin liên quan đến sử dụng nhà văn hóa sẽ được thông báo ở đây</p>
-                <!-- Nội dung lịch -->
+
+            <div id="About-us" class="about-section">
+                <img src="https://cdn-icons-png.flaticon.com/512/921/921356.png" alt="Icon TDP">
+                <div>
+                    <h2>Về Tổ Dân Phố Số 7</h2>
+                    <p>
+                        Tổ dân phố văn hóa kiểu mẫu, đoàn kết, an toàn và phát triển. 
+                        Chúng tôi luôn nỗ lực xây dựng môi trường sống xanh - sạch - đẹp và gắn kết cộng đồng.
+                    </p>
+                </div>
             </div>
         </div>
-    </body>
+
+        <div id="calendar-wrapper">
+            <div class="calendar-header">
+                <button class="btn-month" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                <h2 id="currentMonth">Tháng ...</h2>
+                <button class="btn-month" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="calendar-grid" id="calendarDays">
+                </div>
+            
+            <div id="event-details">
+                <h4>Hoạt động trong ngày:</h4>
+                <div id="eventListContainer">
+                    <p class="no-event-text">Chọn một ngày có chấm xanh để xem lịch.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/common/index.js"></script>
+</body>
 </html>

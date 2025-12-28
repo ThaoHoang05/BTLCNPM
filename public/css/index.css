@@ -1,0 +1,117 @@
+/* --- BỐ CỤC TRANG CHỦ (Ghi đè .page của base.css) --- */
+/* Chỉ áp dụng Flexbox khi có class .home-layout */
+.home-layout {
+    display: flex; 
+    gap: 20px; 
+    padding: 20px 40px; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+}
+
+/* Cột Trái: Tin tức (70%) */
+.content { flex: 7; }
+
+/* Cột Phải: Lịch (30%) */
+#calendar-wrapper {   
+    flex: 3; 
+    background: white; 
+    padding: 20px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+    height: fit-content; 
+}
+
+.section-heading {
+    color: #2c3e50; 
+    border-bottom: 2px solid #3498db; 
+    display: inline-block; 
+    padding-bottom: 5px;
+}
+
+/* --- SLIDER TIN TỨC (Giữ nguyên như cũ) --- */
+#news-slider {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.slide {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; transition: opacity 1s ease-in-out;
+    background-size: cover; background-position: center;
+}
+.slide.active { opacity: 1; }
+
+.slide-overlay {
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    padding: 40px; color: white; box-sizing: border-box;
+}
+
+.slide-tag {
+    background: #e74c3c; padding: 5px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: bold; text-transform: uppercase;
+}
+
+.slide h2 { margin: 10px 0; font-size: 28px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+.slide p { font-size: 16px; margin-bottom: 20px; opacity: 0.9; }
+
+.btn-read-more {
+    padding: 10px 20px; background: white; color: #333;
+    text-decoration: none; border-radius: 20px; font-weight: bold;
+    transition: 0.3s;
+}
+.btn-read-more:hover { background: #3498db; color: white; }
+
+/* --- SECTION GIỚI THIỆU --- */
+.about-section {
+    margin-top: 40px; 
+    background: white; 
+    padding: 30px; 
+    border-radius: 10px; 
+    display: flex; 
+    align-items: center; 
+    gap: 20px;
+}
+.about-section img { width: 80px; }
+.about-section h2 { margin-top: 0; }
+.about-section p { color: #555; line-height: 1.6; }
+
+/* --- LỊCH (CALENDAR) --- */
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.calendar-header h2 { font-size: 18px; margin: 0; color: #2c3e50; }
+.btn-month { background: none; border: none; font-size: 18px; cursor: pointer; color: #666; }
+
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+.day-name { font-weight: bold; color: #999; font-size: 13px; padding-bottom: 10px; }
+
+.day {
+    height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 50%; cursor: pointer; position: relative; font-size: 14px;
+}
+.day:hover { background-color: #f0f0f0; }
+.day.today { background-color: #3498db; color: white; font-weight: bold; }
+
+/* Chấm xanh lá cây báo sự kiện */
+.event-dot {
+    width: 6px; height: 6px; background-color: #2ecc71; 
+    border-radius: 50%; margin-top: 2px; display: none;
+}
+.day.has-event .event-dot { display: block; }
+
+/* Danh sách chi tiết sự kiện */
+#event-details { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+#event-details h4 { margin: 0 0 10px 0; color: #34495e; }
+
+.event-item {
+    background: #f9f9f9; padding: 10px; border-radius: 8px;
+    margin-bottom: 10px; border-left: 4px solid #3498db;
+}
+.event-time { font-size: 12px; color: #666; font-weight: bold; }
+.event-title { font-size: 14px; margin: 5px 0; font-weight: 600; color: #333; }
+.event-loc { font-size: 12px; color: #7f8c8d; }
+.no-event-text { font-size: 13px; color: #999; text-align: center; }
