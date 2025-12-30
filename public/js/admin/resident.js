@@ -27,8 +27,10 @@ window.onclick = function(event) {
 // 2. API LOAD DANH SÁCH NHÂN KHẨU
 // ==============================================
 
+let globalCitizenList = []; 
+
+// Hàm này chỉ gọi 1 lần khi load trang để lấy dữ liệu
 async function loadCitizenList() {
-    // 1. Lấy đúng ID tbody trong resident.html
     const tbody = document.getElementById('citizenListBody');
     if (!tbody) return;
 
@@ -36,50 +38,101 @@ async function loadCitizenList() {
     tbody.innerHTML = '<tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>';
 
     try {
-        // Gọi API (Backend của bạn)
         const response = await fetch('/api/nhankhau/show');
         const data = await response.json();
         
-        // Xử lý nếu data bọc trong object { data: [] }
-        const listNhanKhau = Array.isArray(data) ? data : (data.data || []);
+        // Lưu dữ liệu vào biến toàn cục (để dùng cho tìm kiếm sau này)
+        globalCitizenList = Array.isArray(data) ? data : (data.data || []);
 
-        tbody.innerHTML = ''; // Xóa loading
-
-        if (listNhanKhau.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>';
-            return;
-        }
-
-        listNhanKhau.forEach(nk => {
-            // Logic màu sắc trạng thái (Badge)
-            let statusClass = 'badge-secondary'; // Mặc định
-            if (nk.trangThai === 'Thường trú' || nk.trangThai === 'ThuongTru') statusClass = 'badge-success'; // Xanh
-            else if (nk.trangThai === 'Tạm trú' || nk.trangThai === 'TamTru') statusClass = 'badge-warning'; // Vàng
-
-            // Render dòng tr
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><strong>${nk.hoTen}</strong></td>
-                <td>${nk.ngaySinh ? new Date(nk.ngaySinh).toLocaleDateString('vi-VN') : '---'}</td>
-                <td>${nk.cccd || '---'}</td>
-                <td>${nk.diaChi || 'Chưa có thông tin'}</td>
-                <td><span class="badge ${statusClass}">${nk.trangThai || '---'}</span></td>
-                <td class="text-center">
-                    <button class="btn-primary btn-sm" onclick="openEditCitizenModal('${nk.ID}')" title="Sửa">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-danger btn-sm" onclick="deleteCitizen('${nk.ID}')" title="Xóa">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
+        // Gọi hàm vẽ bảng
+        renderCitizenTable(globalCitizenList);
 
     } catch (err) {
         console.error("Lỗi tải danh sách:", err);
         tbody.innerHTML = '<tr><td colspan="6" class="text-danger text-center">Lỗi kết nối server</td></tr>';
     }
+}
+
+// Hàm riêng để vẽ bảng (Dùng chung cho cả Load ban đầu và Tìm kiếm)
+function renderCitizenTable(dataList) {
+    const tbody = document.getElementById('citizenListBody');
+    tbody.innerHTML = ''; // Xóa trắng bảng cũ
+
+    if (!dataList || dataList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Không tìm thấy dữ liệu phù hợp</td></tr>';
+        return;
+    }
+
+    dataList.forEach(nk => {
+        // Logic màu sắc trạng thái
+        let statusClass = 'badge-secondary'; 
+        const trangThaiText = nk.trangThai || '';
+        
+        // Chuẩn hóa check trạng thái (phòng trường hợp viết hoa/thường/không dấu)
+        if (trangThaiText.includes('Thường trú') || trangThaiText.includes('ThuongTru')) statusClass = 'badge-success'; 
+        else if (trangThaiText.includes('Tạm trú') || trangThaiText.includes('TamTru')) statusClass = 'badge-warning';
+
+        // Xử lý hiển thị ngày sinh
+        const ngaySinhStr = nk.ngaySinh ? new Date(nk.ngaySinh).toLocaleDateString('vi-VN') : '---';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${nk.hoTen}</strong></td>
+            <td>${ngaySinhStr}</td>
+            <td>${nk.cccd || '---'}</td>
+            <td>${nk.diaChi || 'Chưa có thông tin'}</td>
+            <td><span class="badge ${statusClass}">${nk.trangThai || '---'}</span></td>
+            <td class="text-center">
+                <button class="btn-primary btn-sm" onclick="openEditCitizenModal('${nk.ID}')" title="Sửa">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-danger btn-sm" onclick="deleteCitizen('${nk.ID}')" title="Xóa">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Hàm xử lý tìm kiếm (Được gọi khi gõ vào ô input)
+function searchResidents() {
+    const input = document.getElementById('searchInput');
+    const keyword = input.value.trim().toLowerCase(); // Chuyển về chữ thường
+
+    if (keyword === "") {
+        // Nếu ô tìm kiếm trống -> Hiển thị lại toàn bộ danh sách gốc
+        renderCitizenTable(globalCitizenList);
+        return;
+    }
+
+    // Lọc danh sách (Client-side filtering)
+    const filteredList = globalCitizenList.filter(item => {
+        // 1. Chuẩn bị dữ liệu để so sánh
+        const name = item.hoTen ? item.hoTen.toLowerCase() : "";
+        const cccd = item.cccd ? item.cccd.toLowerCase() : "";
+        
+        // 2. Logic so sánh (Tìm theo Tên HOẶC CCCD)
+        // Mẹo: removeVietnameseTones là hàm bổ trợ để tìm Thao ra Thảo (xem bên dưới)
+        return removeVietnameseTones(name).includes(removeVietnameseTones(keyword)) || 
+               cccd.includes(keyword);
+    });
+
+    // Vẽ lại bảng với danh sách đã lọc
+    renderCitizenTable(filteredList);
+}
+
+// Hàm bổ trợ: Xóa dấu tiếng Việt (để tìm kiếm không dấu)
+function removeVietnameseTones(str) {
+    if (!str) return "";
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g,"a"); 
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g,"e"); 
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g,"i"); 
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g,"o"); 
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g,"u"); 
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g,"y"); 
+    str = str.replace(/đ/g,"d");
+    return str;
 }
 
 // Gọi hàm load ngay khi trang tải xong

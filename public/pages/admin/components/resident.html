@@ -4,8 +4,16 @@
             <h2><i class="fas fa-users"></i> Quản lý Nhân Khẩu</h2>
             <div class="action-bar">
                 <div class="search-box">
-                    <input type="text" placeholder="Tìm Tên, CCCD..." class="form-control" style="width: 250px;">
-                    <button class="btn-primary"><i class="fas fa-search"></i></button>
+                    <input type="text" 
+                           id="searchInput" 
+                           oninput="searchResidents()" 
+                           placeholder="Tìm Tên, CCCD..." 
+                           class="form-control" 
+                           style="width: 250px;">
+                    
+                    <button class="btn-primary" onclick="searchResidents()">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
                 <button class="btn-success" onclick="openModal('addCitizenModal')">
                     <i class="fas fa-user-plus"></i> Thêm Nhân Khẩu Mới

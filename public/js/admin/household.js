@@ -524,60 +524,235 @@ function openAddMemberModal(hkCode) {
     }
     
     openModal('addMemberModal');
+    fetchAllCitizensForLookup();
 }
 
-// Giả lập hàm Tìm kiếm CCCD
-function mockSearchCitizen() {
-    const cccd = document.getElementById('searchCCCDInput').value;
-    if(!cccd) {
-        alert('Vui lòng nhập số CCCD!');
+// Biến toàn cục lưu trữ danh sách nhân khẩu để tìm kiếm
+function searchCitizenForAdd(event) {
+    // Ngăn form submit reload trang
+    if (event) event.preventDefault();
+
+    // 1. SỬA LẠI ID CHO KHỚP VỚI HTML (searchCitizenInput)
+    const inputEl = document.getElementById('searchCitizenInput');
+    const keyword = inputEl ? inputEl.value.trim().toLowerCase() : '';
+
+    if (!keyword) {
+        alert('Vui lòng nhập Tên hoặc số CCCD để tìm!');
         return;
     }
-    // Giả lập tìm thấy
+
+    if (!cachedCitizenList || cachedCitizenList.length === 0) {
+        alert('Dữ liệu nhân khẩu chưa tải xong, vui lòng thử lại sau giây lát.');
+        fetchAllCitizensForLookup();
+        return;
+    }
+
+    // 2. TÌM KIẾM MỀM DẺO (Theo Tên HOẶC CCCD)
+    // Lọc ra danh sách những người khớp điều kiện
+    const results = cachedCitizenList.filter(p => {
+        const cccd = (p.cccd || '').toLowerCase();
+        const hoTen = (p.hoTen || '').toLowerCase();
+        // Kiểm tra xem keyword có nằm trong Tên hoặc CCCD không
+        return cccd.includes(keyword) || hoTen.includes(keyword);
+    });
+
+    // Lấy các element hiển thị kết quả
     const resArea = document.getElementById('searchResultArea');
-    if(resArea) resArea.style.display = 'block';
-    
-    const resName = document.getElementById('resName');
-    if(resName) resName.value = 'Trần Văn Demo (Tìm thấy)';
-    
-    const resDob = document.getElementById('resDob');
-    if(resDob) resDob.value = '1995-01-01';
+    const candidateList = document.getElementById('candidateList'); 
+
+    // Reset giao diện trước khi hiển thị kết quả mới
+    if (resArea) resArea.style.display = 'none';
+    if (candidateList) {
+        candidateList.innerHTML = '';
+        candidateList.style.display = 'none';
+    }
+
+    // 3. XỬ LÝ KẾT QUẢ
+    if (results.length === 0) {
+        alert('Không tìm thấy nhân khẩu nào khớp với từ khóa: ' + keyword);
+        return;
+    }
+
+    // TRƯỜNG HỢP A: Tìm thấy đúng 1 người -> Điền luôn vào form
+    if (results.length === 1) {
+        selectCitizenForAdd(results[0]);
+    } 
+    // TRƯỜNG HỢP B: Tìm thấy nhiều người -> Hiển thị danh sách gợi ý
+    else {
+        if (candidateList) {
+            candidateList.style.display = 'block';
+            // Style nhanh cho dropdown (nếu CSS chưa có)
+            candidateList.style.border = '1px solid #ddd';
+            candidateList.style.maxHeight = '200px';
+            candidateList.style.overflowY = 'auto';
+            candidateList.style.background = '#fff';
+
+            results.forEach(p => {
+                const div = document.createElement('div');
+                div.style.padding = '10px';
+                div.style.cursor = 'pointer';
+                div.style.borderBottom = '1px solid #eee';
+                
+                // Hiển thị: Tên - CCCD - Ngày sinh
+                const dob = p.ngaySinh ? new Date(p.ngaySinh).toLocaleDateString('vi-VN') : '?';
+                div.innerHTML = `<strong>${p.hoTen}</strong> - <small>${p.cccd || 'Chưa có CCCD'}</small> (${dob})`;
+
+                // Sự kiện khi click vào một dòng gợi ý
+                div.onclick = function() {
+                    selectCitizenForAdd(p); // Gọi hàm điền dữ liệu
+                    candidateList.style.display = 'none'; // Ẩn danh sách đi
+                };
+
+                // Hiệu ứng hover chuột
+                div.onmouseover = () => div.style.background = '#f0f0f0';
+                div.onmouseout = () => div.style.background = '#fff';
+
+                candidateList.appendChild(div);
+            });
+        }
+    }
 }
 
+// Hàm phụ: Điền thông tin người được chọn vào vùng kết quả (Tách ra cho gọn)
+function selectCitizenForAdd(person) {
+    const resArea = document.getElementById('searchResultArea');
+    if (!resArea) return;
+
+    resArea.style.display = 'block';
+    
+    // Điền thông tin vào các ô readonly
+    document.getElementById('resName').value = person.hoTen || '';
+    document.getElementById('resDob').value = person.ngaySinh 
+        ? new Date(person.ngaySinh).toLocaleDateString('vi-VN') 
+        : '';
+
+    // Gán ID (hoặc CCCD) vào nút "Thêm vào hộ" để gửi API sau này
+    const addBtn = resArea.querySelector('.btn-success');
+    if (addBtn) {
+        // Kiểm tra xem dữ liệu BE trả về ID là 'id' hay 'ID'
+        const personId = person.id || person.ID; 
+        addBtn.setAttribute('onclick', `submitAddExistingMember('${personId}')`);
+    }
+}
 // ==============================================
 // 5. API LOAD DANH SÁCH HỘ KHẨU (đã xong)
 // ==============================================
+let globalHouseholdList = [];
+
+// 2. Hàm gọi API (Chỉ chạy 1 lần khi load trang hoặc khi refresh dữ liệu)
 async function loadHouseHoldList(){
+    const tbody = document.getElementById('householdList'); 
+    
+    // Hiển thị loading
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-center">Đang tải dữ liệu...</td></tr>';
+
     try {
-        // Sửa selector để tìm đúng vào tbody của bảng có ID householdTable
-        const tbody = document.getElementById('householdList'); 
-        
-        if (!tbody) {
-            console.error("Lỗi: Không tìm thấy tbody có id='householdList'");
-            return;
-        }
-        tbody.innerHTML = ''; 
         const response = await fetch('/api/hokhau/show');
         const data = await response.json();
-        data.forEach(hk => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><strong>${hk['Mã hộ khẩu']}</strong></td>
-                <td>${hk['Chủ hộ']} <br><small>(${hk['CCCD'] || '---'})</small></td>
-                <td>${hk['Địa chỉ']}</td>
-                <td>${hk['Ngày lập sổ'] ? new Date(hk['Ngày lập sổ']).toLocaleDateString('vi-VN') : '---'}</td>
-                <td>
-                    <button class="icon-btn info" onclick="openDetailModal('${hk['Mã hộ khẩu']}')"><i class="fas fa-eye"></i></button>
-                    <button class="icon-btn primary" onclick="openEditHouseholdModal('${hk['Mã hộ khẩu']}')"><i class="fas fa-pen"></i></button>
-                    <button class="icon-btn warning" onclick="openSplitModal('${hk['Mã hộ khẩu']}')"><i class="fas fa-random"></i></button>
-                    <button class="icon-btn danger" onclick="deleteHousehold('${hk['Mã hộ khẩu']}')"><i class="fas fa-trash-alt"></i></button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
+
+        // Lưu dữ liệu vào biến toàn cục
+        // Kiểm tra xem data trả về là mảng trực tiếp hay object {data: []}
+        globalHouseholdList = Array.isArray(data) ? data : (data.data || []);
+
+        // Gọi hàm vẽ bảng
+        renderHouseholdTable(globalHouseholdList);
+
     } catch(err) {
         console.error("Lỗi tải danh sách:", err);
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Lỗi kết nối server</td></tr>';
     }
+}
+
+// 3. Hàm vẽ bảng (Dùng chung cho Load và Search)
+function renderHouseholdTable(dataList) {
+    const tbody = document.getElementById('householdList'); 
+    if (!tbody) return;
+
+    tbody.innerHTML = ''; // Xóa trắng bảng cũ
+
+    if (!dataList || dataList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không tìm thấy hộ khẩu nào</td></tr>';
+        return;
+    }
+
+    dataList.forEach(hk => {
+        // Lưu ý: Key phải khớp với JSON trả về từ API (dựa trên code cũ của bạn)
+        // Code cũ dùng: hk['Mã hộ khẩu'], hk['Chủ hộ'], ...
+        
+        const maHo = hk['Mã hộ khẩu'] || hk.maHoKhau || '---';
+        const chuHo = hk['Chủ hộ'] || hk.hoTenChuHo || 'Chưa có';
+        const cccd = hk['CCCD'] || hk.cccdChuHo || '';
+        const diaChi = hk['Địa chỉ'] || hk.diaChi || '---';
+        const ngayLap = hk['Ngày lập sổ'] || hk.ngayLap;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${maHo}</strong></td>
+            <td>
+                ${chuHo} 
+                <br>
+                <small style="color:#666">(${cccd || '---'})</small>
+            </td>
+            <td>${diaChi}</td>
+            <td>${ngayLap ? new Date(ngayLap).toLocaleDateString('vi-VN') : '---'}</td>
+            <td>
+                <button class="icon-btn info" onclick="openDetailModal('${maHo}')" title="Xem chi tiết">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="icon-btn primary" onclick="openEditHouseholdModal('${maHo}')" title="Sửa">
+                    <i class="fas fa-pen"></i>
+                </button>
+                <button class="icon-btn warning" onclick="openSplitModal('${maHo}')" title="Tách hộ">
+                    <i class="fas fa-random"></i>
+                </button>
+                <button class="icon-btn danger" onclick="deleteHousehold('${maHo}')" title="Xóa">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 4. Hàm xử lý tìm kiếm (Client-side)
+function searchHouseholds() {
+    const input = document.getElementById('searchHouseholdInput');
+    const keyword = input.value.trim().toLowerCase();
+
+    // Nếu ô tìm kiếm trống -> Hiển thị lại toàn bộ
+    if (keyword === "") {
+        renderHouseholdTable(globalHouseholdList);
+        return;
+    }
+
+    // Lọc dữ liệu
+    const filteredList = globalHouseholdList.filter(hk => {
+        // Lấy dữ liệu từ các trường cần tìm
+        // (Cần cẩn thận check null để tránh lỗi crash trang)
+        const maHo = (hk['Mã hộ khẩu'] || hk.maHoKhau || "").toLowerCase();
+        const tenChuHo = (hk['Chủ hộ'] || hk.hoTenChuHo || "").toLowerCase();
+        const cccd = (hk['CCCD'] || hk.cccdChuHo || "").toLowerCase();
+
+        // So sánh: Tìm theo Tên (bỏ dấu) HOẶC Mã hộ HOẶC CCCD
+        return removeVietnameseTones(tenChuHo).includes(removeVietnameseTones(keyword)) ||
+               maHo.includes(keyword) ||
+               cccd.includes(keyword);
+    });
+
+    renderHouseholdTable(filteredList);
+}
+
+// 5. Hàm bổ trợ bỏ dấu Tiếng Việt (Nếu chưa có thì thêm vào cuối file)
+function removeVietnameseTones(str) {
+    if (!str) return "";
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    return str;
 }
 
 // ==============================================
@@ -1164,5 +1339,106 @@ async function deleteMemberFromHousehold(hkId, memberId) {
     } catch (error) {
         console.error("Lỗi kết nối:", error);
         alert("Lỗi kết nối đến server.");
+    }
+}
+
+/*==============================================
+    Load nhan khau phuc vu cho tim kiem
+===============================================*/
+// 1. Biến lưu trữ danh sách nhân khẩu (Cache)
+let cachedCitizenList = [];
+
+// 2. Hàm tải danh sách nhân khẩu (Chỉ gọi khi cần)
+async function fetchAllCitizensForLookup() {
+    // Nếu đã có dữ liệu rồi thì không gọi API nữa (đỡ lag)
+    if (cachedCitizenList.length > 0) return;
+
+    try {
+        const response = await fetch('/api/nhankhau/show');
+        const data = await response.json();
+        // Lưu vào biến toàn cục
+        cachedCitizenList = Array.isArray(data) ? data : (data.data || []);
+        console.log("Đã tải xong danh sách nhân khẩu để tra cứu!");
+    } catch (err) {
+        console.error("Lỗi tải danh sách nhân khẩu:", err);
+    }
+}
+
+// --- Sửa lại trong file household.js ---
+
+async function submitAddExistingMember(personId) {
+    // 1. Lấy vùng chứa các input kết quả (để select cho chính xác)
+    const resultArea = document.getElementById('searchResultArea');
+    
+    if (!resultArea) {
+        console.error("Không tìm thấy vùng nhập liệu kết quả");
+        return;
+    }
+
+    // 2. Lấy giá trị từ các ô input
+    // Lưu ý: Select kỹ để tránh nhầm với các input ở tab khác
+    const maHoKhau = resultArea.querySelector('input[name="sohokhau_search"]').value.trim();
+    
+    // Tìm ô nhập quan hệ (Dựa vào placeholder hoặc vị trí nếu chưa có ID)
+    const quanHe = document.getElementById('inputQuanHeMoi').value.trim();
+    
+    const trangThai = resultArea.querySelector('select').value;
+
+    // Validate
+    if (!quanHe) {
+        alert("Vui lòng nhập quan hệ với chủ hộ!");
+        if(quanHeInput) quanHeInput.focus();
+        return;
+    }
+    if (!maHoKhau) {
+        alert("Lỗi: Không xác định được mã hộ khẩu.");
+        return;
+    }
+
+    // 3. Tạo Payload (Chỉ chứa các trường cần update)
+    // Tên Key phải khớp với dbMap trong nhanKhauModel.js
+    const payload = {
+        maHoKhau: maHoKhau,       // Model map sang: sohokhau
+        quanHeVoiChuHo: quanHe,   // Model map sang: quanhevoichuho
+        trangThai: trangThai      // Model map sang: trangthai
+    };
+
+    console.log("Đang gửi PATCH payload:", payload);
+
+    try {
+        // 4. Gọi API PATCH
+        const response = await fetch(`/api/nhankhau/update/${personId}`, {
+            method: 'PATCH',  // <--- QUAN TRỌNG: Đã đổi từ PUT sang PATCH
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert("Đã thêm thành viên vào hộ thành công!");
+            closeModal('addMemberModal');
+            
+            // 5. Reset form để lần sau mở lại sạch sẽ
+            document.getElementById('addMemberSearchForm').reset();
+            if(document.getElementById('candidateList')) {
+                document.getElementById('candidateList').style.display = 'none';
+            }
+            if(document.getElementById('searchResultArea')) {
+                document.getElementById('searchResultArea').style.display = 'none';
+            }
+
+            // 6. Reload lại modal chi tiết hộ khẩu để thấy thành viên mới
+            if (typeof openDetailModal === 'function') {
+                openDetailModal(maHoKhau);
+            }
+        } else {
+            const err = await response.json();
+            alert("Lỗi: " + (err.message || "Thêm thất bại"));
+        }
+
+    } catch (e) {
+        console.error(e);
+        alert("Lỗi kết nối server");
     }
 }

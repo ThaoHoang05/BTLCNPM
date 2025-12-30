@@ -202,56 +202,78 @@ const NhanKhauModel = {
         try {
             await client.query('BEGIN');
 
+            // 1. Định nghĩa ánh xạ: Key Frontend gửi lên -> Tên cột trong Database
+            const dbMap = {
+                hoTen: 'hoten',
+                biDanh: 'bidanh',
+                ngaySinh: 'ngaysinh',
+                gioiTinh: 'gioitinh',
+                danToc: 'dantoc',
+                nguyenQuan: 'nguyenquan',
+                noiSinh: 'noisinh',
+                ngheNghiep: 'nghenghiep',
+                noiLamViec: 'noilamviec',
+                quanHeVoiChuHo: 'quanhevoichuho',
+                maHoKhau: 'sohokhau',
+                trangThai: 'trangthai',
+                ngayCapCCCD: 'ngaycapcccd',
+                noiCapCCCD: 'noicapcccd',
+                cccd: 'cccd',
+                tonGiao: 'tongiao'
+            };
+
+            // 2. Xây dựng câu lệnh SQL động
+            const updates = [];
+            const values = [];
+            let paramIndex = 1;
+
+            Object.keys(data).forEach(key => {
+                // Chỉ xử lý nếu key có trong bảng ánh xạ và giá trị không undefined
+                if (dbMap[key] && data[key] !== undefined) {
+                    updates.push(`${dbMap[key]} = $${paramIndex}`);
+                    values.push(data[key]);
+                    paramIndex++;
+                }
+            });
+
+            // Nếu không có trường nào hợp lệ để update
+            if (updates.length === 0) {
+                await client.query('ROLLBACK');
+                return { message: "Không có trường dữ liệu hợp lệ để cập nhật" };
+            }
+
+            // Thêm ID vào cuối mảng values để làm điều kiện WHERE
+            values.push(id);
+            
             const query = `
                 UPDATE nhankhau
-                SET 
-                    hoten = $1,
-                    bidanh = $2,
-                    ngaysinh = $3,
-                    gioitinh = $4,
-                    dantoc = $5,
-                    nguyenquan = $6,
-                    noisinh = $7,
-                    nghenghiep = $8,
-                    noilamviec = $9,
-                    quanhevoichuho = $10,
-                    sohokhau = $11,
-                    trangthai = $12,
-                    ngaycapcccd = $13,
-                    noicapcccd = $14,
-                    cccd = $15,
-                    tongiao = $16
-                WHERE id = $17
+                SET ${updates.join(', ')}
+                WHERE id = $${paramIndex}
+                RETURNING hoten, cccd; -- Lấy lại thông tin mới nhất để ghi log
             `;
 
-            const values = [
-                data.hoTen,
-                data.biDanh,
-                data.ngaySinh,
-                data.gioiTinh,
-                data.danToc,
-                data.nguyenQuan,   
-                data.noiSinh,  
-                data.ngheNghiep,  
-                data.noiLamViec,  
-                data.quanHeVoiChuHo,
-                data.maHoKhau,
-                data.trangThai,   
-                data.ngayCapCCCD, 
-                data.noiCapCCCD,  
-                data.cccd,
-                data.tonGiao,       
-                id            
-            ];
+            const resUpdate = await client.query(query, values);
 
-            await client.query(query, values);
-
-            // Ghi nhận biến động
-            const logQuery = `
-                INSERT INTO biendongnhankhau (nhankhau_id, cccd, loaibiendong, ngaybiendong, ghichu)
-                VALUES ($1, $2, 'Thay đổi thông tin', CURRENT_DATE, $3)
-            `;
-            await client.query(logQuery, [id, data.cccd, `Cập nhật thông tin nhân khẩu: ${data.hoTen}`]);
+            // 3. Ghi log biến động
+            // Cần thông tin họ tên và CCCD (có thể vừa sửa hoặc giữ nguyên)
+            // Nếu update thành công, resUpdate.rows[0] sẽ chứa dữ liệu mới nhất của dòng đó
+            if (resUpdate.rowCount > 0) {
+                const currentData = resUpdate.rows[0];
+                
+                const logQuery = `
+                    INSERT INTO biendongnhankhau (nhankhau_id, cccd, loaibiendong, ngaybiendong, ghichu)
+                    VALUES ($1, $2, 'Thay đổi thông tin', CURRENT_DATE, $3)
+                `;
+                
+                // Tạo ghi chú: Liệt kê các trường đã thay đổi để dễ theo dõi
+                const changedFields = Object.keys(data).filter(k => dbMap[k]).join(', ');
+                
+                await client.query(logQuery, [
+                    id, 
+                    currentData.cccd, 
+                    `Cập nhật (PATCH) các trường: ${changedFields}. Họ tên: ${currentData.hoten}`
+                ]);
+            }
 
             await client.query('COMMIT');
             return { message: "Cập nhật thành công" };
@@ -262,7 +284,6 @@ const NhanKhauModel = {
             client.release();
         }
     },
-    
 };
 
 module.exports = NhanKhauModel;
