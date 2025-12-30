@@ -215,6 +215,20 @@ function renderRequestTable(data) {
         } else {
             actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-history"></i> Chi tiết</button>`;
         }
+        const isRestricted = isToPho();
+
+    if (currentTab === 'pending') {
+        if (isRestricted) {
+             // Tổ phó chỉ xem, không hiện nút Duyệt
+             actionBtn = `<button class="btn-sm btn-secondary" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-eye"></i> Xem chi tiết</button>`;
+        } else {
+             // Admin thì hiện nút Duyệt/Xem
+             actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-eye"></i> Duyệt/Xem</button>`;
+        }
+    } else {
+        // Tab lịch sử ai cũng xem được
+        actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-history"></i> Chi tiết</button>`;
+    }
 
         row.innerHTML = `
             <td>#${item.id}</td>
@@ -539,3 +553,25 @@ function searchRequests() {
     // Render lại bảng với dữ liệu đã lọc (Không gán đè vào currentList để tránh mất data gốc)
     renderRequestTable(filteredData);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (isToPho()) {
+        // Danh sách các selector của nút Thêm Mới, Đăng ký...
+        const restrictedSelectors = [
+            '.btn-success[onclick*="openModal"]', // Các nút Thêm màu xanh
+            '.btn-warning[onclick*="openManageResidence"]', // Nút Quản lý cư trú
+            '.btn-warning[onclick*="openModal"]' // Các nút màu vàng khác
+        ];
+
+        restrictedSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // Kiểm tra kỹ hơn nội dung text để tránh ẩn nhầm
+                const text = el.innerText.toLowerCase();
+                if (text.includes('thêm') || text.includes('đăng ký') || text.includes('quản lý')) {
+                    el.style.display = 'none';
+                }
+            });
+        });
+    }
+});

@@ -67,76 +67,89 @@ window.onclick = function(event) {
 // Wrapper: Mở modal chi tiết hộ khẩu
 // ĐÃ SỬA: Chỉ dùng phiên bản UI (Giả lập), bỏ phiên bản gọi API lỗi
 // Wrapper: Mở modal chi tiết hộ khẩu (ĐÃ SỬA LỖI)
+// Hàm mở Modal chi tiết hộ khẩu (Đã sửa lỗi và tích hợp phân quyền)
 async function openDetailModal(hkCode) {
     try {
-        // 1. Gọi API và chờ dữ liệu về (dùng await)
+        // 1. Gọi API lấy dữ liệu
         const response = await fetch(`/api/hokhau/show/${hkCode}`);
-        const data = await response.json(); // Lấy dữ liệu vào biến 'data'
+        const data = await response.json();
 
         // 2. Cập nhật tiêu đề modal
         const titleElement = document.getElementById('detailHKCode');
         if (titleElement) titleElement.innerText = hkCode;
 
-        // 3. Cập nhật thông tin chung (Kiểm tra null trước khi gán)
+        // 3. Cập nhật thông tin chung
         const HoTen = document.getElementById('detailChuHo');
         if (HoTen) HoTen.innerText = data.HoTen || '---';
         
         const NgayLap = document.getElementById('detailNgayLap');
-        // Xử lý hiển thị ngày tháng cho đẹp
         if (NgayLap) NgayLap.innerText = data.NgayLap ? new Date(data.NgayLap).toLocaleDateString('vi-VN') : '---';
 
         const DiaChi = document.getElementById('detailDiaChi');
         if (DiaChi) DiaChi.innerText = data.DiaChi || '---';
 
-        // 4. Cập nhật danh sách thành viên
+        // 4. Cập nhật danh sách thành viên (Kèm logic ẩn nút Sửa/Xóa cho Tổ Phó)
         const memberListBody = document.getElementById('detailMemberTable');
         if (memberListBody) {
-            memberListBody.innerHTML = ''; // XÓA DỮ LIỆU CŨ TRƯỚC KHI THÊM MỚI
+            memberListBody.innerHTML = ''; // Reset bảng
             
-            const thanhvien = data.danhSachNhanKhau || []; // Nếu null thì gán mảng rỗng để không lỗi
+            const thanhvien = data.danhSachNhanKhau || [];
+            
+            // Kiểm tra quyền 1 lần dùng chung cho vòng lặp
+            const isRestricted = typeof isToPho === 'function' && isToPho();
+
             thanhvien.forEach(function(member) {
-                    var row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${member.HoTenTV || ''}</td>
-                        <td>${member.NgaySinh ? new Date(member.NgaySinh).toLocaleDateString('vi-VN') : ''}</td>
-                        <td>${member.QuanHeChuHo || ''}</td>
-                        <td>${member.CCCD || ''}</td>
-                        <td>${member.TrangThai || ''}</td>
-                        <td class="text-center">
-                            <button class="icon-btn warning" onclick="openEditHouseholdMemberModal('${member.id}')" title="Sửa thông tin">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.id}')" title="Xóa khỏi hộ">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    `;
-                    memberListBody.appendChild(row);
-                });
+                // Nếu là Tổ phó -> Hiện text "---" hoặc "Xem"
+                // Nếu là Admin -> Hiện nút Sửa / Xóa
+                const actions = isRestricted ? '<span style="color:#999; font-style:italic">Chỉ xem</span>' : `
+                    <button class="icon-btn warning" onclick="openEditHouseholdMemberModal('${member.id}')" title="Sửa thông tin">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="icon-btn danger" onclick="deleteMemberFromHousehold('${hkCode}', '${member.id}')" title="Xóa khỏi hộ">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+            
+                var row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${member.HoTenTV || ''}</td>
+                    <td>${member.NgaySinh ? new Date(member.NgaySinh).toLocaleDateString('vi-VN') : ''}</td>
+                    <td>${member.QuanHeChuHo || ''}</td>
+                    <td>${member.CCCD || ''}</td>
+                    <td>${member.TrangThai || ''}</td>
+                    <td class="text-center">${actions}</td>
+                `;
+                memberListBody.appendChild(row);
+            });
         }
 
-        // 5. Xử lý logic cho nút thêm thành viên
+        // 5. Xử lý nút "Thêm Thành Viên" (Ẩn nếu là Tổ Phó)
         const addBtn = document.querySelector('#detailModal .btn-primary');
         if (addBtn) {
-            // Gán lại onclick để truyền đúng mã hộ khẩu hiện tại
-            addBtn.setAttribute('onclick', `openAddMemberModal('${hkCode}')`);
+            const isRestricted = typeof isToPho === 'function' && isToPho();
+            
+            if (isRestricted) {
+                // Nếu là Tổ phó: Ẩn nút thêm
+                addBtn.style.display = 'none';
+            } else {
+                // Nếu là Admin: Hiện nút và cập nhật sự kiện onclick
+                addBtn.style.display = 'inline-block';
+                addBtn.setAttribute('onclick', `openAddMemberModal('${hkCode}')`);
+            }
         }
 
-        // 6. Cập nhật lịch sử biến động (Nếu có)
+        // 6. Cập nhật lịch sử biến động
         const historyList = document.getElementById('detailHistoryList');
         if (historyList) {
-            historyList.innerHTML = ''; // Xóa cũ
+            historyList.innerHTML = '';
             const LichSu = data.lichSu || {}; 
             
             const lichSuNhanKhau = LichSu.nhanKhau || [];
             const lichSuHoKhau = LichSu.hoKhau || [];
             
-            // Hàm phụ để tạo dòng lịch sử cho gọn code
             const createItem = (date, content, note) => {
                 const li = document.createElement('li');
-                // Định dạng ngày: dd/mm/yyyy
                 const dateStr = new Date(date).toLocaleDateString('vi-VN');
-                
                 li.innerHTML = `
                     <span class="history-date">${dateStr}</span>
                     <span class="history-content">${content}</span>
@@ -145,25 +158,22 @@ async function openDetailModal(hkCode) {
                 historyList.appendChild(li);
             };
 
-            // Render Lịch sử Nhân khẩu
             lichSuNhanKhau.forEach(entry => {
                 let text = `<b>${entry.hoTen}</b>: ${entry.loaiBienDong}`;
                 if(entry.noiDen) text += ` đến ${entry.noiDen}`;
                 createItem(entry.ngayThayDoi,`<b>Nhân khẩu</b> - ${text}`, entry.ghiChu);
             });
 
-            // Render Lịch sử Hộ khẩu
             lichSuHoKhau.forEach(entry => {
                 createItem(entry.ngayThayDoi, `<b>Hộ khẩu</b>: ${entry.noiDung}`, '');
             });
 
-            // Nếu không có dữ liệu
             if (historyList.children.length === 0) {
                 historyList.innerHTML = '<li style="color:#999; font-style:italic;">Chưa có lịch sử biến động.</li>';
             }
         }
 
-        // 7. Cuối cùng mới mở Modal
+        // 7. Mở Modal
         openModal('detailModal');
 
     } catch (err) {
@@ -685,33 +695,37 @@ function renderHouseholdTable(dataList) {
         const diaChi = hk['Địa chỉ'] || hk.diaChi || '---';
         const ngayLap = hk['Ngày lập sổ'] || hk.ngayLap;
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><strong>${maHo}</strong></td>
-            <td>
-                ${chuHo} 
-                <br>
-                <small style="color:#666">(${cccd || '---'})</small>
-            </td>
-            <td>${diaChi}</td>
-            <td>${ngayLap ? new Date(ngayLap).toLocaleDateString('vi-VN') : '---'}</td>
-            <td>
-                <button class="icon-btn info" onclick="openDetailModal('${maHo}')" title="Xem chi tiết">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="icon-btn primary" onclick="openEditHouseholdModal('${maHo}')" title="Sửa">
-                    <i class="fas fa-pen"></i>
-                </button>
-                <button class="icon-btn warning" onclick="openSplitModal('${maHo}')" title="Tách hộ">
-                    <i class="fas fa-random"></i>
-                </button>
-                <button class="icon-btn danger" onclick="deleteHousehold('${maHo}')" title="Xóa">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
+        const isRestricted = isToPho();
+
+    // Chỉ hiện nút "Xem chi tiết" cho Tổ phó
+    // Các nút Sửa, Tách, Xóa chỉ hiện nếu KHÔNG PHẢI Tổ phó
+    const actionButtons = `
+        <button class="icon-btn info" onclick="openDetailModal('${maHo}')" title="Xem chi tiết">
+            <i class="fas fa-eye"></i>
+        </button>
+        ${!isRestricted ? `
+            <button class="icon-btn primary" onclick="openEditHouseholdModal('${maHo}')" title="Sửa">
+                <i class="fas fa-pen"></i>
+            </button>
+            <button class="icon-btn warning" onclick="openSplitModal('${maHo}')" title="Tách hộ">
+                <i class="fas fa-random"></i>
+            </button>
+            <button class="icon-btn danger" onclick="deleteHousehold('${maHo}')" title="Xóa">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        ` : ''}
+    `;
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td><strong>${maHo}</strong></td>
+        <td>${chuHo} <br> <small>(${cccd || '---'})</small></td>
+        <td>${diaChi}</td>
+        <td>${ngayLap ? new Date(ngayLap).toLocaleDateString('vi-VN') : '---'}</td>
+        <td>${actionButtons}</td>
+    `;
+    tbody.appendChild(row);
+});
 }
 
 // 4. Hàm xử lý tìm kiếm (Client-side)
@@ -1442,3 +1456,25 @@ async function submitAddExistingMember(personId) {
         alert("Lỗi kết nối server");
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (isToPho()) {
+        // Danh sách các selector của nút Thêm Mới, Đăng ký...
+        const restrictedSelectors = [
+            '.btn-success[onclick*="openModal"]', // Các nút Thêm màu xanh
+            '.btn-warning[onclick*="openManageResidence"]', // Nút Quản lý cư trú
+            '.btn-warning[onclick*="openModal"]' // Các nút màu vàng khác
+        ];
+
+        restrictedSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // Kiểm tra kỹ hơn nội dung text để tránh ẩn nhầm
+                const text = el.innerText.toLowerCase();
+                if (text.includes('thêm') || text.includes('đăng ký') || text.includes('quản lý')) {
+                    el.style.display = 'none';
+                }
+            });
+        });
+    }
+});

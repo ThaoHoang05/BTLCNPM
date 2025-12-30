@@ -271,7 +271,7 @@ const NhanKhauModel = {
                 await client.query(logQuery, [
                     id, 
                     currentData.cccd, 
-                    `Cập nhật (PATCH) các trường: ${changedFields}. Họ tên: ${currentData.hoten}`
+                    `Cập nhật các trường: ${changedFields}. Họ tên: ${currentData.hoten}`
                 ]);
             }
 

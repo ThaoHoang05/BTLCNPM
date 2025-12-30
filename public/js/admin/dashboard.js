@@ -41,6 +41,22 @@ document.addEventListener('DOMContentLoaded', () => {
     handleRouting(); 
 });
 
+// Hàm kiểm tra xem user hiện tại có phải là Tổ Phó không
+function isToPho() {
+    const userStr = localStorage.getItem('currentUser');
+    if (!userStr) return false;
+    
+    try {
+        const user = JSON.parse(userStr);
+        // Kiểm tra trường role hoặc chucVu (tùy vào lúc Login bạn lưu là gì)
+        // Ví dụ: user.role === 'ToPho' hoặc user.chucVu === 'Tổ phó'
+        const role = (user.role || user.chucVu || '').toLowerCase();
+        return role.includes('pho'); // Tìm chữ "phó" cho chắc chắn
+    } catch (e) {
+        return false;
+    }
+}
+
 // 2. Hàm này chỉ để TẢI NGẦM (Chạy khi vừa vào trang)
 async function preLoadHome() {
     try {
@@ -197,3 +213,25 @@ function renderHome(){
             mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file home.html</h3>`; 
         });
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (isToPho()) {
+        // Danh sách các selector của nút Thêm Mới, Đăng ký...
+        const restrictedSelectors = [
+            '.btn-success[onclick*="openModal"]', // Các nút Thêm màu xanh
+            '.btn-warning[onclick*="openManageResidence"]', // Nút Quản lý cư trú
+            '.btn-warning[onclick*="openModal"]' // Các nút màu vàng khác
+        ];
+
+        restrictedSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // Kiểm tra kỹ hơn nội dung text để tránh ẩn nhầm
+                const text = el.innerText.toLowerCase();
+                if (text.includes('thêm') || text.includes('đăng ký') || text.includes('quản lý')) {
+                    el.style.display = 'none';
+                }
+            });
+        });
+    }
+});
