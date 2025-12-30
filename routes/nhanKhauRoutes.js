@@ -9,6 +9,6 @@ router.post('/new', nhanKhauController.createNhanKhau);
 
 router.get('/detail/:id', nhanKhauController.getNhanKhauDetail);
 router.delete('/delete/:id', nhanKhauController.deleteNhanKhau);
-router.put('/update/:id', nhanKhauController.updateNhanKhau);
+router.patch('/update/:id', nhanKhauController.updateNhanKhau);
 
 module.exports = router;

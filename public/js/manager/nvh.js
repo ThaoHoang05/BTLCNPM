@@ -92,17 +92,30 @@ async function fetchAssetList() {
     }
 }
 
-function loadAssets() {
-    if (!db.assets) return;
+// Hàm vẽ bảng tài sản (Đã nâng cấp để hỗ trợ tìm kiếm)
+// Tham số optionalData: Nếu có truyền vào thì vẽ theo danh sách đó, không thì vẽ db.assets
+function loadAssets(optionalData = null) {
+    // 1. Xác định nguồn dữ liệu cần vẽ
+    const dataToRender = optionalData || db.assets;
+    const tableBody = document.getElementById('assetTableBody');
 
-    const rows = db.assets.map(a => `
+    if (!tableBody) return;
+
+    // 2. Kiểm tra nếu danh sách trống
+    if (!dataToRender || dataToRender.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #666;">Không tìm thấy tài sản nào phù hợp.</td></tr>';
+        return;
+    }
+
+    // 3. Tạo HTML từ danh sách dữ liệu
+    const rows = dataToRender.map(a => `
         <tr>
             <td>${a.id}</td>
             <td><strong>${a.name}</strong></td>
             <td>${a.qty}</td>
             <td><span style="color:${a.status === 'Tốt' ? 'green' : 'red'}">${a.status}</span></td>
             <td>${a.place}</td>
-            <td>
+            <td style="text-align: right;">
                 <button class="btn-primary" 
                     onclick="openInspectModal('${a.id}', '${a.name}', ${a.qty})" 
                     style="padding:5px 8px; font-size:12px; background-color:#28a745; border-color:#28a745;" 
@@ -120,8 +133,39 @@ function loadAssets() {
         </tr>
     `).join('');
     
-    const tableBody = document.getElementById('assetTableBody');
-    if (tableBody) tableBody.innerHTML = rows;
+    // 4. Gán vào bảng
+    tableBody.innerHTML = rows;
+}
+
+// Hàm xử lý tìm kiếm tài sản
+function searchAssets() {
+    // 1. Lấy giá trị từ ô input
+    const input = document.getElementById('assetSearchInput');
+    const rawKeyword = input.value.trim().toLowerCase();
+    const keywordNoTone = removeVietnameseTones(rawKeyword); // Từ khóa không dấu
+
+    // 2. Nếu ô tìm kiếm trống -> Hiển thị lại toàn bộ danh sách gốc
+    if (!rawKeyword) {
+        loadAssets(null); // Truyền null để hàm loadAssets tự lấy db.assets
+        return;
+    }
+
+    // 3. Lọc dữ liệu từ db.assets
+    const filteredList = db.assets.filter(item => {
+        // Tìm theo Mã tài sản (chứa từ khóa)
+        const idMatch = item.id.toLowerCase().includes(rawKeyword);
+
+        // Tìm theo Tên tài sản (dùng không dấu để tìm tương đối)
+        // Ví dụ: Nhập "ban" vẫn tìm ra "Bàn ghế"
+        const nameNoTone = removeVietnameseTones(item.name || "");
+        const nameMatch = nameNoTone.includes(keywordNoTone);
+
+        // Trả về true nếu khớp Mã HOẶC khớp Tên
+        return idMatch || nameMatch;
+    });
+
+    // 4. Vẽ lại bảng với danh sách đã lọc
+    loadAssets(filteredList);
 }
 
 function loadOverview() {
@@ -566,6 +610,20 @@ function updateDashboardSummary() {
     if(elTotal) elTotal.innerText = total;
     if(elGood) elGood.innerText = good;
     if(elBad) elBad.innerText = bad;
+}
+
+// Hàm tiện ích: Bỏ dấu Tiếng Việt
+function removeVietnameseTones(str) {
+    if (!str) return "";
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    return str;
 }
 
 // Sự kiện click ra ngoài để đóng modal kiểm kê
