@@ -607,3 +607,45 @@ ul.history-list li {
     margin-bottom: 15px;        /* Khoảng cách giữa các dòng */
     position: relative;
 }
+
+/* Style riêng cho danh sách gợi ý tìm kiếm */
+.search-wrapper {
+    position: relative; /* Để căn chỉnh danh sách thả xuống */
+}
+
+.candidate-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    z-index: 1000; /* Đảm bảo nằm trên các phần tử khác */
+    max-height: 250px;
+    overflow-y: auto;
+    display: none; /* Ẩn mặc định */
+    margin-top: 2px;
+}
+
+.candidate-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.candidate-dropdown li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.candidate-dropdown li:hover {
+    background-color: #f1f5f9; /* Màu nền khi di chuột vào */
+}
+
+.candidate-dropdown li:last-child {
+    border-bottom: none;
+}

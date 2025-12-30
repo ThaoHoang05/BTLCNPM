@@ -32,6 +32,7 @@ async function fetchPendingList() {
         currentList = data.map(item => ({
             id: item.id,
             name: item.hoTen,
+            sdt: item.dienThoai,
             from: item.thoiGian.tu,
             to: item.thoiGian.den,
             type: item.loaiHinh || 'Chưa xác định', // API pending không có loại hình, fallback
@@ -80,6 +81,7 @@ async function fetchHistoryList() {
             return {
                 id: item.id,
                 name: item.hoTen,
+                sdt: item.dienThoai,
                 from: item.thoiGian.tu, // Payload của bạn đã lồng thoiGian
                 to: item.thoiGian.den,
                 type: item.loaiHinh,
@@ -136,7 +138,8 @@ async function postReject(payload) {
 // Chuyển đổi giữa Tab "Chờ duyệt" và "Lịch sử"
 function filterRequests(type) {
     currentTab = type;
-    
+    const searchInput = document.getElementById('keyword');
+    if (searchInput) searchInput.value = ''; // Xoá ô tìm kiếm khi đổi tab
     // 1. Cập nhật giao diện nút bấm (Tab)
     // Giả sử HTML của bạn có 2 nút với class .tab-btn
     const buttons = document.querySelectorAll('.tab-btn');
@@ -212,10 +215,25 @@ function renderRequestTable(data) {
         } else {
             actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-history"></i> Chi tiết</button>`;
         }
+        const isRestricted = isToPho();
+
+    if (currentTab === 'pending') {
+        if (isRestricted) {
+             // Tổ phó chỉ xem, không hiện nút Duyệt
+             actionBtn = `<button class="btn-sm btn-secondary" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-eye"></i> Xem chi tiết</button>`;
+        } else {
+             // Admin thì hiện nút Duyệt/Xem
+             actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-eye"></i> Duyệt/Xem</button>`;
+        }
+    } else {
+        // Tab lịch sử ai cũng xem được
+        actionBtn = `<button class="btn-sm btn-info" onclick="openNVHDetailModal(${item.id})"><i class="fas fa-history"></i> Chi tiết</button>`;
+    }
 
         row.innerHTML = `
             <td>#${item.id}</td>
             <td><strong>${item.name}</strong></td>
+            <td>${item.sdt || '---'}</td>
             <td>
                 ${formatTime(item.from)}<br>
                 <i class="fas fa-arrow-down"></i><br>
@@ -474,6 +492,86 @@ async function confirmReject() {
 // 6. KHỞI TẠO
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Mặc định load tab Chờ duyệt
+    // 1. Mặc định load tab Chờ duyệt
     fetchPendingList();
+
+    // 2. Gắn sự kiện gõ phím cho ô tìm kiếm
+    const searchInput = document.getElementById('keyword');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', searchRequests);
+    }
+    
+    // 3. Gắn sự kiện click cho icon kính lúp (nếu muốn)
+    const searchIcon = document.querySelector('.search-group .search-icon');
+    if(searchIcon) {
+        searchIcon.addEventListener('click', searchRequests);
+    }
+});
+
+// Hàm bỏ dấu tiếng Việt để tìm kiếm chính xác hơn
+function removeVietnameseTones(str) {
+    if (!str) return "";
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    return str;
+}
+
+// Hàm tìm kiếm (Lọc trên dữ liệu đã tải)
+function searchRequests() {
+    const input = document.getElementById('keyword');
+    const rawKeyword = input.value.trim().toLowerCase();
+    const keywordNoTone = removeVietnameseTones(rawKeyword); // Từ khóa không dấu
+
+    // Nếu ô tìm kiếm rỗng -> Hiển thị lại toàn bộ danh sách gốc
+    if (!rawKeyword) {
+        renderRequestTable(currentList);
+        return;
+    }
+
+    // Lọc dữ liệu từ currentList (Biến này chứa data của tab đang mở)
+    const filteredData = currentList.filter(item => {
+        // 1. Kiểm tra ID (chuyển về chuỗi)
+        const idMatch = item.id.toString().includes(rawKeyword);
+
+        // 2. Kiểm tra Số điện thoại
+        const phoneMatch = (item.sdt || "").includes(rawKeyword);
+
+        // 3. Kiểm tra Tên (Bỏ dấu để so sánh tương đối)
+        const nameNoTone = removeVietnameseTones(item.name || "");
+        const nameMatch = nameNoTone.includes(keywordNoTone);
+
+        // Trả về true nếu khớp bất kỳ điều kiện nào
+        return idMatch || phoneMatch || nameMatch;
+    });
+
+    // Render lại bảng với dữ liệu đã lọc (Không gán đè vào currentList để tránh mất data gốc)
+    renderRequestTable(filteredData);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (isToPho()) {
+        // Danh sách các selector của nút Thêm Mới, Đăng ký...
+        const restrictedSelectors = [
+            '.btn-success[onclick*="openModal"]', // Các nút Thêm màu xanh
+            '.btn-warning[onclick*="openManageResidence"]', // Nút Quản lý cư trú
+            '.btn-warning[onclick*="openModal"]' // Các nút màu vàng khác
+        ];
+
+        restrictedSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // Kiểm tra kỹ hơn nội dung text để tránh ẩn nhầm
+                const text = el.innerText.toLowerCase();
+                if (text.includes('thêm') || text.includes('đăng ký') || text.includes('quản lý')) {
+                    el.style.display = 'none';
+                }
+            });
+        });
+    }
 });

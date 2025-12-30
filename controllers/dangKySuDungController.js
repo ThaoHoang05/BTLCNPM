@@ -34,6 +34,7 @@ const dangKySuDungController = {
             const responseData = rawData.map(item => ({
                 id: item.id,
                 hoTen: item.hoTen,
+                dienThoai: item.dienThoai,
                 tenHD: item.tenHD,
                 loaiHinh: item.loaiHinh,
                 thoiGian: {
@@ -56,6 +57,7 @@ const dangKySuDungController = {
             const responseData = rawData.map(item => ({
                 id: item.id,
                 hoTen: item.hoTen,
+                dienThoai: item.dienThoai,
                 tenHD: item.tenHD,
                 loaiHinh: item.loaiHinh,
                 trangThai: item.trangThai,

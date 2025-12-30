@@ -73,7 +73,14 @@ const nhanKhauController = {
     updateNhanKhau: async (req, res) => {
         try {
             const { id } = req.params;
-            await NhanKhauModel.update(id, req.body);
+            const data = req.body;
+
+            // Kiểm tra xem có dữ liệu gửi lên không
+            if (!data || Object.keys(data).length === 0) {
+                return res.status(400).json({ message: "Không có dữ liệu thay đổi được gửi lên." });
+            }
+
+            await NhanKhauModel.update(id, data);
             
             res.status(200).json({ message: "Cập nhật thông tin thành công" });
         } catch (error) {
