@@ -181,6 +181,27 @@ const HoKhauModel = {
                 throw new Error("Không thể tách Chủ hộ hiện tại ra khỏi hộ. Vui lòng chuyển quyền Chủ hộ cho người khác trước khi tách!");
             };
 
+            // Kiểm tra chủ hộ mới có đủ 18 tuổi và còn sống không
+            const checkNewOwner = await client.query(
+                `SELECT ngaysinh, trangthai FROM nhankhau WHERE id = $1`, 
+                [data.HoTenID]
+            );
+            if (checkNewOwner.rows.length === 0) throw new Error("Chủ hộ mới không tồn tại.");
+            const owner = checkNewOwner.rows[0];
+            if (owner.trangthai === 'Qua đời') throw new Error("Không thể chọn người đã qua đời làm chủ hộ.");
+            // Tính tuổi ở phía DB hoặc JS
+            const birthDate = new Date(owner.ngaysinh);
+            const age = new Date().getFullYear() - birthDate.getFullYear();
+            if (age < 18) throw new Error("Chủ hộ mới phải từ 18 tuổi trở lên.");
+            // 2. Kiểm tra danh sách thành viên tách đi có ai qua đời không
+            const checkMembers = await client.query(
+                `SELECT hoten FROM nhankhau WHERE id = ANY($1) AND trangthai = 'Qua đời'`,
+                [data.ThanhVienIDs]
+            );
+            if (checkMembers.rows.length > 0) {
+                throw new Error(`Thành viên ${checkMembers.rows[0].hoten} đã qua đời, không thể chuyển hộ.`);
+            };
+            
             // 1. Sinh mã hộ mới 
             const maxIdRes = await client.query(`SELECT MAX(CAST(SUBSTRING(sohokhau, 3) AS INTEGER)) as "maxNum" FROM hokhau`);
             const nextHkId = 'HK' + ((maxIdRes.rows[0].maxNum || 0) + 1).toString().padStart(3, '0');

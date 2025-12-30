@@ -358,6 +358,7 @@ async function openSplitModal(hkCode) {
                 if (member.QuanHeChuHo === 'Chủ hộ') {
                     return; // Bỏ qua, không render checkbox cho chủ hộ cũ
                 }
+                if (member.TrangThai === 'Qua đời') return; // Bỏ qua thành viên đã mất
                 const div = document.createElement('div');
                 div.className = 'checkbox-item';
                 div.innerHTML = `
@@ -392,11 +393,22 @@ function updateNewOwnerList() {
     
     select.innerHTML = '<option value="">-- Chọn chủ hộ --</option>';
     
-    checkboxes.forEach(chk => {
-        const option = document.createElement('option');
-        option.value = chk.value;
-        option.innerText = chk.dataset.name;
-        select.appendChild(option);
+checkboxes.forEach(chk => {
+        // Tính tuổi
+        const dob = new Date(chk.dataset.dob);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        // Chỉ thêm vào danh sách nếu đủ 18 tuổi
+        if (age >= 18) {
+            const option = document.createElement('option');
+            option.value = chk.value;
+            option.innerText = chk.dataset.name + " (Đủ điều kiện)";
+            select.appendChild(option);
+        }
     });
 
     if (currentVal) select.value = currentVal;
