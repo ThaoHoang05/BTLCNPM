@@ -46,6 +46,13 @@ async function fetchEvents() {
 }
 
 // B. Hàm vẽ lịch
+// ==========================================
+// 2. LOGIC LỊCH & API BACKEND (CẬP NHẬT)
+// ==========================================
+
+// ... (Giữ nguyên các phần trên, chỉ thay đổi hàm renderCalendar và showEventsForDay)
+
+// B. Hàm vẽ lịch
 function renderCalendar() {
     const year = displayDate.getFullYear();
     const month = displayDate.getMonth();
@@ -57,12 +64,11 @@ function renderCalendar() {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay(); // 0 (CN) -> 6 (T7)
+    const startingDay = firstDay.getDay(); 
     
     const calendarDays = document.getElementById('calendarDays');
     if(!calendarDays) return;
 
-    // Reset nội dung
     calendarDays.innerHTML = `
         <div class="day-name">CN</div><div class="day-name">T2</div>
         <div class="day-name">T3</div><div class="day-name">T4</div>
@@ -70,33 +76,40 @@ function renderCalendar() {
         <div class="day-name">T7</div>
     `;
 
-    // Vẽ các ô trống trước ngày mùng 1
     for (let i = 0; i < startingDay; i++) {
         calendarDays.innerHTML += `<div></div>`;
     }
 
-    // Vẽ các ngày trong tháng
     const today = new Date();
-    
-    for (let i = 1; i <= daysInMonth; i++) {
-        // Kiểm tra xem ngày này có sự kiện không
-        const hasEvent = eventsData.some(e => {
-            const eDate = new Date(e.thoiGian.tu); // API trả về thoiGian.tu
-            return eDate.getDate() === i && 
-                   eDate.getMonth() === month && 
-                   eDate.getFullYear() === year;
-        });
+    today.setHours(0, 0, 0, 0); // Reset giờ hiện tại về 0 để so sánh chuẩn
 
-        // Xử lý class CSS
+    for (let i = 1; i <= daysInMonth; i++) {
+        // Tạo đối tượng Date cho ngày đang render trên lịch
+        const currentRenderDate = new Date(year, month, i);
+        currentRenderDate.setHours(0, 0, 0, 0); // Đầu ngày
+
+        // --- SỬA ĐỔI LOGIC KIỂM TRA SỰ KIỆN Ở ĐÂY ---
+        const hasEvent = eventsData.some(e => {
+            const startDate = new Date(e.thoiGian.tu);
+            startDate.setHours(0, 0, 0, 0); // Tính từ đầu ngày bắt đầu
+
+            const endDate = new Date(e.thoiGian.den);
+            endDate.setHours(23, 59, 59, 999); // Tính đến cuối ngày kết thúc
+
+            // Kiểm tra nếu ngày đang render nằm trong khoảng [startDate, endDate]
+            return currentRenderDate >= startDate && currentRenderDate <= endDate;
+        });
+        // ----------------------------------------------
+
         let className = 'day';
-        if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+        // So sánh ngày hôm nay
+        if (currentRenderDate.getTime() === today.getTime()) {
             className += ' today';
         }
         if (hasEvent) {
             className += ' has-event';
         }
 
-        // Thêm HTML
         calendarDays.innerHTML += `
             <div class="${className}" onclick="showEventsForDay(${i}, ${month}, ${year})">
                 ${i}
@@ -106,25 +119,24 @@ function renderCalendar() {
     }
 }
 
-// C. Hàm chuyển tháng (Nút < >)
-function changeMonth(offset) {
-    displayDate.setMonth(displayDate.getMonth() + offset);
-    renderCalendar();
-    // Reset phần hiển thị chi tiết bên dưới
-    const container = document.getElementById('eventListContainer');
-    if(container) container.innerHTML = '<p class="no-event-text">Chọn ngày để xem chi tiết.</p>';
-}
-
 // D. Hàm hiển thị chi tiết khi bấm vào ngày
 function showEventsForDay(day, month, year) {
-    // Xóa highlight cũ (nếu muốn làm kỹ hơn)
-    // Lọc sự kiện của ngày được chọn
+    // Tạo đối tượng Date cho ngày được click
+    const clickDate = new Date(year, month, day);
+    clickDate.setHours(0, 0, 0, 0);
+
+    // --- SỬA ĐỔI LOGIC LỌC SỰ KIỆN Ở ĐÂY ---
     const dayEvents = eventsData.filter(e => {
-        const eDate = new Date(e.thoiGian.tu);
-        return eDate.getDate() === day && 
-               eDate.getMonth() === month && 
-               eDate.getFullYear() === year;
+        const startDate = new Date(e.thoiGian.tu);
+        startDate.setHours(0, 0, 0, 0);
+
+        const endDate = new Date(e.thoiGian.den);
+        endDate.setHours(23, 59, 59, 999);
+
+        // Lấy tất cả sự kiện đang diễn ra trong ngày được click
+        return clickDate >= startDate && clickDate <= endDate;
     });
+    // -----------------------------------------
 
     const container = document.getElementById('eventListContainer');
     if (!container) return;
@@ -132,17 +144,29 @@ function showEventsForDay(day, month, year) {
     if (dayEvents.length === 0) {
         container.innerHTML = `<p class="no-event-text">Ngày ${day}/${month+1}: Không có hoạt động chung.</p>`;
     } else {
-        // Render danh sách sự kiện
         container.innerHTML = dayEvents.map(e => {
-            const timeObj = new Date(e.thoiGian.tu);
-            const timeStr = timeObj.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            // Format hiển thị thời gian: Từ ... Đến ...
+            const startObj = new Date(e.thoiGian.tu);
+            const endObj = new Date(e.thoiGian.den);
+            
+            const startStr = startObj.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit'}) + ' ' + startObj.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            const endStr = endObj.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit'}) + ' ' + endObj.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+
             return `
                 <div class="event-item">
-                    <div class="event-time"><i class="far fa-clock"></i> ${timeStr} - Ngày ${day}/${month+1}</div>
+                    <div class="event-time"><i class="far fa-clock"></i> ${startStr} - ${endStr}</div>
                     <div class="event-title">${e.tenHD}</div>
                     <div class="event-loc"><i class="fas fa-map-marker-alt"></i> ${e.phong}</div>
                 </div>
             `;
         }).join('');
     }
+}
+// C. Hàm chuyển tháng (Nút < >)
+function changeMonth(offset) {
+    displayDate.setMonth(displayDate.getMonth() + offset);
+    renderCalendar();
+    // Reset phần hiển thị chi tiết bên dưới
+    const container = document.getElementById('eventListContainer');
+    if(container) container.innerHTML = '<p class="no-event-text">Chọn ngày để xem chi tiết.</p>';
 }
