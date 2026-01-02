@@ -663,6 +663,17 @@ let globalHouseholdList = [];
 
 // 2. Hàm gọi API (Chỉ chạy 1 lần khi load trang hoặc khi refresh dữ liệu)
 async function loadHouseHoldList(){
+    if (typeof isToPho === 'function' && isToPho()) {
+        // Tìm nút mở modal thêm hộ khẩu (Dựa trên thuộc tính onclick gọi modal này)
+        const addBtn = document.querySelector('button[onclick*="addHouseholdModal"]');
+        if (addBtn) {
+            addBtn.style.display = 'none';
+        }
+
+        // Hoặc nếu nút của bạn có ID cụ thể (ví dụ: id="btnAddHousehold"), hãy dùng dòng dưới:
+        const btnById = document.getElementById('btnAddHousehold');
+        if (btnById) btnById.style.display = 'none';
+    }
     const tbody = document.getElementById('householdList'); 
     
     // Hiển thị loading
