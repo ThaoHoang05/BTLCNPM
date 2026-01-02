@@ -376,6 +376,7 @@ async function openSplitModal(hkCode) {
                         <input type="checkbox" class="split-member-check" 
                             value="${member.id}" 
                             data-name="${member.HoTenTV}"
+                            data-dob="${member.NgaySinh}"
                             onchange="updateNewOwnerList()"> 
                         ${member.HoTenTV} (${member.CCCD || 'Trẻ em'})
                     </label>
@@ -416,7 +417,7 @@ checkboxes.forEach(chk => {
         if (age >= 18) {
             const option = document.createElement('option');
             option.value = chk.value;
-            option.innerText = chk.dataset.name + " (Đủ điều kiện)";
+            option.innerText = chk.dataset.name;
             select.appendChild(option);
         }
     });
