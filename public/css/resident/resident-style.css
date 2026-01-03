@@ -270,3 +270,200 @@
     width: 100%; /* Đảm bảo input full chiều rộng cột cha */
     box-sizing: border-box; /* Tính padding vào width để không bị vỡ layout */
 }
+/* =========================================
+   UI MỚI: DASHBOARD & TRACKING (Bổ sung)
+   ========================================= */
+
+/* --- Layout chia cột --- */
+.dashboard-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.grid-left {
+    flex: 2; /* Cột trái chiếm 2 phần */
+    min-width: 450px;
+}
+
+.grid-right {
+    flex: 1; /* Cột phải chiếm 1 phần */
+    min-width: 300px;
+}
+
+/* --- Panel trắng bo góc --- */
+.panel-white {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    height: 100%; /* Để panel bằng chiều cao nhau */
+}
+
+/* --- Header của từng section --- */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* --- Header Top (Phần thông tin chung) --- */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 15px 25px;
+    background-color: #f9fbfd;
+}
+.header-top .card-title {
+    border-bottom: none; /* Override style cũ */
+    padding: 0;
+    background: none;
+}
+
+.card-body-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Chia 2 cột thông tin */
+    gap: 15px;
+    padding: 20px 25px;
+}
+
+/* --- Tracking List (Danh sách trạng thái bên phải) --- */
+.tracking-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.tracking-item {
+    border-bottom: 1px solid #f1f1f1;
+    padding: 12px 0;
+    font-size: 13px;
+}
+
+.tracking-item:last-child {
+    border-bottom: none;
+}
+
+.tracking-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #444;
+}
+
+.tracking-detail {
+    color: #666;
+    margin-bottom: 5px;
+    line-height: 1.4;
+}
+
+.tracking-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+/* --- Buttons & Icons --- */
+.btn-primary {
+    background-color: #009688;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.2s;
+}
+.btn-primary:hover {
+    background-color: #00796b;
+}
+
+.btn-action-small {
+    padding: 4px 10px;
+    font-size: 12px;
+    background: #e9ecef;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #333;
+    transition: 0.2s;
+}
+
+.btn-action-small:hover {
+    background: #ced4da;
+    color: #000;
+}
+
+.refresh-icon {
+    cursor: pointer;
+    color: #007bff;
+    font-size: 14px;
+    transition: transform 0.3s;
+}
+.refresh-icon:hover {
+    color: #0056b3;
+    transform: rotate(180deg);
+}
+
+/* --- History Tables --- */
+.history-section-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.history-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.table-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.table-bordered {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table-bordered th, .table-bordered td {
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+}
+.table-bordered th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+}
+
+/* --- Utilities --- */
+.text-center { text-align: center; }
+.p-3 { padding: 1rem; }
+.text-muted { color: #6c757d; }
+.text-danger { color: #dc3545; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }

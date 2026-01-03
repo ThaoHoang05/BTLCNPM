@@ -237,3 +237,22 @@ FROM NhanKhau WHERE TrangThai = 'Qua đời';
 INSERT INTO BienDongNhanKhau (nhankhau_id, CCCD, LoaiBienDong, NgayBienDong, GhiChu)
 SELECT id, CCCD, 'Chuyển đi', '2025-09-01', 'Chuyển hộ khẩu sang phường khác'
 FROM NhanKhau WHERE HoTen = 'Lê Văn U1';
+
+-- 3/1/2026 - UPDATE chuc nang bo sung --
+-- Tạo bảng yêu cầu của cư dân
+CREATE TABLE public.yeu_cau_cu_dan (
+    id SERIAL PRIMARY KEY, -- Tự động tăng
+    nguoi_yeu_cau character varying(12) NOT NULL, -- Liên kết với CCCD
+    ngay_yeu_cau TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Tự động lấy giờ hiện tại
+    loai_yeu_cau character varying(50) NOT NULL, -- VD: 'Sửa hộ khẩu', 'Đăng ký tạm trú'
+    thong_tin_yeu_cau JSONB, -- Lưu dữ liệu linh động (GTcu, GTmoi, minh chứng...)
+    trang_thai character varying(20) DEFAULT 'Chờ duyệt', -- 'Chờ duyệt', 'Đã duyệt', 'Từ chối'
+    ket_qua_duyet text, -- Ghi chú của cán bộ khi Duyệt/Từ chối
+
+    -- Tạo khóa ngoại liên kết với bảng nhân khẩu
+    CONSTRAINT fk_yeucau_nhankhau FOREIGN KEY (nguoi_yeu_cau) 
+    REFERENCES public.nhankhau(cccd) ON DELETE CASCADE
+);
+
+-- Tạo Index cho người yêu cầu để tìm kiếm lịch sử nhanh hơn
+CREATE INDEX idx_yeucau_nguoi_yeu_cau ON public.yeu_cau_cu_dan(nguoi_yeu_cau);

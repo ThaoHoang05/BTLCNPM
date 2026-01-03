@@ -19,6 +19,7 @@ const nhanKhauRoutes = require('./routes/nhanKhauRoutes');
 const nhaVanHoaRoutes = require('./routes/nhaVanHoaRoutes');
 const tamVangTamTruRoutes = require('./routes/tamVangTamTruRoutes');
 const thongKeRoutes = require('./routes/thongKeRoutes');
+const requestRoutes = require('./routes/requestRoutes');
 
 //api
 app.use('/api', authRoutes); 

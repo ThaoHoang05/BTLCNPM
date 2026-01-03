@@ -1,169 +1,229 @@
-<div class="resident-hokhau-layout">
-    
-    <div class="hokhau-header-card">
-        <div class="card-title">
-            <i class="fas fa-house-user"></i> Sổ Hộ Khẩu: <span class="highlight" id="soHoKhauID"></span>
+<div class="resident-container">
+
+    <div id="view-household" class="resident-layout" style="display: none;">
+        <div class="hokhau-header-card">
+            <div class="header-top">
+                <div class="card-title">
+                    <i class="fas fa-house-user"></i> Sổ Hộ Khẩu: <span class="highlight" id="soHoKhauID">Loading...</span>
+                </div>
+                <button class="btn-primary" onclick="openRequestModal('tabHoKhau')">
+                    <i class="fas fa-bars"></i> Menu Yêu Cầu / Khai Báo
+                </button>
+            </div>
+            <div class="card-body-grid">
+                <div class="info-item"><span class="label">Chủ hộ:</span> <span class="value" id="valHoTen"></span></div>
+                <div class="info-item"><span class="label">Địa chỉ:</span> <span class="value" id="valDiaChi"></span></div>
+                <div class="info-item"><span class="label">Ngày lập:</span> <span class="value" id="valNgayLap"></span></div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="info-row">
-                <span class="label">Chủ hộ:</span>
-                <span class="value" id="valHoTen"></span>
-            </div>
-            <div class="info-row">
-                <span class="label">Địa chỉ:</span>
-                <span class="value" id="valDiaChi"></span>
-            </div>
-            <div class="info-row">
-                <span class="label">Ngày lập:</span>
-                <span class="value" id="valNgayLap"></span>
-            </div>
-            <div class="info-row">
-                <span class="label">Ghi chú:</span>
-                <span class="value" id="valGhiChu"></span>
+
+        <div class="dashboard-grid mt-4">
+            <div class="grid-left panel-white">
+                <div class="section-header">
+                    <h3><i class="fas fa-users"></i> Thành viên trong hộ</h3>
+                </div>
+                <table class="member-table" id="tableThanhVien">
+                    <thead>
+                        <tr>
+                            <th>Họ và tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Quan hệ</th>
+                            <th>Trạng thái</th>
+                            <th>Tác vụ</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
 
-            <button class="btn-request" onclick="openRequestModal()">
-                <i class="fas fa-edit"></i> Yêu cầu đính chính / Thay đổi
-            </button>
+            <div class="grid-right panel-white">
+                <div class="section-header">
+                    <h3><i class="fas fa-bell"></i> Trạng thái Yêu cầu</h3>
+                    <span class="refresh-icon" onclick="loadRequestHistory()"><i class="fas fa-sync-alt"></i></span>
+                </div>
+                <div class="tracking-list" id="requestHistoryList"></div>
+            </div>
         </div>
     </div>
 
-    <div class="members-section">
-        <h3><i class="fas fa-users"></i> Danh sách thành viên</h3>
-        <table class="member-table" id="tableThanhVien">
-            <thead>
-                <tr>
-                    <th>Họ và tên</th>     <th>Ngày sinh</th>     <th>Quan hệ</th>       <th>CCCD/CMND</th>     <th>Trạng thái</th>    </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+    <div id="view-individual" class="resident-layout" style="display: none;">
+        <div class="panel-white" style="max-width: 800px; margin: 0 auto;">
+            <div class="section-header">
+                <h3><i class="fas fa-id-card"></i> Hồ sơ cá nhân của bạn</h3>
+                <button class="btn-primary" onclick="openRequestModal('tabNhanKhau')">
+                    <i class="fas fa-pen"></i> Báo sai thông tin
+                </button>
+            </div>
+            
+            <div class="info-grid-modern" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
+                <div class="info-item"><label>Họ và tên</label><span id="indHoTen" class="highlight-text">--</span></div>
+                <div class="info-item"><label>Ngày sinh</label><span id="indNgaySinh">--</span></div>
+                <div class="info-item"><label>CCCD/CMND</label><span id="indCCCD">--</span></div>
+                <div class="info-item"><label>Giới tính</label><span id="indGioiTinh">--</span></div>
+                <div class="info-item"><label>Dân tộc</label><span id="indDanToc">--</span></div>
+                <div class="info-item"><label>Nghề nghiệp</label><span id="indNgheNghiep">--</span></div>
+                <div class="info-item"><label>Quan hệ với chủ hộ</label><span id="indQuanHe">--</span></div>
+                <div class="info-item"><label>Trạng thái</label><span id="indTrangThai">--</span></div>
+            </div>
+
+            <div class="mt-4">
+                <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Lịch sử biến động bản thân</h4>
+                <table class="history-table table-bordered" id="tableLichSuCaNhan">
+                    <thead><tr><th>Ngày</th><th>Loại biến động</th><th>Chi tiết</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4">
+                <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Yêu cầu đã gửi</h4>
+                <div class="tracking-list" id="indRequestHistory"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="history-section" style="margin-top: 30px;">
+</div> 
+<div id="requestModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-file-signature"></i> Gửi yêu cầu / Khai báo</h3>
+            <span class="close-btn" onclick="closeRequestModal()">&times;</span>
+        </div>
         
-        <h3><i class="fas fa-history"></i> Lịch sử thay đổi Hộ khẩu</h3>
-        <table class="history-table table-bordered" id="tableLichSuHoKhau">
-            <thead>
-                <tr>
-                    <th style="width: 150px;">Ngày thay đổi</th> <th>Nội dung thay đổi</th>                   </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>15/01/2020</td>
-                    <td>Thay đổi địa chỉ từ Tổ 1 sang C15 Quang Trung</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="modal-tabs">
+            <button class="tab-link" onclick="openTab(event, 'tabHoKhau')" id="btnTabHK">Sửa Hộ Khẩu</button>
+            <button class="tab-link" onclick="openTab(event, 'tabNhanKhau')" id="btnTabNK">Sửa Nhân Khẩu</button>
+            <button class="tab-link" onclick="openTab(event, 'tabTamTru')" id="btnTabTT">Đăng ký Tạm Trú</button>
+            <button class="tab-link" onclick="openTab(event, 'tabTamVang')" id="btnTabTV">Khai báo Tạm Vắng</button>
+        </div>
 
-        <h3 style="margin-top: 20px;"><i class="fas fa-user-clock"></i> Lịch sử biến động Nhân khẩu</h3>
-        <table class="history-table table-bordered" id="tableLichSuNhanKhau">
-            <thead>
-                <tr>
-                    <th>Họ tên</th>          <th>Loại biến động</th>  <th>Ngày biến động</th>  <th>Nơi đến/đi</th>      <th>Ghi chú</th>         </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Hoàng Văn A1</td>
-                    <td><span class="badge-move">Tạm vắng</span></td>
-                    <td>01/09/2023</td>
-                    <td>Ký túc xá ĐH Bách Khoa</td>
-                    <td>Đi học đại học</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <div class="modal-body">
+            
+            <div id="tabHoKhau" class="tab-content">
+                <form id="formHoKhau">
+                    <div class="form-group">
+                        <label>Nội dung cần sửa:</label>
+                        <select class="form-control" id="hkField"> 
+                            <option value="dia_chi">Địa chỉ thường trú</option>
+                            <option value="chu_ho">Chủ hộ</option>
+                            <option value="so_ho_khau">Số sổ hộ khẩu</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-half"><label>Giá trị cũ:</label><input type="text" class="form-control" id="hkOldVal"></div>
+                        <div class="col-half"><label>Giá trị mới:</label><input type="text" class="form-control" id="hkNewVal" required></div>
+                    </div>
+                    <div class="form-group"><label>Lý do:</label><textarea class="form-control" rows="2"></textarea></div>
+                    <div class="modal-actions"><button type="submit" class="btn-submit">Gửi yêu cầu</button></div>
+                </form>
+            </div>
 
-</div>
-    <div id="requestModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Gửi yêu cầu thay đổi thông tin</h3>
-                <span class="close-btn" onclick="closeRequestModal()">&times;</span>
-            </div>
-            
-            <div class="modal-tabs">
-                <button class="tab-link active" onclick="openTab(event, 'tabHoKhau')">Đính chính Hộ Khẩu</button>
-                <button class="tab-link" onclick="openTab(event, 'tabNhanKhau')">Đính chính Nhân Khẩu</button>
-            </div>
-    
-            <div class="modal-body">
-                <div id="tabHoKhau" class="tab-content" style="display: block;">
-                    <form id="formHoKhau">
-                        <div class="form-group">
-                            <label>Nội dung cần sửa (Hộ khẩu):</label>
-                            <select class="form-control">
-                                <option value="dia_chi">Địa chỉ thường trú</option>
-                                <option value="chu_ho">Thay đổi chủ hộ</option>
-                                <option value="so_ho_khau">Số sổ hộ khẩu</option>
-                                <option value="khac">Khác</option>
-                            </select>
-                        </div>
-            
-                        <div class="form-row">
-                            <div class="col-half">
-                                <label>Thông tin hiện tại (Cũ):</label>
-                                <input type="text" class="form-control" placeholder="VD: Số nhà C15...">
-                            </div>
-                            <div class="col-half">
-                                <label>Thông tin đề xuất (Mới):</label>
-                                <input type="text" class="form-control" placeholder="VD: Số nhà C20...">
-                            </div>
-                        </div>
-            
-                        <div class="form-group">
-                            <label>Ghi chú / Lý do thay đổi:</label>
-                            <textarea class="form-control" rows="3" placeholder="Ghi rõ lý do thay đổi..."></textarea>
-                        </div>
-            
-                        <div class="modal-actions">
-                            <button type="button" class="btn-cancel" onclick="closeRequestModal()">Hủy</button>
-                            <button type="submit" class="btn-submit">Gửi yêu cầu Hộ Khẩu</button>
-                        </div>
-                    </form>
-                </div>
-            
-                <div id="tabNhanKhau" class="tab-content" style="display: none;">
-                    <form id="formNhanKhau">
-                        <div class="form-group">
-                            <label>Chọn thành viên:</label>
-                            <select class="form-control">
-                                <option value="id_E">Hoàng Văn E (Chủ hộ)</option>
-                                <option value="id_Z">Lê Thị Z (Vợ)</option>
-                                <option value="id_A1">Hoàng Văn A1 (Con)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Loại thông tin:</label>
-                            <select class="form-control">
-                                <option value="ngay_sinh">Ngày sinh</option>
+            <div id="tabNhanKhau" class="tab-content">
+                <form id="formNhanKhau">
+                    <div class="form-group">
+                        <label>Chọn thành viên:</label>
+                        <select class="form-control" id="nkSelectMember" required onchange="updateOldValuePlaceholder()"></select>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-half">
+                            <label>Thông tin cần sửa:</label>
+                            <select class="form-control" id="nkField" onchange="updateOldValuePlaceholder()">
+                                <option value="hoten">Họ và tên</option>
+                                <option value="ngaysinh">Ngày sinh</option>
                                 <option value="nghe_nghiep">Nghề nghiệp</option>
-                                <option value="cmnd">CCCD/CMND</option>
-                                <option value="ho_ten">Họ và tên</option>
+                                <option value="dantoc">Dân tộc</option>
                             </select>
                         </div>
-            
-                        <div class="form-row">
-                            <div class="col-half">
-                                <label>Thông tin hiện tại (Cũ):</label>
-                                <input type="text" class="form-control" placeholder="VD: 11/11/2010">
-                            </div>
-                            <div class="col-half">
-                                <label>Thông tin đề xuất (Mới):</label>
-                                <input type="text" class="form-control" placeholder="VD: 12/11/2010">
-                            </div>
+                        <div class="col-half">
+                            <label>Giá trị hiện tại:</label>
+                            <input type="text" class="form-control" id="nkOldVal" readonly style="background: #f8f9fa;">
                         </div>
-            
-                        <div class="form-group">
-                            <label>Ghi chú / Lý do thay đổi:</label>
-                            <textarea class="form-control" rows="3" placeholder="Ghi rõ lý do..."></textarea>
-                        </div>
-                        <div class="modal-actions">
-                            <button type="button" class="btn-cancel" onclick="closeRequestModal()">Hủy</button>
-                            <button type="submit" class="btn-submit">Gửi yêu cầu Nhân Khẩu</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá trị mới:</label>
+                        <input type="text" class="form-control" id="nkNewVal" required>
+                    </div>
+                    <div class="modal-actions"><button type="submit" class="btn-submit">Gửi yêu cầu</button></div>
+                </form>
             </div>
+
+            <div id="tabTamTru" class="tab-content">
+                <p class="text-danger small">* Dành cho người nơi khác đến tạm trú tại hộ này.</p>
+                
+                <form id="formTamTru">
+                    <div class="form-row">
+                        <div class="col-half">
+                            <label>Mã Hộ Khẩu nơi đến <span style="color:red">*</span>:</label>
+                            <div style="display: flex; gap: 5px;">
+                                <input type="text" class="form-control" name="mahokhau" id="ttMaHoKhau" 
+                                       required placeholder="VD: HK001" 
+                                       onchange="loadDiaChiTamTru()">
+                                <button type="button" class="btn-action-small" onclick="loadDiaChiTamTru()"><i class="fas fa-search"></i></button>
+                            </div>
+                            <small style="color: #666; font-size: 0.8rem;">* Nhập mã rồi nhấn Enter</small>
+                        </div>
+                        <div class="col-half">
+                            <label>Địa chỉ tạm trú (Tự động):</label>
+                            <input type="text" class="form-control" id="ttDiaChiHienThi" 
+                                   readonly style="background-color: #e9ecef; color: #009688; font-weight: bold;" 
+                                   placeholder="Địa chỉ sẽ hiện ra ở đây...">
+                        </div>
+                    </div>
+            
+                    <hr style="border: 0; border-top: 1px dashed #ddd; margin: 15px 0;">
+            
+                    <div class="form-row">
+                        <div class="col-half">
+                            <label>Số CCCD người tạm trú <span style="color:red">*</span>:</label>
+                            <input type="text" class="form-control" name="cccd" required placeholder="12 số CCCD">
+                        </div>
+                        <div class="col-half">
+                            <label>Họ và tên (Để kiểm tra):</label>
+                            <input type="text" class="form-control" name="hoten" placeholder="Họ tên người tạm trú">
+                        </div>
+                    </div>
+            
+                    <div class="form-group">
+                        <label>Quê quán / Thường trú gốc <span style="color:red">*</span>:</label>
+                        <input type="text" class="form-control" name="diaphuong" required placeholder="VD: Xã A, Huyện B, Tỉnh C">
+                    </div>
+            
+                    <div class="form-row">
+                        <div class="col-half">
+                            <label>Tạm trú từ ngày <span style="color:red">*</span>:</label>
+                            <input type="date" class="form-control" name="tungay" required>
+                        </div>
+                        <div class="col-half">
+                            <label>Đến ngày <span style="color:red">*</span>:</label>
+                            <input type="date" class="form-control" name="denngay" required>
+                        </div>
+                    </div>
+            
+                    <div class="form-group">
+                        <label>Lý do tạm trú:</label>
+                        <textarea class="form-control" name="lydo" rows="2" required placeholder="VD: Lao động, Học tập..."></textarea>
+                    </div>
+            
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-submit">Đăng ký Tạm Trú</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="tabTamVang" class="tab-content">
+                <form id="formTamVang">
+                    <div class="form-group">
+                        <label>Chọn người tạm vắng:</label>
+                        <select class="form-control" id="tvSelectMember" name="cccd" required></select>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-half"><label>Từ ngày:</label><input type="date" class="form-control" name="tungay" required></div>
+                        <div class="col-half"><label>Đến ngày:</label><input type="date" class="form-control" name="denngay" required></div>
+                    </div>
+                    <div class="form-group"><label>Nơi đến & Lý do:</label><textarea class="form-control" name="lydo" required></textarea></div>
+                    <div class="modal-actions"><button type="submit" class="btn-submit">Khai báo Tạm Vắng</button></div>
+                </form>
+            </div>
+            
         </div>
     </div>
+</div>
