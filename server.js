@@ -29,6 +29,7 @@ app.use('/api/nhankhau', nhanKhauRoutes);
 app.use('/api/nvh', nhaVanHoaRoutes);
 app.use('/api/nvh', dangKySuDungRoutes);
 app.use('/api/reports', thongKeRoutes);
+app.use('/api/resident', requestRoutes);
 
 // Route mặc định (Server check)
 app.get('/', (_req, res) => {

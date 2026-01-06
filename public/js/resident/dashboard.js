@@ -84,30 +84,31 @@ function renderNVHManagement() {
     });
 }
 
-function renderResident(){
+function renderResident() {
     var mainContent = document.querySelector('.main-content');
+    
+    // Hiển thị trạng thái đang tải để người dùng biết
+    mainContent.innerHTML = '<div style="text-align:center; padding-top:50px;">Loading resident data...</div>';
+
     fetch('components/resident.html')
-    .then(response =>{
-        if(!response.ok) throw new Error('Không tìm thấy file: ' + response.statusText);
-        return response.text();
-    })
-    .then(html =>{
-        mainContent.innerHTML = html;
-        
-        // QUAN TRỌNG: Sau khi HTML được nạp vào, cần kích hoạt lại logic của trang Resident
-        // Nếu resident.js đã được load ở dashboard.html, ta cần gọi hàm khởi tạo của nó
-        if (typeof renderResidentMain === 'function') {
-            console.log("Đã gọi hàm renderResident sau khi nạp HTML.");
-            renderResidentMain(); 
-        } 
-        // Lưu ý: Do logic của bạn đang để hàm renderResident trong resident.js tự chạy
-        // khi DOMContentLoaded, nên khi switch tab có thể nó không tự chạy lại.
-        // Tốt nhất nên tách logic khởi tạo trong resident.js thành 1 hàm và gọi ở đây.
-    })
-    .catch(error =>{
-        console.error('Lỗi tải trang:', error);
-        mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file resident.html</h3>`;
-    });
+        .then(response => {
+            if (!response.ok) throw new Error('Không tìm thấy file: ' + response.statusText);
+            return response.text();
+        })
+        .then(html => {
+            mainContent.innerHTML = html;
+
+            // --- QUAN TRỌNG: Gọi hàm khởi tạo logic từ resident.js ---
+            if (typeof window.renderResidentMain === 'function') {
+                window.renderResidentMain(); 
+            } else {
+                console.error("Lỗi: Không tìm thấy hàm window.renderResidentMain. Hãy kiểm tra file resident.js đã được load chưa.");
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi tải trang:', error);
+            mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file resident.html</h3>`;
+        });
 }
 
 // --- SỰ KIỆN KHỞI CHẠY ---

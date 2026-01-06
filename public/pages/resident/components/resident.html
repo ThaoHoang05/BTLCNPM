@@ -35,14 +35,31 @@
                     <tbody></tbody>
                 </table>
             </div>
-
+            
             <div class="grid-right panel-white">
                 <div class="section-header">
                     <h3><i class="fas fa-bell"></i> Trạng thái Yêu cầu</h3>
                     <span class="refresh-icon" onclick="loadRequestHistory()"><i class="fas fa-sync-alt"></i></span>
                 </div>
-                <div class="tracking-list" id="requestHistoryList"></div>
+                <div class="request-list-container" id="requestHistoryList">
+                </div>
             </div>
+            <div class="dashboard-grid mt-4">
+            </div> <div class="panel-white mt-4">
+            <div class="section-header">
+                <h3><i class="fas fa-history"></i> Lịch sử biến động Hộ khẩu</h3>
+            </div>
+            <table class="history-table table-bordered" id="tableLichSuHoKhau">
+                <thead>
+                    <tr>
+                        <th style="width: 150px;">Ngày thay đổi</th>
+                        <th style="width: 200px;">Loại biến động</th>
+                        <th>Chi tiết / Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
         </div>
     </div>
 
@@ -56,14 +73,14 @@
             </div>
             
             <div class="info-grid-modern" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
-                <div class="info-item"><label>Họ và tên</label><span id="indHoTen" class="highlight-text">--</span></div>
-                <div class="info-item"><label>Ngày sinh</label><span id="indNgaySinh">--</span></div>
-                <div class="info-item"><label>CCCD/CMND</label><span id="indCCCD">--</span></div>
-                <div class="info-item"><label>Giới tính</label><span id="indGioiTinh">--</span></div>
-                <div class="info-item"><label>Dân tộc</label><span id="indDanToc">--</span></div>
-                <div class="info-item"><label>Nghề nghiệp</label><span id="indNgheNghiep">--</span></div>
-                <div class="info-item"><label>Quan hệ với chủ hộ</label><span id="indQuanHe">--</span></div>
-                <div class="info-item"><label>Trạng thái</label><span id="indTrangThai">--</span></div>
+                <div class="info-item"><label>Họ và tên: </label><span id="indHoTen" class="highlight-text">--</span></div>
+                <div class="info-item"><label>Ngày sinh: </label><span id="indNgaySinh">--</span></div>
+                <div class="info-item"><label>CCCD/CMND: </label><span id="indCCCD">--</span></div>
+                <div class="info-item"><label>Giới tính: </label><span id="indGioiTinh">--</span></div>
+                <div class="info-item"><label>Dân tộc: </label><span id="indDanToc">--</span></div>
+                <div class="info-item"><label>Nghề nghiệp: </label><span id="indNgheNghiep">--</span></div>
+                <div class="info-item"><label>Quan hệ với chủ hộ: </label><span id="indQuanHe">--</span></div>
+                <div class="info-item"><label>Trạng thái: </label><span id="indTrangThai">--</span></div>
             </div>
 
             <div class="mt-4">
@@ -76,7 +93,7 @@
             
             <div class="mt-4">
                 <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Yêu cầu đã gửi</h4>
-                <div class="tracking-list" id="indRequestHistory"></div>
+                <div class="request-list-container" id="indRequestHistory"></div>
             </div>
         </div>
     </div>
@@ -113,7 +130,7 @@
                         <div class="col-half"><label>Giá trị mới:</label><input type="text" class="form-control" id="hkNewVal" required></div>
                     </div>
                     <div class="form-group"><label>Lý do:</label><textarea class="form-control" rows="2"></textarea></div>
-                    <div class="modal-actions"><button type="submit" class="btn-submit">Gửi yêu cầu</button></div>
+                    <div class="modal-actions"><button type="button" class="btn-submit" onclick="submitForm('formHoKhau')">Gửi yêu cầu</button></div>
                 </form>
             </div>
 
@@ -142,7 +159,11 @@
                         <label>Giá trị mới:</label>
                         <input type="text" class="form-control" id="nkNewVal" required>
                     </div>
-                    <div class="modal-actions"><button type="submit" class="btn-submit">Gửi yêu cầu</button></div>
+                    <div class="form-group">
+                        <label>Lý do thay đổi:</label>
+                        <textarea class="form-control" id="nkReason" rows="2"></textarea>
+                    </div>
+                    <div class="modal-actions"><button type="button" class="btn-submit" onclick="submitForm('formNhanKhau')">Gửi yêu cầu</button></div>
                 </form>
             </div>
 
@@ -204,7 +225,7 @@
                     </div>
             
                     <div class="modal-actions">
-                        <button type="submit" class="btn-submit">Đăng ký Tạm Trú</button>
+                        <button type="button" class="btn-submit" onclick="submitForm('formTamTru')">Đăng ký Tạm Trú</button>
                     </div>
                 </form>
             </div>
@@ -220,10 +241,50 @@
                         <div class="col-half"><label>Đến ngày:</label><input type="date" class="form-control" name="denngay" required></div>
                     </div>
                     <div class="form-group"><label>Nơi đến & Lý do:</label><textarea class="form-control" name="lydo" required></textarea></div>
-                    <div class="modal-actions"><button type="submit" class="btn-submit">Khai báo Tạm Vắng</button></div>
+                    <div class="modal-actions"><button type="button" class="btn-submit" onclick="submitForm('formTamVang')">Khai báo Tạm Vắng</button></div>
                 </form>
             </div>
             
+        </div>
+    </div>
+</div>
+
+<div id="modalViewDetail" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header" style="background-color: #009688; color: white;">
+            <h3><i class="fas fa-user-circle"></i> Chi Tiết Nhân Khẩu</h3>
+            <span class="close-btn" onclick="closeDetailModal()" style="color: white;">&times;</span>
+        </div>
+        
+        <div class="modal-body" style="padding: 20px;">
+            <div class="info-grid-modern" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="info-item"><label>Họ và tên: </label><span id="viewHoTen" class="highlight-text">--</span></div>
+                <div class="info-item"><label>Biệt danh: </label><span id="viewBiDanh">--</span></div>
+                
+                <div class="info-item"><label>Ngày sinh: </label><span id="viewNgaySinh">--</span></div>
+                <div class="info-item"><label>Giới tính:</label><span id="viewGioiTinh">--</span></div>
+                
+                <div class="info-item"><label>Nguyên quán:</label><span id="viewNguyenQuan">--</span></div>
+                <div class="info-item"><label>Dân tộc:</label><span id="viewDanToc">--</span></div>
+                
+                <div class="info-item"><label>Tôn giáo:</label><span id="viewTonGiao">--</span></div>
+                <div class="info-item"><label>Quốc tịch:</label><span id="viewQuocTich">Việt Nam</span></div>
+                
+                <div class="info-item"><label>Số CCCD:</label><span id="viewCCCD" style="font-weight:bold; color:#d63384">--</span></div>
+                <div class="info-item"><label>Ngày cấp:</label><span id="viewNgayCap">--</span></div>
+                
+                <div class="info-item" style="grid-column: span 2;"><label>Nơi cấp:</label><span id="viewNoiCap">--</span></div>
+                
+                <div class="info-item"><label>Nghề nghiệp:</label><span id="viewNgheNghiep">--</span></div>
+                <div class="info-item"><label>Nơi làm việc:</label><span id="viewNoiLamViec">--</span></div>
+        
+            </div>
+        </div>
+
+        <div class="modal-footer" style="text-align: right; margin-top: 20px;">
+            <button class="btn-secondary" onclick="closeDetailModal()">
+                <i class="fas fa-times"></i> Đóng lại
+            </button>
         </div>
     </div>
 </div>

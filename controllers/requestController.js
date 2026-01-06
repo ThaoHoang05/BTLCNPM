@@ -1,51 +1,62 @@
 const RequestModel = require('../models/requestModel');
 
+const hoKhauModel = require('../models/hoKhauModel');
+
 const requestController = {
     
     // 1. POST /resident/hokhau/:id (Sửa thông tin hộ khẩu)
-    requestEditHoKhau: async (req, res) => {
-        try {
-            const { id } = req.params; // Mã Hộ Khẩu (VD: HK001)
-            const { status, data } = req.body;
-            
-            // Lấy CCCD người gửi từ token hoặc session (Giả sử middleware đã gắn vào req.user)
-            // Nếu không có middleware, bạn có thể gửi kèm trong body hoặc lấy tạm từ data nếu logic cho phép
-            const senderCCCD = req.body.senderCCCD || 'UNKNOWN'; 
+    // requestController.js
 
-            await RequestModel.create({
-                nguoiYeuCau: senderCCCD,
-                doiTuongId: id,
-                loaiYeuCau: 'Sửa Hộ Khẩu',
-                thongTin: data, // { thongtin, GTcu, GTmoi, ghiChu }
-                status: status || 'Chờ duyệt'
-            });
+requestEditHoKhau: async (req, res) => {
+    try {
+        const { id } = req.params; 
+        
+        // --- SỬA ĐOẠN NÀY ---
+        // Lấy luôn cả 3 trường từ req.body
+        const { status, data, senderCCCD } = req.body; 
 
-            res.status(200).json({ message: "Gửi yêu cầu sửa Hộ khẩu thành công!" });
-        } catch (error) {
-            res.status(500).json({ message: "Lỗi server: " + error.message });
-        }
-    },
+        // Xử lý giá trị mặc định cho senderCCCD nếu frontend quên gửi (phòng hờ)
+        const finalSender = senderCCCD || 'UNKNOWN';
+
+        await RequestModel.create({
+            nguoiYeuCau: finalSender, // Dùng biến đã lấy ở trên
+            doiTuongId: id,
+            loaiYeuCau: 'Sửa Hộ Khẩu',
+            thongTin: data, 
+            status: status || 'Chờ duyệt'
+        });
+
+        res.status(200).json({ message: "Gửi yêu cầu sửa Hộ khẩu thành công!" });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server: " + error.message });
+    }
+},
 
     // 2. POST /resident/nhankhau/:id (Sửa thông tin nhân khẩu)
-    requestEditNhanKhau: async (req, res) => {
-        try {
-            const { id } = req.params; // CCCD nhân khẩu cần sửa
-            const { status, data } = req.body;
-            const senderCCCD = req.body.senderCCCD || 'UNKNOWN';
+    // File: requestController.js
 
-            await RequestModel.create({
-                nguoiYeuCau: senderCCCD,
-                doiTuongId: id,
-                loaiYeuCau: 'Sửa Nhân Khẩu',
-                thongTin: data, // { thongtin, GTcu, GTmoi, ghiChu }
-                status: status || 'Chờ duyệt'
-            });
+requestEditNhanKhau: async (req, res) => {
+    try {
+        const { id } = req.params; // CCCD nhân khẩu cần sửa
+        
+        // [SỬA ĐOẠN NÀY] Lấy cả 3 biến giống hệt logic HoKhau
+        const { status, data, senderCCCD } = req.body;
+        
+        const finalSender = senderCCCD || 'UNKNOWN';
 
-            res.status(200).json({ message: "Gửi yêu cầu sửa Nhân khẩu thành công!" });
-        } catch (error) {
-            res.status(500).json({ message: "Lỗi server: " + error.message });
-        }
-    },
+        await RequestModel.create({
+            nguoiYeuCau: finalSender,
+            doiTuongId: id,
+            loaiYeuCau: 'Sửa Nhân Khẩu',
+            thongTin: data, 
+            status: status || 'Chờ duyệt' // Nhận status từ frontend
+        });
+
+        res.status(200).json({ message: "Gửi yêu cầu sửa Nhân khẩu thành công!" });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server: " + error.message });
+    }
+},
 
     // 3. POST /resident/tamtru/:id (Đăng ký tạm trú)
     requestTamTru: async (req, res) => {
@@ -97,6 +108,17 @@ const requestController = {
             res.status(200).json(data);
         } catch (error) {
             res.status(500).json({ message: "Lỗi tải lịch sử" });
+        }
+    },
+    // API lấy chi tiết hộ khẩu với id hộ khẩu
+    getAllResidentwithHKID: async (req, res) => {
+        try {
+            const cccd = req.query.cccd; // Lấy từ query parameter
+            const HKID = await RequestModel.getHoKhauId(cccd);
+            const household = await hoKhauModel.getDetail(HKID);
+            res.status(200).json(household);
+        } catch (error) {
+            res.status(500).json({ message: "Lỗi tải danh sách nhân khẩu với mã hộ khẩu" });
         }
     }
 };

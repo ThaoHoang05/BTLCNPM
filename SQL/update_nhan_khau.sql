@@ -256,3 +256,7 @@ CREATE TABLE public.yeu_cau_cu_dan (
 
 -- Tạo Index cho người yêu cầu để tìm kiếm lịch sử nhanh hơn
 CREATE INDEX idx_yeucau_nguoi_yeu_cau ON public.yeu_cau_cu_dan(nguoi_yeu_cau);
+
+--6/1/2026 - cap nhat bang yeu cau
+ALTER TABLE public.yeu_cau_cu_dan 
+ADD COLUMN doi_tuong_id character varying(50);

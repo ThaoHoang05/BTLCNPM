@@ -8,17 +8,17 @@ const RequestModel = {
                     nguoi_yeu_cau, 
                     doi_tuong_id, 
                     loai_yeu_cau, 
-                    thong_tin_json, 
+                    thong_tin_yeu_cau, 
                     trang_thai
                 )
                 VALUES ($1, $2, $3, $4, $5)
                 RETURNING id;
             `;
             const values = [
-                data.nguoiYeuCau, // CCCD người gửi (User logged in)
-                data.doiTuongId,  // ID/CCCD của đối tượng được tác động (Hộ khẩu hoặc Nhân khẩu)
-                data.loaiYeuCau,  // 'Sửa Hộ Khẩu', 'Sửa Nhân Khẩu', 'Tạm Trú', 'Tạm Vắng'
-                JSON.stringify(data.thongTin), // Payload chi tiết
+                data.nguoiYeuCau, 
+                data.doiTuongId,  
+                data.loaiYeuCau,  
+                JSON.stringify(data.thongTin), 
                 data.status || 'Chờ duyệt'
             ];
 
@@ -30,7 +30,7 @@ const RequestModel = {
         }
     },
     
-    // Lấy lịch sử yêu cầu của một người
+    // Hàm getHistoryByCCCD giữ nguyên vì SELECT * sẽ tự lấy đúng tên cột
     getHistoryByCCCD: async (cccd) => {
         try {
             const query = `
@@ -43,7 +43,29 @@ const RequestModel = {
         } catch (error) {
             throw error;
         }
-    }
+    },
+    getHoKhauId: async (cccd) => {
+            try {
+                // 1. Câu lệnh SQL
+                const query = `SELECT sohokhau FROM nhankhau WHERE cccd = $1`;
+                
+                // 2. Thực thi query (Bỏ dòng BEGIN đi)
+                const { rows } = await poolQuanLiHoKhau.query(query, [cccd]);
+        
+                // 3. Kiểm tra kết quả và trả về
+                if (rows.length > 0) {
+                    // Trả về giá trị sohokhau (ví dụ: "HK001")
+                    return rows[0].sohokhau;
+                } else {
+                    // Không tìm thấy nhân khẩu hoặc nhân khẩu chưa có hộ khẩu
+                    return null;
+                }
+        
+            } catch (error) {
+                console.error("Lỗi Model getHoKhauId:", error);
+                throw error;
+            }
+        },
 };
 
 module.exports = RequestModel;

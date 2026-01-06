@@ -467,3 +467,208 @@
 .text-danger { color: #dc3545; }
 .mt-3 { margin-top: 1rem; }
 .mt-4 { margin-top: 1.5rem; }
+/* --- 1. Sửa lỗi nút bấm bị dọc (Quan trọng nhất) --- */
+/* Căn chỉnh cột tác vụ */
+.member-table td:last-child {
+    white-space: nowrap; /* Không cho xuống dòng */
+    display: flex;       /* Dùng Flexbox để xếp ngang */
+    gap: 8px;           /* Khoảng cách giữa 2 nút */
+    justify-content: center;
+    align-items: center;
+    border: none;       /* Xóa viền thừa nếu có do flex */
+    padding: 12px;
+}
+
+/* Style lại nút bấm cho nhỏ gọn, hiện đại */
+.btn-action-small {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px; /* Khoảng cách giữa icon và chữ */
+}
+
+/* Nút Xem (Màu xanh dương nhẹ) */
+.btn-view {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+.btn-view:hover {
+    background-color: #bbdefb;
+}
+
+/* Nút Sửa (Màu vàng cam nhẹ) */
+.btn-edit {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+.btn-edit:hover {
+    background-color: #ffe0b2;
+}
+
+
+/* --- 2. Làm đẹp Bảng (Table Modern) --- */
+.member-table {
+    width: 100%;
+    border-collapse: separate; /* Để bo góc được */
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+}
+
+.member-table thead th {
+    background-color: #009688; /* Màu chủ đạo của bạn */
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.member-table tbody tr {
+    background-color: white;
+    transition: background-color 0.2s;
+}
+
+.member-table tbody tr:not(:last-child) td {
+    border-bottom: 1px solid #f0f0f0; /* Đường kẻ mờ */
+}
+
+.member-table tbody td {
+    padding: 14px 15px;
+    color: #333;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.member-table tbody tr:hover {
+    background-color: #f8fcfc; /* Hiệu ứng hover dòng */
+}
+
+
+/* --- 3. Badge trạng thái (Trang trí chữ Chủ hộ, Thường trú) --- */
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Badge màu cho Quan hệ */
+.badge-role-head { background-color: #e8f5e9; color: #2e7d32; } /* Chủ hộ - Xanh lá */
+.badge-role-member { background-color: #f3f4f6; color: #4b5563; } /* Thành viên - Xám */
+
+/* Badge màu cho Trạng thái */
+.badge-status-active { background-color: #e0f2f1; color: #00897b; } /* Thường trú - Xanh ngọc */
+.badge-status-temp { background-color: #fff8e1; color: #ff8f00; }   /* Tạm trú - Vàng */
+.badge-status-leave { background-color: #ffebee; color: #c62828; }   /* Chuyển đi/Qua đời - Đỏ */
+/* 1. Tạo đường kẻ ngăn cách giữa nội dung và nút đóng */
+.modal-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee; /* Đường kẻ mờ */
+    text-align: right;          /* Căn phải */
+}
+
+/* 2. Style lại nút Đóng (btn-secondary) */
+.btn-secondary {
+    background-color: #6c757d;  /* Màu xám khói hiện đại */
+    color: white;               /* Chữ trắng */
+    border: none;               /* Bỏ viền lồi mặc định */
+    padding: 10px 30px;         /* Tăng kích thước nút (Cao 10px, Rộng 30px) */
+    border-radius: 6px;         /* Bo tròn góc mềm mại */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;            /* Hiện bàn tay khi di chuột */
+    transition: all 0.2s ease;  /* Hiệu ứng mượt */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Đổ bóng nhẹ */
+}
+
+/* 3. Hiệu ứng khi di chuột vào */
+.btn-secondary:hover {
+    background-color: #5a6268;  /* Màu đậm hơn chút */
+    transform: translateY(-2px); /* Nút nổi lên nhẹ */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* 4. Hiệu ứng khi bấm xuống */
+.btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Container chung */
+.request-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Khoảng cách giữa các thẻ */
+    max-height: 500px; /* Giới hạn chiều cao nếu cần */
+    overflow-y: auto; /* Cho phép cuộn nếu danh sách dài */
+    padding: 5px;
+}
+
+/* Giao diện từng thẻ yêu cầu */
+.request-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.request-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.req-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 5px;
+}
+
+.req-type {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.req-date {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.req-body {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.req-footer {
+    text-align: right;
+}
+
+/* Badge trạng thái nhỏ gọn */
+.badge-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+.status-cho-duyet { background-color: #fff3cd; color: #856404; }
+.status-da-duyet { background-color: #d4edda; color: #155724; }
+.status-tu-choi { background-color: #f8d7da; color: #721c24; }
