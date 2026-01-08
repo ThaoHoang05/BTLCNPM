@@ -260,3 +260,24 @@ CREATE INDEX idx_yeucau_nguoi_yeu_cau ON public.yeu_cau_cu_dan(nguoi_yeu_cau);
 --6/1/2026 - cap nhat bang yeu cau
 ALTER TABLE public.yeu_cau_cu_dan 
 ADD COLUMN doi_tuong_id character varying(50);
+
+-- cap nhat cot ngay duyet doi voi don yeu cau thay doi nhan khau : 8/1/2026
+-- Thêm cột ngay_duyet vào bảng yeu_cau_cu_dan
+ALTER TABLE public.yeu_cau_cu_dan 
+ADD COLUMN ngay_duyet TIMESTAMP;
+-- 1. Tạo hàm xử lý
+CREATE OR REPLACE FUNCTION public.fn_ghi_ngay_duyet()
+RETURNS trigger AS $$
+BEGIN
+    -- Nếu trạng thái thay đổi từ 'Chờ duyệt' sang 'Đã duyệt' hoặc 'Từ chối'
+    IF NEW.trang_thai <> OLD.trang_thai AND OLD.trang_thai = 'Chờ duyệt' THEN
+        NEW.ngay_duyet := CURRENT_TIMESTAMP;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 2. Tạo trigger áp dụng vào bảng
+CREATE TRIGGER trg_cap_nhat_ngay_duyet
+BEFORE UPDATE ON public.yeu_cau_cu_dan
+FOR EACH ROW EXECUTE FUNCTION public.fn_ghi_ngay_duyet();

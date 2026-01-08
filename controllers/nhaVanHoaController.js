@@ -210,20 +210,25 @@ const nhaVanHoaController = {
             });
         }
     },
-    getDashboardStats: async (req, res) => {
-        try {
-            const pendingCount = await NhaVanHoaModel.countPendingRequestsThisMonth();
-            
-            res.status(200).json({
-                status: 'success',
-                data: {
-                    pendingRequests: pendingCount
-                }
-            });
-        } catch (error) {
-            res.status(500).json({ status: "error", message: "Lỗi lấy thống kê dashboard NVH" });
-        }
-    },
+    // Cập nhật hàm getDashboardStats trong nhaVanHoaController.js
+getDashboardStats: async (req, res) => {
+    try {
+        const [pendingCount, processedCount] = await Promise.all([
+            NhaVanHoaModel.countPendingRequestsThisMonth(),
+            NhaVanHoaModel.countProcessedRequestsThisMonth() // Gọi hàm mới
+        ]);
+        
+        res.status(200).json({
+            status: 'success',
+            data: {
+                pendingRequests: pendingCount,
+                approvedRequests: processedCount // Con số này giờ là tổng Duyệt + Từ chối
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: "Lỗi lấy thống kê dashboard NVH" });
+    }
+},
 };
 
 module.exports = nhaVanHoaController;

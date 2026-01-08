@@ -1,111 +1,176 @@
 /** FILE: js/admin/account.js **/
 
-// Dữ liệu mẫu
-let accountsData = [
-    { id: 1, username: '001234567890', fullname: 'Nguyễn Văn A', role: 'admin', status: 'active' },
-    { id: 2, username: '001099123456', fullname: 'Trần Thị B', role: 'totruong', status: 'active' },
-    { id: 3, username: '001099987654', fullname: 'Lê Văn C', role: 'user', status: 'locked' }
-];
-
-// Hàm khởi chạy chính (được gọi từ dashboard.js)
-function initAccountManager() {
-    renderAccountTable(accountsData);
+// 1. Khởi tạo Namespace an toàn để tránh lỗi "already been declared"
+if (typeof AccountState === 'undefined') {
+    var AccountState = {
+        allData: [],
+        filteredData: [],
+        currentPage: 1,
+        rowsPerPage: 10
+    };
+    
+    var roleMapping = {
+        1: { name: 'Tổ trưởng', class: 'badge-primary' },
+        2: { name: 'Tổ phó', class: 'badge-info' },
+        3: { name: 'Cán bộ', class: 'badge-warning' },
+        4: { name: 'Cư dân', class: 'badge-secondary' }
+    };
 }
 
-// Hàm render bảng
-function renderAccountTable(data) {
+// 2. Hàm khởi chạy chính
+async function initAccountManager() {
+    try {
+        const response = await fetch('/api/accounts/'); 
+        const res = await response.json();
+
+        if (res.status === 'success') {
+            AccountState.allData = res.data.map(acc => ({
+                username: acc.tendangnhap,
+                fullname: acc.hoten || 'Chưa cập nhật',
+                roleId: parseInt(acc.vaitroid), // vaitroid là kiểu SERIAL/số
+                status: acc.trangthai
+            }));
+            
+            AccountState.filteredData = [...AccountState.allData];
+            displayPage(1); 
+            
+            // Đảm bảo Modal đã nạp xong mới gán sự kiện
+            setTimeout(setupAccountEvents, 300);
+        }
+    } catch (error) {
+        console.error("Lỗi tải danh sách tài khoản:", error);
+    }
+}
+
+// 3. Quản lý sự kiện: TỰ ĐỘNG LOAD TÊN (Chỉ dành cho Cư dân - ID 4)
+function setupAccountEvents() {
+    const userInp = document.getElementById('accUsername');
+    const roleSel = document.getElementById('accRole');
+    const nameInp = document.getElementById('accFullname');
+    const form = document.getElementById('accountForm');
+
+    if (userInp && !userInp.dataset.hasListener) {
+        const handleResidentCheck = async function() {
+            const roleId = roleSel.value; 
+            const cccd = userInp.value.trim();
+
+            // Chỉ tự động load tên nếu chọn vai trò Cư dân và đang thêm mới
+            if (roleId === "4" && cccd.length >= 9 && !userInp.readOnly) {
+                try {
+                    const res = await fetch(`/api/accounts/check-resident/${cccd}`).then(r => r.json());
+                    if (res.status === 'success') {
+                        nameInp.value = res.hoten;
+                        nameInp.classList.add('is-valid');
+                    } else {
+                        nameInp.value = '';
+                        alert(res.message);
+                        nameInp.classList.remove('is-valid');
+                    }
+                } catch (e) { console.error("Lỗi API check-resident"); }
+            } else if (roleId !== "4") {
+                nameInp.classList.remove('is-valid');
+            }
+        };
+
+        userInp.addEventListener('blur', handleResidentCheck);
+        roleSel.addEventListener('change', handleResidentCheck);
+        userInp.dataset.hasListener = "true";
+    }
+
+    if (form && !form.dataset.hasListener) {
+        form.addEventListener('submit', handleFormSubmit);
+        form.dataset.hasListener = "true";
+    }
+}
+
+// 4. KHÔI PHỤC BỘ LỌC (Filter)
+window.filterAccounts = function() {
+    const text = (document.getElementById('accountSearch')?.value || '').toLowerCase();
+    const roleFilter = document.getElementById('roleFilter')?.value; // Giá trị: all, ToTruong, ToPho...
+    const statusFilter = document.getElementById('statusFilter')?.value; // Giá trị: all, active, locked
+
+    // Mapping ngược từ mã chữ sang ID số để lọc
+    const roleIdMap = { "ToTruong": 1, "ToPho": 2, "CanBo": 3, "NguoiDan": 4 };
+    const statusMap = { "active": "HoatDong", "locked": "Khoa" };
+
+    AccountState.filteredData = AccountState.allData.filter(acc => {
+        // Lọc theo từ khóa tìm kiếm
+        const matchText = acc.username.includes(text) || acc.fullname.toLowerCase().includes(text);
+        
+        // Lọc theo vai trò (Chuyển đổi roleFilter sang ID số để so sánh)
+        const targetRoleId = roleIdMap[roleFilter];
+        const matchRole = (roleFilter === 'all') || (acc.roleId === targetRoleId);
+        
+        // Lọc theo trạng thái
+        const targetStatus = statusMap[statusFilter];
+        const matchStatus = (statusFilter === 'all') || (acc.status === targetStatus);
+
+        return matchText && matchRole && matchStatus;
+    });
+
+    displayPage(1); // Luôn quay về trang 1 sau khi lọc
+};
+
+// 5. Hiển thị bảng và Phân trang
+function renderAccountTable(data, startIndex) {
     const tbody = document.getElementById('accountTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    // Kiểm tra quyền Tổ phó
-    const isUserToPho = (typeof isToPho === 'function') ? isToPho() : false;
-
     data.forEach((acc, index) => {
         const row = document.createElement('tr');
+        const role = roleMapping[acc.roleId] || { name: 'Khác', class: 'badge-secondary' };
         
-        // Badge cho Role
-        let roleBadge = '';
-    if (acc.role === 'admin') {
-        roleBadge = '<span class="badge badge-success">Admin</span>';
-    } else if (acc.role === 'totruong') {
-        roleBadge = '<span class="badge badge-primary">Tổ trưởng</span>';
-    } else {
-        roleBadge = '<span class="badge badge-secondary">Cư dân</span>';
-    }
-
-    let statusBadge = '';
-    if (acc.status === 'active') {
-        // Dùng style inline hoặc class riêng nếu muốn
-        statusBadge = '<span class="badge" style="background-color: #d1e7dd; color: #0f5132;">Hoạt động</span>';
-    } else {
-        statusBadge = '<span class="badge" style="background-color: #f8d7da; color: #842029;">Đã khóa</span>';
-    }
-
-        // Xử lý cột Hành động dựa trên quyền
-        let actionButtons = '';
-        if (isUserToPho) {
-            // Nếu là Tổ phó: Chỉ xem, hoặc không có nút hành động nào
-            actionButtons = `<span class="text-muted" style="font-size:0.8rem">Không có quyền</span>`;
-        } else {
-            // Nếu là Admin/Tổ trưởng: Hiển thị đầy đủ
-            actionButtons = `
-                <button class="btn-icon" onclick="openEditAccount(${acc.id})" title="Sửa"><i class="fas fa-pen"></i></button>
-                <button class="btn-icon" onclick="resetPassword(${acc.id})" title="Reset Pass"><i class="fas fa-key"></i></button>
-                <button class="btn-icon" style="color:red" onclick="toggleLockAccount(${acc.id})" title="Khóa/Mở"><i class="fas fa-lock"></i></button>
-            `;
-        }
-
         row.innerHTML = `
-            <td>${index + 1}</td>
+            <td>${startIndex + index + 1}</td>
             <td><b>${acc.username}</b></td>
             <td>${acc.fullname}</td>
-            <td>${roleBadge}</td>
-            <td>${statusBadge}</td>
-            <td class="text-center">${actionButtons}</td>
+            <td><span class="badge ${role.class}">${role.name}</span></td>
+            <td>${acc.status === 'HoatDong' ? 'Hoạt động' : 'Đã khóa'}</td>
+            <td class="text-center">
+                <button class="btn-icon" onclick="openEditAccount('${acc.username}')"><i class="fas fa-pen"></i></button>
+                <button class="btn-icon" onclick="handleResetPassword('${acc.username}')"><i class="fas fa-key"></i></button>
+                <button class="btn-icon" style="color:${acc.status === 'HoatDong' ? 'red' : 'green'}" 
+                        onclick="handleToggleLock('${acc.username}', '${acc.status}')">
+                    <i class="fas ${acc.status === 'HoatDong' ? 'fa-lock' : 'fa-lock-open'}"></i>
+                </button>
+            </td>
         `;
         tbody.appendChild(row);
     });
 }
 
-// Hàm lọc (Filter)
-function filterAccounts() {
-    const text = document.getElementById('accountSearch').value.toLowerCase();
-    const role = document.getElementById('roleFilter').value;
-    const status = document.getElementById('statusFilter').value;
+// 6. Đăng ký các hàm Global
+window.displayPage = function(page) {
+    AccountState.currentPage = page;
+    const start = (page - 1) * AccountState.rowsPerPage;
+    renderAccountTable(AccountState.filteredData.slice(start, start + AccountState.rowsPerPage), start);
+    renderPagination();
+};
 
-    const filtered = accountsData.filter(acc => {
-        const matchText = acc.username.includes(text) || acc.fullname.toLowerCase().includes(text);
-        const matchRole = role === 'all' || acc.role === role;
-        const matchStatus = status === 'all' || acc.status === status;
-        return matchText && matchRole && matchStatus;
-    });
+window.renderPagination = function() {
+    const controls = document.querySelector('.pagination-controls');
+    if (!controls) return;
+    const totalPages = Math.ceil(AccountState.filteredData.length / AccountState.rowsPerPage);
+    controls.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        controls.innerHTML += `<button class="btn-page ${i === AccountState.currentPage ? 'active' : ''}" onclick="displayPage(${i})">${i}</button>`;
+    }
+};
 
-    renderAccountTable(filtered);
-}
+window.openAccountModal = function() {
+    const modal = document.getElementById('accountModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('accountForm').reset();
+        document.getElementById('accUsername').readOnly = false;
+        document.getElementById('modalTitle').innerText = 'Thêm Tài Khoản Mới';
+    }
+};
 
-// --- Các hàm Modal (Mở/Đóng) ---
-function openAccountModal() {
-    // Logic mở modal thêm mới (đã có trong HTML của bạn)
-    document.getElementById('accountModal').style.display = 'flex';
-    document.getElementById('accountForm').reset();
-    document.getElementById('modalTitle').innerText = 'Thêm Tài Khoản Mới';
-}
+window.closeAccountModal = function() {
+    if (document.getElementById('accountModal')) document.getElementById('accountModal').style.display = 'none';
+};
 
-function closeAccountModal() {
-    document.getElementById('accountModal').style.display = 'none';
-}
-
-// Các hàm placeholder cho hành động
-function openEditAccount(id) { alert("Chức năng sửa ID: " + id); }
-function resetPassword(id) { alert("Reset mật khẩu ID: " + id); }
-function toggleLockAccount(id) { alert("Khóa/Mở tài khoản ID: " + id); }
-
-// Export các hàm ra window để HTML gọi được (onclick)
-window.filterAccounts = filterAccounts;
-window.openAccountModal = openAccountModal;
-window.closeAccountModal = closeAccountModal;
+// Đăng ký khởi chạy
 window.initAccountManager = initAccountManager;
-window.openEditAccount = openEditAccount;
-window.resetPassword = resetPassword;
-window.toggleLockAccount = toggleLockAccount;

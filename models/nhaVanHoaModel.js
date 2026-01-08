@@ -245,6 +245,24 @@ const NhaVanHoaModel = {
             throw error;
         }
     },
+    // Thêm vào trong NhaVanHoaModel tại nhaVanHoaModel.js
+// Cập nhật hoặc thêm vào NhaVanHoaModel tại nhaVanHoaModel.js
+countProcessedRequestsThisMonth: async () => {
+    try {
+        const query = `
+            SELECT COUNT(*) as count 
+            FROM dangkysudung 
+            WHERE trangthai IN ('Đã duyệt', 'Từ chối') -- Bao gồm cả 2 trạng thái
+            AND EXTRACT(MONTH FROM thoigianbatdau) = EXTRACT(MONTH FROM CURRENT_DATE)
+            AND EXTRACT(YEAR FROM thoigianbatdau) = EXTRACT(YEAR FROM CURRENT_DATE)
+        `;
+        const { rows } = await poolQuanLiNhaVanHoa.query(query);
+        return parseInt(rows[0].count);
+    } catch (error) {
+        console.error("Lỗi Model countProcessedRequestsThisMonth:", error);
+        throw error;
+    }
+},
 };
 
 module.exports = NhaVanHoaModel;

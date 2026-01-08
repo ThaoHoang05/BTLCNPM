@@ -190,8 +190,8 @@ function renderHome(){
     
     if (homeContentCache) {
         mainContent.innerHTML = homeContentCache;
-        if (typeof queryData === 'function') {
-            queryData();
+        if (typeof initHomeDashboard === 'function') {
+            initHomeDashboard();
             return;
         }
     } // Nếu đã có cache thì dùng luôn, không fetch lại nữa
@@ -206,8 +206,8 @@ function renderHome(){
         })
         .then(html => {
             mainContent.innerHTML = html;
-            if (typeof queryData === 'function') {
-                queryData();
+            if (typeof initHomeDashboard === 'function') {
+                initHomeDashboard();
             }
         })
         .catch(error => {

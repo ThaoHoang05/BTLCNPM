@@ -6,7 +6,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initHomeDashboard() {
     queryData(); 
-    queryNVHData()
+    queryNVHData();
+    queryAccountStats();
+}
+
+function queryAccountStats() {
+    fetch('/api/accounts/dashboard/stats')
+        .then(response => response.json())
+        .then(res => {
+            if (res.status === 'success') {
+                const stats = res.data;
+
+                // Map dữ liệu vào các ID đã định nghĩa trong home.html
+                // totalAccounts: 29
+                animateValue('totalAccounts', 0, stats.totalAccounts || 0, 1000);
+                
+                // activeAccounts: 29
+                animateValue('activeAccounts', 0, stats.activeAccounts || 0, 1000);
+                
+                // lockedAccounts: 0
+                animateValue('lockedAccounts', 0, stats.lockedAccounts || 0, 1000);
+            }
+        })
+        .catch(error => console.error("Lỗi tải thống kê tài khoản:", error));
 }
 
 function queryData() {
@@ -53,14 +75,17 @@ function animateValue(id, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
+// Cập nhật hàm queryNVHData trong home.js
 function queryNVHData() {
-    // Gọi API chúng ta vừa tạo ở bước 1
     fetch('/api/nvh/dashboard/stats')
         .then(response => response.json())
         .then(res => {
             if (res.status === 'success') {
-                // Cập nhật số liệu lên thẻ HTML có id="nvhPendingCount"
+                // Hiển thị đơn Chờ duyệt
                 animateValue('nvhPendingCount', 0, res.data.pendingRequests || 0, 1000);
+                
+                // Hiển thị tổng đơn Đã xử lý (Duyệt + Từ chối) vào thẻ "Đã duyệt sử dụng"
+                animateValue('nvhApprovedCount', 0, res.data.approvedRequests || 0, 1000);
             }
         })
         .catch(error => console.error("Lỗi tải thống kê NVH:", error));

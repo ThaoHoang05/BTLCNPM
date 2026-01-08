@@ -12,12 +12,12 @@
             </div>
             
             <div class="account-filter-group">
-    
                 <select id="roleFilter" class="custom-select" onchange="filterAccounts()">
                     <option value="all">Tất cả vai trò</option>
-                    <option value="admin">Quản trị viên (Admin)</option>
-                    <option value="totruong">Tổ trưởng</option>
-                    <option value="user">Cư dân (User)</option>
+                    <option value="ToTruong">Tổ trưởng</option>
+                    <option value="ToPho">Tổ phó</option>
+                    <option value="CanBo">Cán bộ</option>
+                    <option value="NguoiDan">Cư dân (Người dân)</option>
                 </select>
             
                 <select id="statusFilter" class="custom-select" onchange="filterAccounts()">
@@ -89,9 +89,10 @@
                     <div class="col-half">
                         <label>Vai trò</label>
                         <select class="form-control" id="accRole">
-                            <option value="user">Cư dân</option>
-                            <option value="totruong">Tổ trưởng</option>
-                            <option value="admin">Admin</option>
+                            <option value="1">Tổ trưởng</option>
+                            <option value="2">Tổ phó</option>
+                            <option value="3">Cán bộ</option>
+                            <option value="4">Cư dân (Người dân)</option>
                         </select>
                     </div>
                     <div class="col-half">
