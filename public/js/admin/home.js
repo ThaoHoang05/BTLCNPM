@@ -8,6 +8,7 @@ function initHomeDashboard() {
     queryData(); 
     queryNVHData();
     queryAccountStats();
+    queryRequestStats();
 }
 
 function queryAccountStats() {
@@ -89,4 +90,25 @@ function queryNVHData() {
             }
         })
         .catch(error => console.error("Lỗi tải thống kê NVH:", error));
+}
+
+function queryRequestStats() {
+    fetch('/api/resident/admin/stats') // Đường dẫn API đã thiết lập ở bước trước
+        .then(response => response.json())
+        .then(res => {
+            if (res.status === 'success') {
+                const stats = res.data;
+
+                // Map dữ liệu vào các ID trong home.html của bạn
+                // Chờ duyệt
+                animateValue('pendingRequests', 0, parseInt(stats.pending) || 0, 1000);
+                
+                // Đã duyệt (Tháng này hoặc tổng tùy theo logic SQL của bạn)
+                animateValue('approvedRequests', 0, parseInt(stats.approved) || 0, 1000);
+                
+                // Đã từ chối
+                animateValue('rejectedRequests', 0, parseInt(stats.rejected) || 0, 1000);
+            }
+        })
+        .catch(error => console.error("Lỗi tải thống kê yêu cầu:", error));
 }

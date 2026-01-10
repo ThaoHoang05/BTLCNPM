@@ -66,6 +66,55 @@ const RequestModel = {
                 throw error;
             }
         },
+        getAllForAdmin: async () => {
+            try {
+                const query = `
+                    SELECT y.*, n.hoten as sender_name
+                    FROM yeu_cau_cu_dan y
+                    JOIN nhankhau n ON y.nguoi_yeu_cau = n.cccd
+                    ORDER BY y.ngay_yeu_cau DESC;
+                `;
+                const { rows } = await poolQuanLiHoKhau.query(query);
+                return rows;
+            } catch (error) {
+                console.error("Lỗi Model getAllForAdmin:", error);
+                throw error;
+            }
+        },
+    
+        // Cập nhật trạng thái (Duyệt/Từ chối)
+        updateStatus: async (id, status, note) => {
+            try {
+                const query = `
+                    UPDATE yeu_cau_cu_dan 
+                    SET trang_thai = $1, ket_qua_duyet = $2 
+                    WHERE id = $3 
+                    RETURNING *;
+                `;
+                const { rows } = await poolQuanLiHoKhau.query(query, [status, note, id]);
+                return rows[0];
+            } catch (error) {
+                console.error("Lỗi Model updateStatus:", error);
+                throw error;
+            }
+        },
+        getStats: async () => {
+            try {
+                // Nếu muốn lọc đúng "Tháng này" trong SQL
+            const query = `
+            SELECT 
+                COUNT(*) FILTER (WHERE trang_thai = 'Chờ duyệt') as pending,
+                COUNT(*) FILTER (WHERE trang_thai = 'Đã duyệt' 
+                                AND date_trunc('month', ngay_duyet) = date_trunc('month', CURRENT_DATE)) as approved,
+                COUNT(*) FILTER (WHERE trang_thai = 'Từ chối') as rejected
+            FROM yeu_cau_cu_dan;
+            `;
+                const { rows } = await poolQuanLiHoKhau.query(query);
+                return rows[0];
+            } catch (error) {
+                throw error;
+            }
+        }
 };
 
 module.exports = RequestModel;

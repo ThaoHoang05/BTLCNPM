@@ -171,6 +171,116 @@ window.openAccountModal = function() {
 window.closeAccountModal = function() {
     if (document.getElementById('accountModal')) document.getElementById('accountModal').style.display = 'none';
 };
+// ==========================================
+// 7. XỬ LÝ CÁC THAO TÁC (ACTIONS)
+// ==========================================
+
+// --- KHÓA / MỞ KHÓA TÀI KHOẢN ---
+window.handleToggleLock = async function(username, currentStatus) {
+    const action = currentStatus === 'HoatDong' ? 'Khóa' : 'Mở khóa';
+    if (!confirm(`Bạn có chắc chắn muốn ${action} tài khoản "${username}" không?`)) return;
+
+    try {
+        const response = await fetch(`/api/accounts/toggle-lock/${username}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ currentStatus }) // Gửi trạng thái hiện tại để Backend đảo ngược
+        });
+
+        const res = await response.json();
+        if (res.status === 'success') {
+            alert(res.message);
+            initAccountManager(); // Tải lại danh sách sau khi cập nhật thành công
+        } else {
+            alert("Lỗi: " + res.message);
+        }
+    } catch (error) {
+        console.error("Lỗi toggle-lock:", error);
+    }
+};
+
+// --- RESET MẬT KHẨU ---
+window.handleResetPassword = async function(username) {
+    if (!confirm(`Đặt lại mật khẩu cho "${username}" về mặc định (123456)?`)) return;
+
+    try {
+        const response = await fetch(`/api/accounts/reset-password/${username}`, {
+            method: 'PATCH'
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            alert(res.message);
+        }
+    } catch (error) {
+        console.error("Lỗi reset password:", error);
+    }
+};
+
+// --- MỞ MODAL SỬA TÀI KHOẢN ---
+window.openEditAccount = function(username) {
+    const acc = AccountState.allData.find(item => item.username === username);
+    if (!acc) return;
+
+    const modal = document.getElementById('accountModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('modalTitle').innerText = 'Chỉnh sửa tài khoản';
+        
+        // Điền dữ liệu vào form
+        const userInp = document.getElementById('accUsername');
+        userInp.value = acc.username;
+        userInp.readOnly = true; // Không cho sửa tên đăng nhập (CCCD)
+        
+        document.getElementById('accFullname').value = acc.fullname;
+        document.getElementById('accRole').value = acc.roleId;
+        
+        // Ẩn trường mật khẩu khi sửa (nếu có trong UI) hoặc vô hiệu hóa nó
+        const passInp = document.getElementById('accPassword');
+        if (passInp) passInp.placeholder = "Bỏ trống nếu không đổi";
+    }
+};
+
+// --- XỬ LÝ SUBMIT FORM (THÊM HOẶC SỬA) ---
+window.handleFormSubmit = async function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('accUsername').value.trim();
+    const fullname = document.getElementById('accFullname').value.trim();
+    const roleId = document.getElementById('accRole').value;
+    const password = document.getElementById('accPassword')?.value || '';
+    
+    const isEdit = document.getElementById('accUsername').readOnly;
+    
+    // Đường dẫn và phương thức tùy theo là Thêm hay Sửa
+    const url = isEdit ? `/api/accounts/update/${username}` : `/api/accounts/create`;
+    const method = isEdit ? 'PATCH' : 'POST';
+    
+    const bodyData = {
+        username,
+        fullname,
+        vaitroid: roleId,
+        ...(password && { password }) // Chỉ gửi pass nếu có nhập
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bodyData)
+        });
+
+        const res = await response.json();
+        if (res.status === 'success') {
+            alert(isEdit ? "Cập nhật thành công!" : "Tạo tài khoản thành công!");
+            closeAccountModal();
+            initAccountManager(); // Load lại bảng
+        } else {
+            alert("Thất bại: " + res.message);
+        }
+    } catch (error) {
+        console.error("Lỗi submit form:", error);
+    }
+};
 
 // Đăng ký khởi chạy
 window.initAccountManager = initAccountManager;

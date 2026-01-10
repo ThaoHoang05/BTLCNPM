@@ -29,4 +29,9 @@ router.get('/requests/history/:cccd', requestController.getHistory);
 // 6. Xem chi tiet ho khau voi ca nhan co id ho khau
 router.get('/hokhau/detail', requestController.getAllResidentwithHKID);
 
+router.get('/admin/all', requestController.getAllAdminRequests);
+router.patch('/admin/process/:id', requestController.processRequest);
+
+router.get('/admin/stats', requestController.getRequestStats);
+
 module.exports = router;

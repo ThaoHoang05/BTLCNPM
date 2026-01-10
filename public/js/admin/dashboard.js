@@ -259,11 +259,11 @@ function renderRequestManager() {
         .then(html => {
             mainContent.innerHTML = html;
             
-            // Khởi tạo logic JS
-            if (typeof initRequestManager === 'function') {
-                initRequestManager(); 
+            // SỬA TẠI ĐÂY: Đổi initRequestManager thành initCitizenRequestManager
+            if (typeof initCitizenRequestManager === 'function') {
+                initCitizenRequestManager(); 
             } else {
-                console.error("Chưa load file js/admin/request.js");
+                console.error("Chưa load file js/admin/request.js hoặc sai tên hàm initCitizenRequestManager");
             }
         })
         .catch(error => {

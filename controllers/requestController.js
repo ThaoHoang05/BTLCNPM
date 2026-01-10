@@ -120,6 +120,40 @@ requestEditNhanKhau: async (req, res) => {
         } catch (error) {
             res.status(500).json({ message: "Lỗi tải danh sách nhân khẩu với mã hộ khẩu" });
         }
+    },
+    // Lấy toàn bộ danh sách cho Admin
+    getAllAdminRequests: async (req, res) => {
+        try {
+            const data = await RequestModel.getAllForAdmin();
+            res.status(200).json({ status: 'success', data });
+        } catch (error) {
+            res.status(500).json({ status: 'error', message: error.message });
+        }
+    },
+
+    // Xử lý Duyệt/Từ chối
+    processRequest: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { status, note } = req.body;
+            const updated = await RequestModel.updateStatus(id, status, note);
+            
+            res.status(200).json({ 
+                status: 'success', 
+                message: `Đã cập nhật trạng thái: ${status}`,
+                data: updated 
+            });
+        } catch (error) {
+            res.status(500).json({ status: 'error', message: error.message });
+        }
+    },
+    getRequestStats: async (req, res) => {
+        try {
+            const stats = await RequestModel.getStats();
+            res.status(200).json({ status: 'success', data: stats });
+        } catch (error) {
+            res.status(500).json({ status: 'error', message: error.message });
+        }
     }
 };
 
