@@ -1,59 +1,123 @@
-<div>
-    <h1>Welcome Back!</h1>
-    <p>Tổ dân phố số 7 phường La Khê</p>
-    <div class = "resident-dashboard">
-    <h3>Hộ khẩu & Nhân khẩu</h3>
-    <div class="stats-grid">
-        <div class="stat-card primary">
-            <div class="stat-icon"><i class="fas fa-home"></i></div>
-            <div class="stat-info">
-                <p class="stat-label">Tổng số Hộ</p>
-                <h3 class="stat-number" id="totalHouseholds">0</h3> 
+<div class="home-container">
+    <div class="welcome-section">
+        <h1>Welcome Back, <span id="homeAdminName">Admin</span>!</h1>
+        <p class="subtitle">Tổng quan tình hình Tổ dân phố số 7 phường La Khê</p>
+    </div>
+
+    <div class="dashboard-section">
+        <h3 class="section-title"><i class="fas fa-users"></i> Quản lý Cư dân</h3>
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon"><i class="fas fa-home"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Tổng số Hộ</p>
+                    <h3 class="stat-number" id="totalHouseholds">0</h3> 
+                </div>
             </div>
-        </div>
-    
-        <div class="stat-card success">
-            <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <div class="stat-info">
-                <p class="stat-label">Tổng Nhân khẩu</p>
-                <h3 class="stat-number" id="totalResidents">0</h3> 
+        
+            <div class="stat-card success">
+                <div class="stat-icon"><i class="fas fa-user-friends"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Tổng Nhân khẩu</p>
+                    <h3 class="stat-number" id="totalResidents">0</h3> 
+                </div>
             </div>
-        </div>
-    
-        <div class="stat-card warning">
-            <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
-            <div class="stat-info">
-                <p class="stat-label">Tạm trú / Sinh mới</p>
-                <h3 class="stat-number" id="tamtru">0</h3> 
+        
+            <div class="stat-card warning">
+                <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Tạm trú</p>
+                    <h3 class="stat-number" id="tamtru">0</h3> 
+                </div>
             </div>
-        </div>
-    
-        <div class="stat-card info">
-            <div class="stat-icon"><i class="fas fa-suitcase-rolling"></i></div>
-            <div class="stat-info">
-                <p class="stat-label">Tạm vắng / Qua đời</p>
-                <h3 class="stat-number" id="tamvang">0</h3> 
+        
+            <div class="stat-card info">
+                <div class="stat-icon"><i class="fas fa-suitcase"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Tạm vắng</p>
+                    <h3 class="stat-number" id="tamvang">0</h3> 
+                </div>
             </div>
         </div>
     </div>
-    </div>
-    <div class = "nvh-dashboard">
-        <div class="nvh-dashboard">
-            <h3 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-                <i class="fas fa-landmark"></i> Quản lý Nhà văn hóa
-            </h3>
+
+    <div class="dashboard-section">
+        <h3 class="section-title"><i class="fas fa-users-cog"></i> Hệ thống Tài khoản</h3>
+        <div class="stats-grid">
+            <div class="stat-card purple">
+                <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Tổng tài khoản</p>
+                    <h3 class="stat-number" id="totalAccounts">0</h3> 
+                </div>
+            </div>
             
-            <div class="stats-grid">
-                <div class="stat-card warning">
-                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="stat-info">
-                        <p class="stat-label">Yêu cầu chờ duyệt (Tháng này)</p>
-                        <h3 class="stat-number" id="nvhPendingCount">0</h3> 
-                    </div>
+            <div class="stat-card teal">
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Đang hoạt động</p>
+                    <h3 class="stat-number" id="activeAccounts">0</h3> 
                 </div>
-    
+            </div>
+
+            <div class="stat-card danger">
+                <div class="stat-icon"><i class="fas fa-user-lock"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Đã khóa</p>
+                    <h3 class="stat-number" id="lockedAccounts">0</h3> 
                 </div>
+            </div>
         </div>
     </div>
+
+    <div class="dashboard-section">
+        <h3 class="section-title"><i class="fas fa-file-signature"></i> Yêu cầu Thay đổi Nhân khẩu/Hộ khẩu</h3>
+        <div class="stats-grid">
+            <div class="stat-card orange">
+                <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Chờ duyệt</p>
+                    <h3 class="stat-number" id="pendingRequests">0</h3> 
+                </div>
+            </div>
+
+            <div class="stat-card green">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Đã duyệt (Tháng này)</p>
+                    <h3 class="stat-number" id="approvedRequests">0</h3> 
+                </div>
+            </div>
+
+            <div class="stat-card red">
+                <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Đã từ chối</p>
+                    <h3 class="stat-number" id="rejectedRequests">0</h3> 
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="dashboard-section">
+        <h3 class="section-title"><i class="fas fa-landmark"></i> Quản lý Nhà văn hóa</h3>
+        <div class="stats-grid">
+            <div class="stat-card pink">
+                <div class="stat-icon"><i class="fas fa-calendar-plus"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Đăng ký mới</p>
+                    <h3 class="stat-number" id="nvhPendingCount">0</h3> 
+                </div>
+            </div>
+
+            <div class="stat-card blue">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-info">
+                    <p class="stat-label">Đã duyệt sử dụng</p>
+                    <h3 class="stat-number" id="nvhApprovedCount">0</h3> 
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
