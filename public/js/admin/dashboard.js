@@ -7,7 +7,9 @@ const routes = {
     'resident': renderResidentManagement,
     'nvh': renderNVHManagement,
     'report': renderReport,
-    'setting': renderSetting
+    'setting': renderSetting,
+    'request': renderRequestManager,
+    'account': renderAccount
 };
 
 // Hàm điều hướng dựa trên URL hiện tại
@@ -188,8 +190,8 @@ function renderHome(){
     
     if (homeContentCache) {
         mainContent.innerHTML = homeContentCache;
-        if (typeof queryData === 'function') {
-            queryData();
+        if (typeof initHomeDashboard === 'function') {
+            initHomeDashboard();
             return;
         }
     } // Nếu đã có cache thì dùng luôn, không fetch lại nữa
@@ -204,8 +206,8 @@ function renderHome(){
         })
         .then(html => {
             mainContent.innerHTML = html;
-            if (typeof queryData === 'function') {
-                queryData();
+            if (typeof initHomeDashboard === 'function') {
+                initHomeDashboard();
             }
         })
         .catch(error => {
@@ -213,6 +215,62 @@ function renderHome(){
             mainContent.innerHTML = `<h3 style="color:red">Lỗi: Không tìm thấy file home.html</h3>`; 
         });
 };
+
+function renderAccount() {
+    var mainContent = document.querySelector('.main-content');
+    
+    fetch('components/account.html')
+        .then(response => {
+            if (!response.ok) throw new Error('Không tìm thấy file account.html');
+            return response.text();
+        })
+        .then(html => {
+            mainContent.innerHTML = html;
+            
+            // --- LOGIC PHÂN QUYỀN TỔ PHÓ ---
+            if (isToPho()) {
+                // 1. Ẩn nút "Thêm Tài Khoản" ngay khi giao diện load
+                const addBtn = document.querySelector('button[onclick="openAccountModal()"]');
+                if (addBtn) addBtn.style.display = 'none';
+            }
+            // -------------------------------
+
+            // Gọi hàm khởi tạo logic cho trang Account (sẽ viết ở Bước 2)
+            if (typeof initAccountManager === 'function') {
+                initAccountManager(); 
+            } else {
+                console.error("Chưa load file js/admin/account.js hoặc chưa định nghĩa initAccountManager");
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi tải trang Account:', error);
+            mainContent.innerHTML = `<h3 style="color:red">Lỗi tải trang Quản lý tài khoản</h3>`;
+        });
+}
+
+function renderRequestManager() {
+    var mainContent = document.querySelector('.main-content');
+    
+    fetch('components/request.html')
+        .then(response => {
+            if (!response.ok) throw new Error('Không tìm thấy file request.html');
+            return response.text();
+        })
+        .then(html => {
+            mainContent.innerHTML = html;
+            
+            // SỬA TẠI ĐÂY: Đổi initRequestManager thành initCitizenRequestManager
+            if (typeof initCitizenRequestManager === 'function') {
+                initCitizenRequestManager(); 
+            } else {
+                console.error("Chưa load file js/admin/request.js hoặc sai tên hàm initCitizenRequestManager");
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            mainContent.innerHTML = `<h3 style="color:red">Lỗi tải trang Quản lý yêu cầu</h3>`;
+        });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     if (isToPho()) {

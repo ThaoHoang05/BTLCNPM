@@ -47,7 +47,7 @@ const HoKhauModel = {
 
             // 3. Biến động NHÂN KHẨU 
             const historyResidentQuery = `
-                SELECT nk.hoten as "hoTen", bd.loaibiendong as "loaiBienDong", 
+                SELECT nk.cccd as "cccd", nk.hoten as "hoTen", bd.loaibiendong as "loaiBienDong", 
                     bd.ngaybiendong as "ngayThayDoi", bd.noiden as "noiDen", bd.ghichu as "ghiChu"
                 FROM biendongnhankhau bd
                 JOIN nhankhau nk ON bd.nhankhau_id = nk.id

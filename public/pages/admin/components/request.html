@@ -1,0 +1,89 @@
+<div class="request-manager-container">
+    <div class="page-header">
+        <h2 class="page-title"><i class="fas fa-clipboard-list"></i> Quản Lý Yêu Cầu Từ Cư Dân</h2>
+    </div>
+
+    <div class="panel-white mt-4">
+        <div class="toolbar-flex">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="reqSearch" placeholder="Tìm theo tên người gửi..." onkeyup="filterCitizenRequests()">
+            </div>
+            
+            <div class="request-filter-group">
+                <select id="reqTypeFilter" class="custom-select" onchange="filterCitizenRequests()">
+                    <option value="all">Tất cả loại yêu cầu</option>
+                    <option value="Sửa Hộ Khẩu">Sửa Hộ Khẩu</option>
+                    <option value="Sửa Nhân Khẩu">Sửa Nhân Khẩu</option>
+                    <option value="Đăng ký Tạm Trú">Đăng ký Tạm Trú</option>
+                    <option value="Khai báo Tạm Vắng">Khai báo Tạm Vắng</option>
+                </select>
+        
+                <select id="reqStatusFilter" class="custom-select" onchange="filterCitizenRequests()">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="Chờ duyệt">Chờ duyệt</option>
+                    <option value="Đã duyệt">Đã duyệt</option>
+                    <option value="Từ chối">Từ chối</option>
+                </select>
+                
+                <button class="btn-primary" onclick="refreshCitizenRequestData()">
+                    <i class="fas fa-sync-alt"></i> Tải lại
+                </button>
+            </div>
+        </div>
+        </div>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-hover" id="requestTable">
+                <thead>
+                    <tr>
+                        <th>Người gửi (CCCD)</th>
+                        <th>Loại yêu cầu</th>
+                        <th>Ngày gửi</th>
+                        <th width="30%">Nội dung tóm tắt</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Tác vụ</th>
+                    </tr>
+                </thead>
+                <tbody id="requestTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="requestModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-info-circle"></i> Chi Tiết Yêu Cầu</h3>
+            <span class="close-btn" onclick="closeCitizenRequestModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="currentReqId">
+            <div class="info-group"><label>Người gửi:</label><span id="modalSender" class="highlight-text">--</span></div>
+            <div class="info-group"><label>Loại yêu cầu:</label><span id="modalType" class="highlight-text">--</span></div>
+            <div class="info-group"><label>Ngày gửi:</label><span id="modalDate">--</span></div>
+            <hr style="border:0; border-top:1px dashed #eee; margin: 15px 0;">
+            <div class="detail-box">
+                <label style="display:block; margin-bottom:5px; font-weight:600;">Nội dung chi tiết:</label>
+                <div id="modalContent" style="background:#f9f9f9; padding:15px; border-radius:6px; border:1px solid #eee;"></div>
+            </div>
+            <div id="adminActionArea" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label>Ghi chú phản hồi:</label>
+                    <textarea id="adminNote" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-danger" onclick="processCitizenRequest('Từ chối')"><i class="fas fa-times"></i> Từ Chối</button>
+                    <button class="btn-success" onclick="processCitizenRequest('Đã duyệt')"><i class="fas fa-check"></i> Duyệt Yêu Cầu</button>
+                </div>
+            </div>
+            <div id="resultArea" style="display:none; margin-top:20px; text-align:center;">
+                <div class="alert-box">
+                    <strong>Kết quả:</strong> <span id="resultStatus"></span><br>
+                    <strong>Ghi chú:</strong> <span id="resultNote"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
