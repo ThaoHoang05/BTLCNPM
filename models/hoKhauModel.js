@@ -6,7 +6,7 @@ const HoKhauModel = {
         const query = `
             SELECT 
                 (SELECT COUNT(*) FROM hokhau) AS "totalHouseholds",
-                (SELECT COUNT(*) FROM nhankhau) AS "totalResidents",
+                (SELECT COUNT(*) FROM nhankhau WHERE trangthai IN ('Thường trú', 'Tạm trú')) AS "totalResidents",
                 (SELECT COUNT(*) FROM nhankhau WHERE trangthai = 'Mới sinh') 
                     + (SELECT COUNT(*) FROM tamtru) AS "totalBirths",
                 (SELECT COUNT(*) FROM nhankhau WHERE trangthai IN ('Tạm vắng', 'Qua đời')) AS "totalDeaths"

@@ -58,31 +58,63 @@ const NhanKhauModel = {
         }
     },
 
-    // Xóa nhân khẩu
+    //Xóa nhân khẩu
     delete: async (id) => {
         const client = await poolQuanLiHoKhau.connect();
         try {
             await client.query('BEGIN');
 
-            // 1. Kiểm tra xem người này có đang là chủ hộ của hộ nào không
+            // 1. Kiểm tra xem người này có đang là chủ hộ không
             const checkOwnerQuery = 'SELECT sohokhau FROM hokhau WHERE chuho_id = $1';
             const ownerRes = await client.query(checkOwnerQuery, [id]);
             if (ownerRes.rows.length > 0) {
                 throw new Error(`Không thể xóa vì người này đang là chủ hộ của hộ ${ownerRes.rows[0].sohokhau}. Hãy thay đổi chủ hộ trước.`);
             }
 
-            // 2. Xóa các bản ghi liên quan ở các bảng phụ (Tạm trú, Tạm vắng, Biến động)
+            // 2. Lấy thông tin nhân khẩu trước khi sửa đổi để ghi log
+            const infoQuery = 'SELECT hoten, cccd, sohokhau FROM nhankhau WHERE id = $1';
+            const infoRes = await client.query(infoQuery, [id]);
+            
+            if (infoRes.rows.length === 0) {
+                 throw new Error("Nhân khẩu không tồn tại.");
+            }
+            const { hoten, cccd, sohokhau } = infoRes.rows[0];
+
+            // 3. Xóa các trạng thái tạm trú/tạm vắng hiện tại (làm sạch dữ liệu)
             await client.query('DELETE FROM tamtru WHERE nhankhau_id = $1', [id]);
             await client.query('DELETE FROM tamvang WHERE nhankhau_id = $1', [id]);
-            await client.query('DELETE FROM biendongnhankhau WHERE nhankhau_id = $1', [id]);
+            
+            // 4. Cập nhật trạng thái sang "Chuyển đi" và gỡ khỏi hộ khẩu
+            const updateQuery = `
+                UPDATE nhankhau 
+                SET trangthai = 'Chuyển đi', 
+                    sohokhau = NULL, 
+                    quanhevoichuho = NULL
+                WHERE id = $1
+            `;
+            await client.query(updateQuery, [id]);
 
-            // 3. Xóa bản ghi chính trong bảng nhankhau
-            const result = await client.query('DELETE FROM nhankhau WHERE id = $1', [id]);
+            // 5. Ghi log vào Biến động nhân khẩu
+            const insertBDNK = `
+                INSERT INTO biendongnhankhau (nhankhau_id, cccd, loaibiendong, ngaybiendong, ghichu)
+                VALUES ($1, $2, 'Chuyển đi', CURRENT_DATE, $3)
+            `;
+            await client.query(insertBDNK, [id, cccd, `Đã chuyển đi khỏi địa bàn. Hộ khẩu cũ: ${sohokhau || 'Không'}`]);
+
+            // 6. Ghi log vào Biến động hộ khẩu (Nếu họ từng thuộc một hộ)
+            if (sohokhau) {
+                const insertBDHK = `
+                    INSERT INTO biendonghokhau (sohokhau, noidungthaydoi, ngaythaydoi)
+                    VALUES ($1, $2, CURRENT_DATE)
+                `;
+                await client.query(insertBDHK, [sohokhau, `Thành viên ${hoten} đã chuyển đi.`]);
+            }
 
             await client.query('COMMIT');
-            return result.rowCount;
+            return 1; // Trả về 1 để báo hiệu thành công
         } catch (error) {
             await client.query('ROLLBACK');
+            console.error("Lỗi Model delete (Soft Delete):", error);
             throw error;
         } finally {
             client.release();

@@ -16,14 +16,17 @@ const nhanKhauController = {
     deleteNhanKhau: async (req, res) => {
         const { id } = req.params;
         try {
-            const rowsDeleted = await NhanKhauModel.delete(id);
-            if (rowsDeleted === 0) {
-                return res.status(404).json({ message: "Không tìm thấy nhân khẩu để xóa." });
+            const rowsAffected = await NhanKhauModel.delete(id);
+            
+            if (rowsAffected === 0) {
+                return res.status(404).json({ message: "Không tìm thấy nhân khẩu để xử lý." });
             }
-            res.status(200).json({ message: "Xóa nhân khẩu thành công." });
+
+            res.status(200).json({ message: "Đã chuyển trạng thái nhân khẩu sang 'Chuyển đi' thành công." });
+            
         } catch (error) {
             console.error("Lỗi xóa nhân khẩu:", error.message);
-            res.status(500).json({ message: error.message || "Lỗi hệ thống khi xóa nhân khẩu" });
+            res.status(500).json({ message: error.message || "Lỗi hệ thống khi xử lý nhân khẩu" });
         }
     },
 
