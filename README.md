@@ -1,4 +1,5 @@
-#BTLCNPM – Hệ thống quản lý tổ dân phố
+BTLCNPM – Hệ thống quản lý tổ dân phố
+
 📌 Giới thiệu
 
 BTLCNPM là ứng dụng quản lý tổ dân phố được xây dựng nhằm hỗ trợ công tác hành chính, quản lý cư dân và xử lý thông tin một cách hiệu quả.
