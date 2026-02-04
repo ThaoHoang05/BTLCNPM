@@ -1,10 +1,21 @@
-BTLCNPM – Hệ thống quản lý tổ dân phố
-Giới thiệu
+🏠 BTLCNPM – Community Management System
+<p align="center"> <b>A simple community and resident management application</b><br> <i>Software Engineering course project</i> </p>
+📌 Overview
 
-BTLCNPM là ứng dụng quản lý tổ dân phố, hỗ trợ quản lý thông tin cư dân và dữ liệu hành chính.
-Dự án được xây dựng trong khuôn khổ học phần Công nghệ phần mềm, mô phỏng hệ thống quản lý tại phường La Khê.
+BTLCNPM is a community management system designed to support basic administrative tasks such as managing resident information and community-related data.
+This project was developed for academic purposes as part of a Software Engineering course and simulates a real-world community management scenario.
 
-Công nghệ sử dụng
+🚀 Key Features
+
+Resident information management
+
+Administrative data management
+
+RESTful API for system integration
+
+Clear separation between Backend and Frontend
+
+🛠️ Technologies Used
 
 Node.js
 
@@ -18,55 +29,36 @@ HTML / CSS
 
 REST API
 
-Chức năng chính
+⚙️ Requirements
 
-Quản lý thông tin cư dân
-
-Quản lý dữ liệu hành chính
-
-Cung cấp API cho hệ thống
-
-Tách biệt Backend và Frontend
-
-Cấu trúc project
-
-SQL: script cơ sở dữ liệu
-
-controllers: xử lý nghiệp vụ
-
-models: mô hình dữ liệu
-
-routes: định tuyến API
-
-public: giao diện người dùng
-
-server.js: file khởi chạy
-
-Yêu cầu môi trường
-
-Node.js phiên bản 14 trở lên
+Node.js (version 14 or higher)
 
 PostgreSQL
 
-Hướng dẫn chạy
+▶️ How to Run
 
-Clone project, cài đặt thư viện và chạy server bằng Node.js.
-Cấu hình database thông qua file .env.
+Clone the repository from GitHub
 
-Mục tiêu dự án
+Install dependencies using npm install
 
-Áp dụng kiến thức Công nghệ phần mềm
+Configure database settings in the .env file
 
-Làm quen với mô hình Backend thực tế
+Start the server with npm start
 
-Rèn luyện kỹ năng làm việc nhóm
+🎯 Project Objectives
 
-Quản lý mã nguồn với GitHub
+Apply Software Engineering principles
 
-Lưu ý
+Practice building a real-world backend system
 
-Không public file .env
+Improve teamwork and project organization skills
 
-Không commit node_modules
+Gain experience with Git and GitHub
 
-Sử dụng .gitignore để bảo mật
+🔒 Notes
+
+Do not commit the .env file
+
+Do not push node_modules to the repository
+
+Use .gitignore to protect sensitive data
