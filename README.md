@@ -1,11 +1,10 @@
 BTLCNPM – Hệ thống quản lý tổ dân phố
+Giới thiệu
 
-📌 Giới thiệu
+BTLCNPM là ứng dụng quản lý tổ dân phố, hỗ trợ quản lý thông tin cư dân và dữ liệu hành chính.
+Dự án được xây dựng trong khuôn khổ học phần Công nghệ phần mềm, mô phỏng hệ thống quản lý tại phường La Khê.
 
-BTLCNPM là ứng dụng quản lý tổ dân phố được xây dựng nhằm hỗ trợ công tác hành chính, quản lý cư dân và xử lý thông tin một cách hiệu quả.
-Dự án được thực hiện phục vụ mục đích học tập môn Công nghệ phần mềm, mô phỏng hệ thống quản lý tại phường La Khê.
-
-🛠️ Công nghệ sử dụng
+Công nghệ sử dụng
 
 Node.js
 
@@ -17,71 +16,44 @@ JavaScript
 
 HTML / CSS
 
-RESTful API
+REST API
 
-📁 Cấu trúc thư mục
-BTLCNPM/
-├── SQL/                # Script cơ sở dữ liệu
-├── config/             # Cấu hình hệ thống
-├── controllers/        # Xử lý nghiệp vụ
-├── middleware/         # Middleware
-├── models/             # Mô hình dữ liệu
-├── public/             # Giao diện người dùng
-├── routes/             # Định tuyến API
-├── .env                # Biến môi trường
-├── package.json        # Thông tin dự án
-├── server.js           # File khởi chạy
-└── README.md
-
-⚙️ Yêu cầu môi trường
-
-Node.js >= 14
-
-PostgreSQL
-
-🚀 Hướng dẫn cài đặt & chạy
-Bước 1: Clone project
-git clone https://github.com/ThaoHoang05/BTLCNPM.git
-cd BTLCNPM
-
-Bước 2: Cài đặt thư viện
-npm install
-
-Bước 3: Cấu hình môi trường
-
-Tạo file .env tại thư mục gốc:
-
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=your_user
-DB_PASS=your_password
-DB_NAME=your_database
-
-Bước 4: Chạy ứng dụng
-npm start
-
-
-Truy cập:
-
-http://localhost:3000
-
-✨ Chức năng chính
+Chức năng chính
 
 Quản lý thông tin cư dân
 
 Quản lý dữ liệu hành chính
 
-Cung cấp REST API
+Cung cấp API cho hệ thống
 
-Phân tách rõ Backend & Frontend
+Tách biệt Backend và Frontend
 
-🗄️ Cơ sở dữ liệu
+Cấu trúc project
 
-Sử dụng PostgreSQL
+SQL: script cơ sở dữ liệu
 
-Các script SQL nằm trong thư mục /SQL
+controllers: xử lý nghiệp vụ
 
-🎯 Mục tiêu dự án
+models: mô hình dữ liệu
+
+routes: định tuyến API
+
+public: giao diện người dùng
+
+server.js: file khởi chạy
+
+Yêu cầu môi trường
+
+Node.js phiên bản 14 trở lên
+
+PostgreSQL
+
+Hướng dẫn chạy
+
+Clone project, cài đặt thư viện và chạy server bằng Node.js.
+Cấu hình database thông qua file .env.
+
+Mục tiêu dự án
 
 Áp dụng kiến thức Công nghệ phần mềm
 
@@ -89,12 +61,12 @@ Làm quen với mô hình Backend thực tế
 
 Rèn luyện kỹ năng làm việc nhóm
 
-Quản lý mã nguồn với Git & GitHub
+Quản lý mã nguồn với GitHub
 
-🔒 Lưu ý
-
-Không commit node_modules
+Lưu ý
 
 Không public file .env
+
+Không commit node_modules
 
 Sử dụng .gitignore để bảo mật
